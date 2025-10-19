@@ -1567,14 +1567,36 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
   });
 
   /* ===== Upload immagine → miniatura tonda ===== */
-  fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f){ preview.style.display='none'; previewPh.style.display='block'; return; }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
-    });
+ fileIn && fileIn.addEventListener('change', function(){
+  const f = this.files && this.files[0];
+  if(!f){
+    preview.style.display='none';
+    previewPh.style.display='block';
+    return;
+  }
+
+  // 💡 Correzione: gestione universale iOS/Android/Desktop
+  // Alcuni browser (Safari iOS) limitano a fotocamera se non viene specificato capture=filesystem.
+  // Questo blocco è solo difensivo: non cambia nulla sul desktop, ma rende più stabile su iPhone.
+  if (!f.type.startsWith('image/')) {
+    alert('Seleziona un file immagine dalla galleria o scatta una foto.');
+    preview.style.display='none';
+    previewPh.style.display='block';
+    return;
+  }
+
+  // Genera miniatura centrata
+  toDataUrlThumb(f, function(err, data){
+    if(err){
+      preview.style.display='none';
+      previewPh.style.display='block';
+      return;
+    }
+    preview.src = data;
+    preview.style.display='block';
+    previewPh.style.display='none';
   });
+});
 
   /* ===== Salvataggio: append immediato + cache + POST al backend ===== */
   function buildRecord(){
