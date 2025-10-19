@@ -141,6 +141,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         <a href="#reel" data-i18n="nav.reel">Reel</a>
         <a href="#servizi" data-i18n="nav.services">Servizi</a>
         <a href="#pacchetti-videoprofessionali" data-i18n="nav.packs">Pacchetti</a>
+        <a href="#recensioni" data-i18n="nav.reviews">Recensioni</a>
         <a href="#contatti" class="btn" data-i18n="nav.quote">Richiedi preventivo</a>
 
         <!-- Lingue (pushState, senza reload/scroll) -->
@@ -227,7 +228,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         it:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
-          "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.quote":"Richiedi preventivo",
+          "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.reviews":"Recensioni","nav.quote":"Richiedi preventivo",
           "hero.badge":"Chiavari · Riviera di Levante",
           "hero.title":"Video che parlano, immagini che restano",
           "hero.subtitle":"Spot commerciali, wedding e brand/travel con look cinematografico e performance social. Drone 4K certificato. Disponibile in Liguria e ovunque serva.",
@@ -240,7 +241,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         en:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker for brands, weddings and travel. Cinematic look and social performance. Chiavari & Riviera di Levante.",
-          "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.quote":"Get a quote",
+          "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.reviews":"Reviews","nav.quote":"Get a quote",
           "hero.badge":"Chiavari · Riviera di Levante",
           "hero.title":"Videos that speak, images that stay",
           "hero.subtitle":"Commercials, wedding and brand/travel with a cinematic look and social performance. Certified 4K drone. Available in Liguria and wherever needed.",
@@ -253,7 +254,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         es:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker para marcas, bodas y travel. Look cinematográfico y rendimiento social. Chiavari y la Riviera de Levante.",
-          "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.quote":"Pide presupuesto",
+          "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.reviews":"Reseñas","nav.quote":"Pide presupuesto",
           "hero.badge":"Chiavari · Riviera de Levante",
           "hero.title":"Vídeos que hablan, imágenes que perduran",
           "hero.subtitle":"Comerciales, bodas y brand/travel con look cinematográfico y rendimiento social. Dron 4K certificado. Disponible en Liguria y donde haga falta.",
@@ -1201,9 +1202,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
   </div>
 
   <!-- pulsante lascia recensione (apre modale) -->
-  <div style="display:flex;justify-content:flex-end;margin-top:12px">
-    <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
-  </div>
+<div class="review-cta" style="display:flex;justify-content:center;margin-top:12px">
+  <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
+</div>
 
   <!-- Modal nuova recensione con upload immagine -->
   <dialog id="reviewModal"
@@ -1289,6 +1290,17 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
     @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
+    /* Evita zoom iOS in input/select/textarea (font >= 16px) */
+  #quoteForm .control,
+  #reviewForm .control,
+  #quoteForm input,
+  #quoteForm select,
+  #quoteForm textarea,
+  #reviewForm input,
+  #reviewForm select,
+  #reviewForm textarea{
+    font-size:16px !important;
+  }
   </style>
 </section>
 
@@ -1336,9 +1348,69 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
       </div>
     </form>
   </div>
+    </form>
+  </div>
+
+  <!-- SCRIPT: invio via email / WhatsApp -->
+  <script>
+  (function(){
+    // Numero WhatsApp (solo cifre, senza + o spazi)
+    var WA_NUMBER = '393331234567'; // <-- metti qui il tuo numero
+
+    function val(id){
+      var el = document.getElementById(id);
+      return el ? (el.value || '').trim() : '';
+    }
+
+    function buildMessage(){
+      var name = val('q_name');
+      var email = val('q_email');
+      var phone = val('q_phone');
+      var servEl = document.getElementById('q_service');
+      var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
+      var msg = val('q_message');
+
+      return (
+        "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+        "Nome: " + (name || '-') + "\n" +
+        "Email: " + (email || '-') + "\n" +
+        "Telefono/WA: " + (phone || '-') + "\n" +
+        "Servizio: " + (service || '-') + "\n\n" +
+        (msg ? ("Messaggio:\n" + msg) : "")
+      );
+    }
+
+    // --- EMAIL ---
+    var mailBtn = document.getElementById('sendMail');
+    if(mailBtn){
+      mailBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        var body = encodeURIComponent(buildMessage());
+        var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+        window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
+      });
+    }
+
+    // --- WHATSAPP ---
+    var waBtn = document.getElementById('sendWhatsApp');
+    if(waBtn){
+      waBtn.addEventListener('click', function(e){
+        var txt = encodeURIComponent(buildMessage());
+        waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
+      });
+    }
+
+    // --- Link rapido sotto (Scrivimi su WhatsApp) ---
+    var quickWA = document.getElementById('quickWA');
+    if(quickWA){
+      quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
+    }
+  })();
+  </script>
 
   <!-- contatti rapidi -->
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px">
+
     <a class="btn" href="mailto:andreacolucci@hotmail.it">Email</a>
     <a class="btn" id="quickWA" target="_blank" rel="noopener">WhatsApp</a>
     <a class="btn" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a>
