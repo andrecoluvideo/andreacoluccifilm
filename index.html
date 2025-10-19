@@ -1667,6 +1667,80 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 (look IDENTICO; fix funzionali: nessun meta viewport duplicato; iOS no-zoom lasciato a Parte 1/4)
 ========================== -->
+<!-- ===== HOTFIX iOS anti-zoom SOLO per #contatti (drop-in) ===== -->
+<style id="ios-nozoom-hotfix">
+  /* assicura che anche le OPTION siano >=16px */
+  #contatti select, #contatti option { font-size:16px !important; }
+  /* placeholder coerente (alcuni Safari fanno trigger se <16) */
+  #contatti ::placeholder { font-size:16px !important; opacity:.85; }
+</style>
+<script>
+(function(){
+  // Rileva iOS (anche iPad Safari “desktop”)
+  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+  if(!isiOS) return;
+
+  // 1) Normalizza/recupera il meta viewport (niente duplicati, niente maximum-scale fisso)
+  (function normalizeViewport(){
+    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
+    var base = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    if(!metas.length){
+      var m = document.createElement('meta');
+      m.name = 'viewport';
+      m.content = base;
+      document.head.appendChild(m);
+    }else{
+      // tieni il primo, rimuovi gli altri
+      for(var i=1;i<metas.length;i++){ metas[i].parentNode.removeChild(metas[i]); }
+      metas[0].setAttribute('content', base);
+    }
+  })();
+
+  var vp = document.querySelector('meta[name="viewport"]');
+  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+  function noZoom(){ if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
+  function yesZoom(){ if(vp) vp.setAttribute('content', VP_BASE); }
+
+  // 2) Forza inline >=17px solo se il computed è <17 (vincendo su qualsiasi !important esterno)
+  function ensure17px(el){
+    try{
+      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
+      if(fs < 17){
+        el.style.fontSize   = '17px';
+        el.style.lineHeight = '1.35';
+        el.style.minHeight  = '44px';
+      }
+    }catch(_){}
+  }
+
+  // 3) Applica alle control del form Preventivo
+  function bindControls(){
+    var controls = document.querySelectorAll('#contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control');
+    controls.forEach(function(el){
+      // prima verifica: porta a 17px se qualcuno lo ha ridotto in cascata
+      ensure17px(el);
+      // al focus: blocca lo zoom
+      el.addEventListener('focus', function(){ noZoom(); ensure17px(el); }, {passive:true});
+      // al blur: ripristina
+      el.addEventListener('blur', function(){ yesZoom(); }, {passive:true});
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindControls, {once:true});
+  }else{
+    bindControls();
+  }
+
+  // 4) failsafe: se il focus esce dal form, riabilita lo zoom utente
+  document.addEventListener('focusin', function(e){
+    var t = e.target;
+    if(!(t && t.closest && t.closest('#contatti'))) yesZoom();
+  }, {passive:true});
+})();
+</script>
+<!-- ===== /HOTFIX iOS anti-zoom ===== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
 <footer id="footer" class="container" style="padding:24px 0 18px">
