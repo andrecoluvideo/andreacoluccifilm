@@ -1507,27 +1507,37 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
   </div>
 </section>
-<style>
-/* ===== iOS anti-zoom SOLO per la sezione Preventivo ===== */
-#contatti input,
-#contatti select,
-#contatti textarea,
-#contatti button,
-#contatti .control {
-  font-size:16px !important;
-  line-height:1.35 !important;
-  min-height:44px !important;
-}
-
-/* importante anche per le option del select su iOS */
-#contatti select, 
-#contatti option {
-  font-size:16px !important;
-}
-
-/* niente auto-ridimensionamento del testo su iOS */
-#contatti { -webkit-text-size-adjust:100%; }
+ok
+<style id="ios-nozoom">
+  /* iOS: impedisci auto-zoom assicurando font >=16px su TUTTI i controlli coinvolti */
+  #contatti input,
+  #contatti select,
+  #contatti textarea,
+  #contatti button,
+  #contatti .control,
+  #reviewModal .control,
+  #reviewModal input,
+  #reviewModal select,
+  #reviewModal textarea,
+  #reviewModal button{
+    font-size:16px !important;
+    line-height:1.35 !important;
+    min-height:44px !important;
+    -webkit-text-size-adjust:100% !important;
+  }
+  /* anche le option del select su iOS */
+  #contatti select, #contatti option,
+  #reviewModal select, #reviewModal option{
+    font-size:16px !important;
+  }
+  /* placeholder coerenti (alcuni Safari triggerano zoom se è <16) */
+  #contatti ::placeholder,
+  #reviewModal ::placeholder{
+    font-size:16px !important;
+    opacity:.8;
+  }
 </style>
+
 
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
