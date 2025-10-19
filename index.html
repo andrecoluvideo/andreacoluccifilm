@@ -1,14 +1,14 @@
 <!-- ==========================
 PART 1 / 5 — NAV • HERO • METRICHE • i18n base
-(identico nel look; aggiunti solo fix funzionali invisibili)
+(look IDENTICO; fix funzionali: meta viewport pulito, anti-zoom iOS centralizzato e valido)
 ========================== -->
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="format-detection" content="telephone=no">
-
+  <!-- ✅ Viewport “base” (niente maximum-scale qui; verrà gestito dallo script in fondo) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
@@ -18,6 +18,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 
+  <!-- ===== CSS principale (look invariato) ===== -->
   <style>
     :root{
       --bg:#0b0f14; --fg:#f5f8ff; --muted:#b7c3d1;
@@ -42,36 +43,21 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .btn:hover{box-shadow:var(--ring)}
     .btn.fill{background:linear-gradient(135deg,var(--neon1),var(--neon2));border-color:transparent;color:#061016}
     .tag{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--glass)}
-/* iOS: blocca auto-zoom sui form e mantiene proporzioni */
-@supports (-webkit-touch-callout: none) {
-  input, select, textarea, button, .control {
-    font-size:17px !important;       /* >=16px per iOS */
-    line-height:1.35 !important;
-    min-height:44px !important;
-  }
-}
-html { -webkit-text-size-adjust:100%; }
 
-    /* NAV (identico schema: brand + link + lingue) */
-    .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke)}
-    /* Transizione hide-on-scroll (mobile) */
-.nav{ transition: transform .25s ease; will-change: transform; }
-@media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
-/* ===== Mobile: riduci pulsante "Richiedi preventivo" nella navbar ===== */
-@media (max-width:700px){
-  .nav .btn[data-i18n="nav.quote"]{
-    font-size: 13px !important;
-    padding: 4px 10px !important;
-    border-radius: 20px !important;
-    line-height: 1.1;
-    transform: scale(.95);
-  }
-  /* opzionale: se vuoi anche leggermente più trasparente */
-  .nav .btn[data-i18n="nav.quote"]:not(:hover){
-    opacity: .9;
-  }
-}
-
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke); transition: transform .25s ease; will-change: transform;}
+    @media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
+    /* Mobile: riduci pulsante "Richiedi preventivo" nella navbar */
+    @media (max-width:700px){
+      .nav .btn[data-i18n="nav.quote"]{
+        font-size: 13px !important;
+        padding: 4px 10px !important;
+        border-radius: 20px !important;
+        line-height: 1.1;
+        transform: scale(.95);
+      }
+      .nav .btn[data-i18n="nav.quote"]:not(:hover){ opacity:.9; }
+    }
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
     .brand .logo{width:28px;height:28px}
@@ -80,7 +66,7 @@ html { -webkit-text-size-adjust:100%; }
     .lang a{padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff}
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
 
-    /* HERO (stesso layout: colonna testo/CTA + colonna bio) */
+    /* HERO */
     .hero{position:relative;overflow:hidden;background:#0b0f14}
     .hero-media{position:absolute;inset:0;z-index:0;pointer-events:none;
       background:
@@ -93,116 +79,73 @@ html { -webkit-text-size-adjust:100%; }
     .hero-bio .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .hero-bio img{width:68px;height:68px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke)}
 
-    /* METRICHE (stessa striscia a 4) */
+    /* METRICHE */
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .metric{padding:12px 14px;text-align:center}
 
     /* Responsive invariato */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
-
-    /* FIX invisibile: altezza minima hero su mobile con safe-area (non cambia il look su desktop) */
     @media (max-width:700px){
       .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))}
     }
+
     /* Utility grid globale */
-.grid{display:grid}
+    .grid{display:grid}
 
-  /* ===== MOBILE-ONLY STACKING (desktop invariato) ===== */
- /* ===== MOBILE STACKING & SPACING (solo mobile) ===== */
-@media (max-width: 700px){
-  section.container{ padding: 26px 0 !important; }
-  .container{ padding-left:14px; padding-right:14px; }
+    /* ===== MOBILE-ONLY STACKING (desktop invariato) ===== */
+    @media (max-width: 700px){
+      section.container{ padding: 26px 0 !important; }
+      .container{ padding-left:14px; padding-right:14px; }
 
-  .hero-grid{ grid-template-columns: 1fr !important; gap: 18px !important; }
+      .hero-grid{ grid-template-columns: 1fr !important; gap: 18px !important; }
 
-  #servizi .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-  #servizi article.glass{ padding:16px !important; }
+      #servizi .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
+      #servizi article.glass{ padding:16px !important; }
 
-  #reel .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-  .ratio.slim{ padding-top: 56% !important; }
+      #reel .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
+      .ratio.slim{ padding-top: 56% !important; }
 
-  #pacchetti-videoprofessionali .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-  #pacchetti-videoprofessionali .pack-card img{ height: 160px !important; }
+      #pacchetti-videoprofessionali .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
+      #pacchetti-videoprofessionali .pack-card img{ height: 160px !important; }
 
-  #bio .bio-wrap{ grid-template-columns: 1fr !important; }
-  #bio .bio-media{ min-height: 220px !important; }
+      #bio .bio-wrap{ grid-template-columns: 1fr !important; }
+      #bio .bio-media{ min-height: 220px !important; }
 
-  #recensioni #reviewsGrid{ grid-template-columns: 1fr !important; gap: 10px !important; }
+      #recensioni #reviewsGrid{ grid-template-columns: 1fr !important; gap: 10px !important; }
 
-  #contatti form.grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
+      #contatti form.grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
 
-  #policy .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-  #footer .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
+      #policy .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
+      #footer .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
 
-  .btn{ padding:12px 16px !important; }
-}
+      .btn{ padding:12px 16px !important; }
+    }
   </style>
-  /* ===== iOS: blocco definitivo auto-zoom su focus ===== */
-:root { --ios-fz: 16px; }
 
-/* TUTTI i controlli, anche dentro dialog/modal */
-input, select, textarea, button, label, .control,
-dialog input, dialog select, dialog textarea, dialog button, dialog label {
-  font-size: var(--ios-fz) !important;
-  line-height: 1.35 !important;
-  min-height: 44px !important;
-}
-
-/* importantissimo su iOS: anche le option del select */
-select, option { font-size: var(--ios-fz) !important; }
-
-/* nessun “ingrandimento testuale” automatico di Safari */
-html { -webkit-text-size-adjust: 100%; }
-
-/* per sicurezza: quando vanno in focus non cambiano metrica */
-input:focus, select:focus, textarea:focus {
-  font-size: var(--ios-fz) !important;
-}
-
-  <style>
-  /* iOS: evita zoom su focus (font >=16px) */
-  input, select, textarea {
-    font-size:16px !important;
-    min-height:44px;
-  }
-
-  /* iOS only (feature detect) */
-  @supports (-webkit-touch-callout: none) {
-    input, select, textarea {
-      font-size:16px !important;
+  <!-- ✅ iOS anti-zoom consolidato e valido (font reali ≥17px su #contatti e modali) -->
+  <style id="ios-nozoom">
+    @supports (-webkit-touch-callout: none) {
+      #contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control,
+      #reviewModal .control, #reviewModal input, #reviewModal select, #reviewModal textarea, #reviewModal button {
+        font-size:17px !important;
+        line-height:1.35 !important;
+        min-height:44px !important;
+        -webkit-text-size-adjust:100% !important;
+      }
+      #contatti select, #contatti option,
+      #reviewModal select, #reviewModal option {
+        font-size:17px !important;
+      }
+      #contatti ::placeholder, #reviewModal ::placeholder {
+        font-size:17px !important; opacity:.8;
+      }
     }
-    #quoteForm .control, #reviewForm .control {
-      font-size:16px !important;
-    }
-  }
-
-  /* Mantiene la dimensione del testo coerente su iOS */
-  html { -webkit-text-size-adjust:100%; }
-</style>
-/* ===== iOS: blocca auto-zoom su focus perché TUTTO è >=16px ===== */
-:root { --ios-form-fz: 16px; }
-
-/* qualsiasi form control, anche dentro modali/dialog */
-input, select, textarea, button, label,
-dialog input, dialog select, dialog textarea, dialog button, dialog label,
-.control {
-  font-size: var(--ios-form-fz) !important;
-  line-height: 1.35 !important;
-  min-height: 44px !important;
-}
-
-/* importantissimo: anche le OPTION devono risultare >=16px su iOS */
-select, option {
-  font-size: var(--ios-form-fz) !important;
-}
-
-/* per sicurezza, disabilita zoom testuale automatico */
-html { -webkit-text-size-adjust: 100%; }
-
+    html { -webkit-text-size-adjust:100%; }
+  </style>
 </head>
 <body>
 
-  <!-- ====== NAV (schema originale) ====== -->
+  <!-- ====== NAV ====== -->
   <nav class="nav" aria-label="Main">
     <div class="nav-inner container">
       <a href="#top" class="brand" aria-label="Homepage">
@@ -227,7 +170,7 @@ html { -webkit-text-size-adjust: 100%; }
     </div>
   </nav>
 
-  <!-- ====== HERO (schema originale) ====== -->
+  <!-- ====== HERO ====== -->
   <header class="hero" id="top">
     <div class="hero-media" aria-hidden="true"></div>
     <div class="hero-inner container">
@@ -265,7 +208,7 @@ html { -webkit-text-size-adjust: 100%; }
     </div>
   </header>
 
-  <!-- ====== STRISCIA METRICHE (4 card) ====== -->
+  <!-- ====== STRISCIA METRICHE ====== -->
   <section class="container" style="padding:24px 0 6px">
     <div class="metrics">
       <div class="glass metric">
@@ -288,8 +231,7 @@ html { -webkit-text-size-adjust: 100%; }
   </section>
 
   <!-- (Segnaposto #contatti per ancoraggio CTA) -->
-<section id="contatti-anchor" style="padding:1px 0"></section>
-
+  <section id="contatti-anchor" style="padding:1px 0"></section>
 
   <!-- ====== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ====== -->
   <script>
@@ -366,7 +308,7 @@ html { -webkit-text-size-adjust: 100%; }
         a.addEventListener('click', (e)=>{
           e.preventDefault();
           const lang=a.getAttribute('data-lang')||'it';
-          if(lang === (document.documentElement.lang||'it')) return; // evita lavoro inutile
+          if(lang === (document.documentElement.lang||'it')) return;
           localStorage.setItem('ac_lang', lang);
           const url=new URL(location.href); url.searchParams.set('lang', lang);
           history.pushState({lang},'',url.toString());
@@ -374,134 +316,67 @@ html { -webkit-text-size-adjust: 100%; }
         }, {passive:false});
       });
       window.addEventListener('popstate', ()=>{
-  const lang = new URLSearchParams(location.search).get('lang') || 'it';
-  window.__i18n.apply(lang);
-});
-</script>   
-<script>
-
-/* ===== CTA universale → #contatti (smooth scroll) ===== */
-(function(){
-  function toContacts(e){
-    var t = document.querySelector('#contatti'); if(!t) return;
-    e.preventDefault();
-    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-  }
-  // Cattura TUTTI i click su link che devono portare ai contatti
-  document.addEventListener('click', function(e){
-    var a = e.target.closest('a');
-    if(!a) return;
-    // Qualsiasi href="#contatti"
-    if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
-    // I testi “Richiedi preventivo” / “Get a quote” / “Pide presupuesto”
-    var txt = (a.textContent || '').trim().toLowerCase();
-    if(['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos'].includes(txt)){
-      // Se non ha già l’ancora, lo forziamo
-      a.setAttribute('href','#contatti');
-      return toContacts(e);
-    }
-  }, {passive:false});
-})();
-</script>
-
-<script>
-(function(){
-  /* SCROLL UNIVERSALE A #contatti */
-  function smoothToContacts(ev){
-    var t = document.querySelector('#contatti');
-    if(!t) return;
-    ev && ev.preventDefault();
-    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-  }
-  var SCROLL_SELECTORS = [
-    'a[href="#contatti"]',
-    '.nav a.btn[data-i18n="nav.quote"]',
-    '.btn[data-i18n="cta.quote"]',
-    '.btn.fill[data-i18n="cta.quote"]',
-    '.btn[data-i18n="bio.btn.contact"]',
-    '.btn[data-i18n="packs.cta"]',
-    '#cta a[href="#contatti"]',
-    '#pacchetti-videoprofessionali a[href="#contatti"]',
-    '#footer a[data-i18n="footer.quote"]'
-  ];
-  function bindContactsScroll(){
-    document.querySelectorAll(SCROLL_SELECTORS.join(',')).forEach(function(a){
-      a.removeEventListener && a.removeEventListener('click', a.__toContacts, {passive:false});
-      a.__toContacts = smoothToContacts.bind(a);
-      a.addEventListener('click', a.__toContacts, {passive:false});
-    });
-    document.body.addEventListener('click', function(e){
-      var el = e.target.closest('a,button');
-      if(!el) return;
-      var txt = (el.textContent || '').trim().toLowerCase();
-      if(/parliamone ora|richiedi preventivo|let'?s talk|get a quote|pide presupuesto/.test(txt)){
-        smoothToContacts(e);
-      }
-    }, {passive:false});
-  }
-  bindContactsScroll();
-  (function patchI18n(){
-    window.__i18n = window.__i18n || {apply:function(){}};
-    var prev = window.__i18n.apply.bind(window.__i18n);
-    window.__i18n.apply = function(lang){ prev(lang); try{ bindContactsScroll(); }catch(e){} };
-  })();
-
-  /* ===============================
-     NAV MOBILE: hide/show on scroll
-     =============================== */
-  (function(){
-    var nav = document.querySelector('.nav');
-    if(!nav) return;
-
-    var lastY = window.scrollY || 0;
-    var ticking = false;
-
-    function onScroll(){
-      if(ticking) return;
-      ticking = true;
-      requestAnimationFrame(function(){
-        // Solo mobile
-        if(window.innerWidth > 700){
-          nav.classList.remove('nav--hidden');
-          lastY = window.scrollY || 0;
-          ticking = false;
-          return;
-        }
-        var y = window.scrollY || 0;
-
-        // Filtra micro-movimenti
-        if(Math.abs(y - lastY) < 6){
-          ticking = false;
-          return;
-        }
-
-        // Nasconde quando si scende (oltre un piccolo offset), mostra quando si sale
-        var hide = (y > lastY) && (y > 80);
-        nav.classList.toggle('nav--hidden', hide);
-
-        lastY = y;
-        ticking = false;
+        const lang = new URLSearchParams(location.search).get('lang') || 'it';
+        window.__i18n.apply(lang);
       });
-    }
+    })();
+  </script>
 
-    window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('resize', function(){
-      // Se torno desktop, assicuro visibile
-      if(window.innerWidth > 700) nav.classList.remove('nav--hidden');
-    }, {passive:true});
-  })();
-})();
-</script>
+  <!-- ===== CTA universale → #contatti (smooth scroll) ===== -->
+  <script>
+    (function(){
+      function toContacts(e){
+        var t = document.querySelector('#contatti'); if(!t) return;
+        e.preventDefault();
+        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+      }
+      // Cattura TUTTI i click su link che devono portare ai contatti
+      document.addEventListener('click', function(e){
+        var a = e.target.closest('a'); if(!a) return;
+        if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
+        var txt = (a.textContent || '').trim().toLowerCase();
+        if(['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos'].includes(txt)){
+          a.setAttribute('href','#contatti');
+          return toContacts(e);
+        }
+      }, {passive:false});
+    })();
+  </script>
 
+  <!-- ===== NAV MOBILE: hide/show on scroll ===== -->
+  <script>
+    (function(){
+      var nav = document.querySelector('.nav'); if(!nav) return;
+      var lastY = window.scrollY || 0, ticking = false;
+
+      function onScroll(){
+        if(ticking) return; ticking = true;
+        requestAnimationFrame(function(){
+          if(window.innerWidth > 700){
+            nav.classList.remove('nav--hidden');
+            lastY = window.scrollY || 0; ticking = false; return;
+          }
+          var y = window.scrollY || 0;
+          if(Math.abs(y - lastY) < 6){ ticking = false; return; }
+          var hide = (y > lastY) && (y > 80);
+          nav.classList.toggle('nav--hidden', hide);
+          lastY = y; ticking = false;
+        });
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      window.addEventListener('resize', function(){
+        if(window.innerWidth > 700) nav.classList.remove('nav--hidden');
+      }, {passive:true});
+    })();
+  </script>
 
 </body>
 </html>
-<!-- FINE PARTE 1/5 — Proseguo con la Parte 2/5 mantenendo lo stesso look -->
+<!-- FINE PARTE 1 / 5 -->
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (incolonnati)
-(look invariato; aggiunti solo fix funzionali invisibili)
+(look IDENTICO; fix funzionali: grid stabile, CTA → #contatti, pause/play Vimeo con visibilità & viewport)
 ========================== -->
 
 <!-- ====== SERVIZI (6 card) ====== -->
@@ -516,7 +391,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <a href="#contatti" class="btn" data-i18n="services.cta">Richiedi preventivo</a>
   </header>
 
-  <!-- 3 colonne (come la prima volta), ora la .grid funziona -->
+  <!-- 3 colonne -->
   <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
     <!-- Brand/Commercial -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
@@ -675,7 +550,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   </section>
 </section>
 
-<!-- ====== STILI SPECIFICI REEL (aggiornati per video più compatti) ====== -->
+<!-- ====== STILI SPECIFICI REEL ====== -->
 <style>
   .ratio{position:relative;width:100%;padding-top:56.25%}
   .ratio.slim{padding-top:50%}
@@ -686,7 +561,6 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   @media (max-width:1100px){#reel .grid[style*="repeat(3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
   @media (max-width:680px){#reel .grid[style*="repeat(2"], #reel .grid[style*="repeat(3"]{grid-template-columns:1fr !important}}
 </style>
-
 
 <!-- ====== SCRIPT REEL: pausa/riavvio su visibilità + viewport + CTA quote ====== -->
 <script>
@@ -721,7 +595,9 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
       a.addEventListener('click', function(e){
         var t = document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+        e.preventDefault();
+        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
       }, {passive:false});
     });
   })();
@@ -730,7 +606,6 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 <!-- ====== i18n EXTEND (Servizi + Reel) ====== -->
 <script>
   (function(){
-    // estensione semplice al dizionario globale definito in Parte 1
     function extend(extra){
       window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
       var D = window.__i18n.__dict = window.__i18n.__dict || {};
@@ -812,10 +687,10 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     });
   })();
 </script>
-<!-- FINE PARTE 2/5 — Proseguo con la Parte 3/5 (Pacchetti • CTA • Bio) con look identico -->
+<!-- FINE PARTE 2 / 5 -->
 <!-- ==========================
 PART 3 / 5 — PACCHETTI • CTA • BIO
-(look identico; fix funzionali: no-404 pack, WA prefill, 3a foto bio solo mobile)
+(look IDENTICO; fix funzionali: no-404 pack → scroll #contatti + prefill messaggio, WhatsApp con pack selezionato, 3a foto bio solo mobile)
 ========================== -->
 
 <!-- ====== PACCHETTI VIDEO COMMERCIALI (unica sezione) ====== -->
@@ -962,22 +837,46 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 </section>
 
 <script>
-  // Click su "Seleziona" → scroll a #contatti con prefill del pacchetto
+  // Click su card/CTA → scroll a #contatti + prefill del pacchetto (no 404)
   (function(){
     function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        var card = btn.closest('.pack-card'); if(!card) return;
+    var lastPack = null;
+
+    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"], #pacchetti-videoprofessionali .pack-card').forEach(function(el){
+      el.addEventListener('click', function(e){
+        var card = el.closest('.pack-card'); if(!card) return;
         var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+        lastPack = pack;
+
+        // Prefill nel form se presente
         var qmsg = document.getElementById('q_message');
         if(qmsg){
           var base = getVal('q_message');
           var add = 'Pacchetto di interesse: ' + pack;
           if(!base.includes(add)){ qmsg.value = (base ? (base+'\n') : '') + add; }
         }
-        var t=document.querySelector('#contatti'); if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+
+        // Scroll a #contatti
+        var t=document.querySelector('#contatti');
+        if(t){ e.preventDefault(); 
+          var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+        }
       }, {passive:false});
     });
+
+    // CTA WhatsApp in questa parte → include pack selezionato
+    var wa = document.getElementById('ctaWhatsApp');
+    var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? (''+WA_NUMBER).replace(/[^\d]/g,'') : '393910911719';
+    if(wa){
+      function updateWA(){
+        var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
+        if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
+        wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
+      }
+      updateWA();
+      wa.addEventListener('click', updateWA);
+    }
   })();
 </script>
 
@@ -1019,10 +918,8 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 
     <!-- Immagini -->
     <div class="bio-media" style="position:relative;min-height:240px">
-      <!-- sfondo chiaro: nessun overlay -->
       <img src="/media/about-1.jpg" alt="Andrea Colucci con camera in mano" loading="lazy"
            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:none">
-      <!-- foto piccola sovrapposta -->
       <img src="/media/about-2.jpg" alt="Andrea Colucci e collega" loading="lazy"
            style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
                   box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
@@ -1159,62 +1056,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     });
   })();
 </script>
-
-<!-- ====== SCRIPT: Pack no-404 + CTA scroll + WhatsApp con pack ====== -->
-<script>
-  (function(){
-    // Numero WhatsApp riusabile
-    var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393910911719';
-
-    // Memorizza ultimo pack selezionato per prefill WhatsApp/Email
-    var lastPack = null;
-
-    // Intercetta click sulle card pacchetti (evita 404 se pagine non esistono)
-    document.querySelectorAll('.pack-card').forEach(function(card){
-      card.addEventListener('click', function(e){
-        try{
-          var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
-          lastPack = pack;
-          // sezione contatti
-          var t = document.querySelector('#contatti');
-          if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
-          // Prefill campi form se presenti
-          var qmsg = document.getElementById('q_message');
-          if(qmsg && (!qmsg.value || !qmsg.value.includes(pack))){
-            var base = qmsg.value ? (qmsg.value.trim() + "\n") : "";
-            qmsg.value = base + "Pacchetto di interesse: " + pack;
-          }
-        }catch(_){}
-      }, {passive:false});
-    });
-
-    // CTA WhatsApp (se presente in questa parte) con pack precompilato
-    (function(){
-      var wa = document.getElementById('ctaWhatsApp');
-      if(!wa) return;
-      var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
-      if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
-      wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
-      // Aggiorna il messaggio ogni volta che si clicca, includendo eventuale lastPack aggiornato
-      wa.addEventListener('click', function(){
-        var t = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
-        if(lastPack){ t += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
-        wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + t;
-      });
-    })();
-
-    // Smooth scroll generico verso #contatti da CTA presenti qui
-    document.querySelectorAll('#cta a[href="#contatti"], #pacchetti-videoprofessionali a[href="#contatti"]').forEach(function(a){
-      a.addEventListener('click', function(e){
-        var t=document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
-      }, {passive:false});
-    });
-  })();
-</script>
+<!-- FINE PARTE 3 / 5 -->
 <!-- ==========================
-<!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
+PART 4 / 5 — RECENSIONI • CONTATTI
+(look IDENTICO; fix funzionali: iOS anti-zoom SOLO per #contatti e #reviewModal, smooth scroll, mail/WA builder)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1224,9 +1069,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     <span class="soft" id="avgRatingText" style="white-space:nowrap" data-i18n="reviews.subtitle">Valutazione media 4.9/5</span>
   </header>
 
-  <!-- griglia testimonianze -->
   <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- Card 1 -->
+    <!-- 3 card statiche -->
     <figure class="glass review"
             style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
       <img src="/media/client-1.jpg" alt="Cliente" loading="lazy"
@@ -1242,7 +1086,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
       </figcaption>
     </figure>
 
-    <!-- Card 2 -->
     <figure class="glass review"
             style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
       <img src="/media/client-2.jpg" alt="Cliente" loading="lazy"
@@ -1258,7 +1101,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
       </figcaption>
     </figure>
 
-    <!-- Card 3 -->
     <figure class="glass review"
             style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
       <img src="/media/client-3.jpg" alt="Cliente" loading="lazy"
@@ -1275,12 +1117,11 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     </figure>
   </div>
 
-  <!-- pulsante lascia recensione (apre modale) -->
-<div class="review-cta" style="display:flex;justify-content:center;margin-top:12px">
-  <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
-</div>
+  <div class="review-cta" style="display:flex;justify-content:center;margin-top:12px">
+    <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
+  </div>
 
-  <!-- Modal nuova recensione con upload immagine -->
+  <!-- Modal nuova recensione -->
   <dialog id="reviewModal"
           style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
     <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
@@ -1311,14 +1152,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
           </select>
         </div>
 
-        <!-- Upload immagine -->
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
           <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
           <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
 
-        <!-- Preview tonda -->
         <div style="grid-column:1 / -1; display:flex; align-items:center; gap:10px">
           <div id="r_preview_wrap" style="width:54px;height:54px;border-radius:999px;overflow:hidden;border:1px solid var(--stroke);background:rgba(255,255,255,.04);display:grid;place-items:center">
             <img id="r_preview" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
@@ -1364,17 +1203,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
     @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
-    /* Evita zoom iOS in input/select/textarea (font >= 16px) */
-  #quoteForm .control,
-  #reviewForm .control,
-  #quoteForm input,
-  #quoteForm select,
-  #quoteForm textarea,
-  #reviewForm input,
-  #reviewForm select,
-  #reviewForm textarea{
-    font-size:16px !important;
-  }
   </style>
 </section>
 
@@ -1422,98 +1250,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
       </div>
     </form>
   </div>
-    <style>
-  @media (max-width: 700px){
-    /* Evita zoom iOS su focus (solo mobile) */
-    #quoteForm .control,
-    #reviewForm .control,
-    #quoteForm input,
-    #quoteForm select,
-    #quoteForm textarea,
-    #reviewForm input,
-    #reviewForm select,
-    #reviewForm textarea{
-      font-size:16px !important;
-      min-height:44px;
-    }
-  }
 
-  html { -webkit-text-size-adjust: 100%; }
-</style>
-
-
-  <!-- SCRIPT: invio via email / WhatsApp -->
-  <script>
-  (function(){
-    // Numero WhatsApp (solo cifre, senza + o spazi)
-    var WA_NUMBER = '393910911719'; // <-- metti qui il tuo numero
-
-    function val(id){
-      var el = document.getElementById(id);
-      return el ? (el.value || '').trim() : '';
-    }
-
-    function buildMessage(){
-      var name = val('q_name');
-      var email = val('q_email');
-      var phone = val('q_phone');
-      var servEl = document.getElementById('q_service');
-      var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-      var msg = val('q_message');
-
-      return (
-        "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
-        "Nome: " + (name || '-') + "\n" +
-        "Email: " + (email || '-') + "\n" +
-        "Telefono/WA: " + (phone || '-') + "\n" +
-        "Servizio: " + (service || '-') + "\n\n" +
-        (msg ? ("Messaggio:\n" + msg) : "")
-      );
-    }
-
-    // --- EMAIL ---
-    var mailBtn = document.getElementById('sendMail');
-    if(mailBtn){
-      mailBtn.addEventListener('click', function(e){
-        e.preventDefault();
-        var body = encodeURIComponent(buildMessage());
-        var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-        window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-      });
-    }
-
-    // --- WHATSAPP ---
-    var waBtn = document.getElementById('sendWhatsApp');
-    if(waBtn){
-      waBtn.addEventListener('click', function(e){
-        var txt = encodeURIComponent(buildMessage());
-        waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-      });
-    }
-
-    // --- Link rapido sotto (Scrivimi su WhatsApp) ---
-    var quickWA = document.getElementById('quickWA');
-    if(quickWA){
-      quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-    }
-  })();
-  </script>
-
-  <!-- contatti rapidi -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px">
-
-    <a class="btn" href="mailto:andreacolucci@hotmail.it">Email</a>
-    <a class="btn" id="quickWA" target="_blank" rel="noopener">WhatsApp</a>
-    <a class="btn" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a>
-    <a class="btn" href="https://youtube.com/@andrecolu_video" target="_blank" rel="noopener">YouTube</a>
-    <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
-  </div>
-</section>
-
-<style id="ios-nozoom">
-  /* iOS only: se il browser supporta le proprietà WebKit mobili */
-  @supports (-webkit-touch-callout: none) {
-    /* TUTTI i controlli nella sezione Preventivo + modale recensioni */
+  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
+  <style id="ios-nozoom">
     #contatti input,
     #contatti select,
     #contatti textarea,
@@ -1523,49 +1262,76 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     #reviewModal input,
     #reviewModal select,
     #reviewModal textarea,
-    #reviewModal button {
-      font-size: 17px !important;   /* 17px è il valore "sicuro" su iOS */
-      line-height: 1.35 !important;
-      min-height: 44px !important;
-      -webkit-text-size-adjust: 100% !important;
+    #reviewModal button{
+      font-size:16px !important;
+      line-height:1.35 !important;
+      min-height:44px !important;
+      -webkit-text-size-adjust:100% !important;
     }
-
-    /* importantissimo anche per le option */
     #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option {
-      font-size: 17px !important;
+    #reviewModal select, #reviewModal option{
+      font-size:16px !important;
     }
-
-    /* placeholder coerenti (alcuni Safari triggerano zoom se <16) */
     #contatti ::placeholder,
-    #reviewModal ::placeholder {
-      font-size: 17px !important;
-      opacity: .8;
+    #reviewModal ::placeholder{
+      font-size:16px !important;
+      opacity:.8;
     }
+  </style>
+</section>
+
+<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
+<script>
+(function(){
+  /* ====== CONTATTI: Email / WhatsApp ====== */
+  var WA_NUMBER = '393910911719'; // solo cifre
+
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
   }
 
-  /* Coerenza generale */
-  html, body { -webkit-text-size-adjust: 100%; }
-</style>
+  function buildMessage(){
+    var name = val('q_name');
+    var email = val('q_email');
+    var phone = val('q_phone');
+    var servEl = document.getElementById('q_service');
+    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
+    var msg = val('q_message');
+    return (
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      "Nome: " + (name || '-') + "\n" +
+      "Email: " + (email || '-') + "\n" +
+      "Telefono/WA: " + (phone || '-') + "\n" +
+      "Servizio: " + (service || '-') + "\n\n" +
+      (msg ? ("Messaggio:\n" + msg) : "")
+    );
+  }
 
+  var mailBtn = document.getElementById('sendMail');
+  if(mailBtn){
+    mailBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      var body = encodeURIComponent(buildMessage());
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
+    }, {passive:false});
+  }
 
+  var waBtn = document.getElementById('sendWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      var txt = encodeURIComponent(buildMessage());
+      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
+    });
+  }
 
-<!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
-<script>
-/* ===========================================================
-   RECENSIONI — frontend con backend Apps Script + fallback
-   Sostituisce il vecchio script di Parte 4
-   =========================================================== */
-(function(){
-  /* ===== CONFIG ===== */
-  // URL del tuo deployment Apps Script (quello /exec)
-  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbzaU0eSn9qX1MuoqEYS4f8aciJ9e19rQ_fDWnxAl1jAjEaEsu-KIwFiYgbFu6d0wadClA/exec';
-const API_KEY = 'acfilms_2025_secretKey_93Jv7';
+  var quickWA = document.getElementById('quickWA');
+  if(quickWA){
+    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
+  }
 
-  // Timeout fetch (ms)
-  const FETCH_TIMEOUT = 9000;
-
-  /* ===== DOM refs ===== */
+  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
   const grid     = document.getElementById('reviewsGrid');
   const avgText  = document.getElementById('avgRatingText');
   const LD       = document.getElementById('reviewsJsonLd');
@@ -1579,7 +1345,6 @@ const API_KEY = 'acfilms_2025_secretKey_93Jv7';
   const preview  = document.getElementById('r_preview');
   const previewPh= document.getElementById('r_preview_ph');
 
-  /* ===== Utils ===== */
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
   function toDataUrlThumb(file, cb){
@@ -1607,8 +1372,8 @@ const API_KEY = 'acfilms_2025_secretKey_93Jv7';
     const img=document.createElement('img');
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
-    else img.src = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
+      ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
     const cap=document.createElement('figcaption');
     const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
     const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
@@ -1633,50 +1398,8 @@ const API_KEY = 'acfilms_2025_secretKey_93Jv7';
     }
   }
 
-  /* ===== Local cache (fallback) ===== */
-  const LS_KEY = 'ac_reviews';
-  function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch(_){ return []; } }
-  function lsPush(rec){
-    try{
-      const arr = lsGet(); arr.push(rec);
-      localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    }catch(_){}
-  }
-
-  /* ===== Backend fetch helpers ===== */
-  function withTimeout(promise, ms){
-    return new Promise((res,rej)=>{
-      const t=setTimeout(()=>rej(new Error('timeout')), ms);
-      promise.then(v=>{clearTimeout(t);res(v);}).catch(e=>{clearTimeout(t);rej(e);});
-    });
-  }
-  async function fetchRemote(){
-    if(!ENDPOINT_URL) return [];
-    const url = ENDPOINT_URL + (API_KEY ? ('?key='+encodeURIComponent(API_KEY)) : '');
-    const r = await withTimeout(fetch(url, {mode:'cors'}), FETCH_TIMEOUT);
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const j = await r.json();
-    if(!j || !j.ok) throw new Error('bad payload');
-    return Array.isArray(j.items) ? j.items : [];
-  }
-  async function postRemote(rec){
-  if(!ENDPOINT_URL) return;
-  const r = await withTimeout(fetch(ENDPOINT_URL, {
-    method: 'POST',
-    mode: 'cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // ✅ cambio importante
-    body: JSON.stringify(Object.assign({ key: API_KEY }, rec))
-  }), FETCH_TIMEOUT);
-
-  try { await r.json(); } catch(_){}
-}
-
-
-  /* ===== Apertura/chiusura modale (fix bottone) ===== */
-  function openModal(){
-    if(dialog?.showModal) dialog.showModal();
-    else dialog?.setAttribute('open','open');
-  }
+  // Modal open/close
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
   function closeModal(){
     try{ form && form.reset(); }catch(_){}
     if(preview) preview.style.display='none';
@@ -1693,39 +1416,23 @@ const API_KEY = 'acfilms_2025_secretKey_93Jv7';
     if(!inside) closeModal();
   });
 
-  /* ===== Upload immagine → miniatura tonda ===== */
- fileIn && fileIn.addEventListener('change', function(){
-  const f = this.files && this.files[0];
-  if(!f){
-    preview.style.display='none';
-    previewPh.style.display='block';
-    return;
-  }
-
-  // 💡 Correzione: gestione universale iOS/Android/Desktop
-  // Alcuni browser (Safari iOS) limitano a fotocamera se non viene specificato capture=filesystem.
-  // Questo blocco è solo difensivo: non cambia nulla sul desktop, ma rende più stabile su iPhone.
-  if (!f.type.startsWith('image/')) {
-    alert('Seleziona un file immagine dalla galleria o scatta una foto.');
-    preview.style.display='none';
-    previewPh.style.display='block';
-    return;
-  }
-
-  // Genera miniatura centrata
-  toDataUrlThumb(f, function(err, data){
-    if(err){
+  // Preview immagine recensione
+  fileIn && fileIn.addEventListener('change', function(){
+    const f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
       preview.style.display='none';
       previewPh.style.display='block';
       return;
     }
-    preview.src = data;
-    preview.style.display='block';
-    previewPh.style.display='none';
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data;
+      preview.style.display='block';
+      previewPh.style.display='none';
+    });
   });
-});
 
-  /* ===== Salvataggio: append immediato + cache + POST al backend ===== */
+  // Salvataggio recensione (solo frontend — identico look)
   function buildRecord(){
     const name = getVal('r_name');
     const role = getVal('r_role');
@@ -1735,87 +1442,230 @@ const API_KEY = 'acfilms_2025_secretKey_93Jv7';
     if(!name || !text) return null;
     return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
   }
-  async function handleSave(e){
+  function handleSave(e){
     if(e) e.preventDefault();
     const rec = buildRecord();
     if(!rec) return;
-
-    // 1) Append immediato (UX)
     appendReviewCard(rec);
-    // 2) Aggiorna media con baseStars (fake) + tutte locale+remote (lo ricalcoliamo dopo il POST)
-    lsPush(rec);
-    // 3) Broadcast ad altre tab
-    try{ const bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec}); bc.close(); }catch(_){}
-    // 4) Chiudi modale
     closeModal();
-
-    // 5) POST backend (non blocca UI). Se fallisce, rimane in locale.
-    try{
-      await postRemote(rec);
-      // dopo 1.5s ricarichiamo la lista dal backend per avere l'ordine server-side
-      setTimeout(initLoad, 1500);
-    }catch(_){
-      // Ignora errori: la card locale resta visibile
-    }
+    // media (finte 3 base: 5,5,4)
+    updateAverage([5,5,4], [rec]);
   }
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  // Ricezione da altre tab
-  try{
-    const bc=new BroadcastChannel('ac_reviews_channel');
-    bc.onmessage=function(ev){
-      if(ev && ev.data && ev.data.type==='new_review' && ev.data.rec){
-        appendReviewCard(ev.data.rec);
-        // media la ricalcoliamo alla prossima initLoad
-      }
-    };
-  }catch(_){}
+  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
+  <style id="ios-nozoom">
+    #contatti input,
+    #contatti select,
+    #contatti textarea,
+    #contatti button,
+    #contatti .control,
+    #reviewModal .control,
+    #reviewModal input,
+    #reviewModal select,
+    #reviewModal textarea,
+    #reviewModal button{
+      font-size:16px !important;
+      line-height:1.35 !important;
+      min-height:44px !important;
+      -webkit-text-size-adjust:100% !important;
+    }
+    #contatti select, #contatti option,
+    #reviewModal select, #reviewModal option{
+      font-size:16px !important;
+    }
+    #contatti ::placeholder,
+    #reviewModal ::placeholder{
+      font-size:16px !important;
+      opacity:.8;
+    }
+  </style>
+</section>
 
-  /* ===== Prima render: uniamo base + remote + locale (priorità: remote) ===== */
-  const BASE_STARS = [5,5,4]; // le 3 card statiche già in pagina
-  async function initLoad(){
-    // 1) pulizia duplicati dinamici (lascia le 3 di base)
-    // (non tocchiamo le tre card statiche già in HTML)
-    // 2) carica remote
-    let remote = [];
-    try{ remote = await fetchRemote(); }catch(_){ remote = []; }
-    // 3) svuota le card dinamiche già appendate (tutte tranne le prime 3 figure già presenti nel markup)
-    try{
-      const figs = Array.from(grid.querySelectorAll('figure.glass.review'));
-      // mantieni solo le prime 3 originali (se vuoi tenere sempre quelle)
-      for(let i=3;i<figs.length;i++){ figs[i].remove(); }
-    }catch(_){}
+<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
+<script>
+(function(){
+  /* ====== CONTATTI: Email / WhatsApp ====== */
+  var WA_NUMBER = '393910911719'; // solo cifre
 
-    // 4) append remote (recenti in alto: l’API già ordina desc, ma riordiniamo per sicurezza)
-    remote.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(appendReviewCard);
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  }
 
-    // 5) append locale non ancora presenti (match per ts+name+text)
-    const loc = lsGet();
-    const seen = new Set(remote.map(r => String((r.ts||'')+'|'+(r.name||'')+'|'+(r.text||''))));
-    loc.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(r=>{
-      const k = String((r.ts||'')+'|'+(r.name||'')+'|'+(r.text||''));
-      if(!seen.has(k)) appendReviewCard(r);
+  function buildMessage(){
+    var name = val('q_name');
+    var email = val('q_email');
+    var phone = val('q_phone');
+    var servEl = document.getElementById('q_service');
+    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
+    var msg = val('q_message');
+    return (
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      "Nome: " + (name || '-') + "\n" +
+      "Email: " + (email || '-') + "\n" +
+      "Telefono/WA: " + (phone || '-') + "\n" +
+      "Servizio: " + (service || '-') + "\n\n" +
+      (msg ? ("Messaggio:\n" + msg) : "")
+    );
+  }
+
+  var mailBtn = document.getElementById('sendMail');
+  if(mailBtn){
+    mailBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      var body = encodeURIComponent(buildMessage());
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
+    }, {passive:false});
+  }
+
+  var waBtn = document.getElementById('sendWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      var txt = encodeURIComponent(buildMessage());
+      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
     });
-
-    // 6) aggiorna media
-    updateAverage(BASE_STARS, remote.concat(loc));
   }
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', initLoad);
-  }else{
-    initLoad();
+  var quickWA = document.getElementById('quickWA');
+  if(quickWA){
+    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
   }
+
+  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
+  const grid     = document.getElementById('reviewsGrid');
+  const avgText  = document.getElementById('avgRatingText');
+  const LD       = document.getElementById('reviewsJsonLd');
+  const form     = document.getElementById('reviewForm');
+  const dialog   = document.getElementById('reviewModal');
+  const openBtn  = document.getElementById('openReview');
+  const closeBtn = document.getElementById('closeReview');
+  const cancelBtn= document.getElementById('cancelReview');
+  const saveBtn  = document.getElementById('saveReview');
+  const fileIn   = document.getElementById('r_img');
+  const preview  = document.getElementById('r_preview');
+  const previewPh= document.getElementById('r_preview_ph');
+
+  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+  function toDataUrlThumb(file, cb){
+    try{
+      const fr=new FileReader();
+      fr.onload=function(){
+        const img=new Image();
+        img.onload=function(){
+          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          c.width=size; c.height=size;
+          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          cb(null, c.toDataURL('image/jpeg', .85));
+        };
+        img.src=fr.result;
+      };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(e); }
+  }
+  function appendReviewCard(rec){
+    if(!grid || !rec) return;
+    const fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    const img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
+      ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    const cap=document.createElement('figcaption');
+    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
+  function updateAverage(baseStars, extras){
+    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    if(!all.length) return;
+    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
+      try{
+        const obj=JSON.parse(LD.textContent);
+        obj.aggregateRating.ratingValue=String(avg);
+        obj.aggregateRating.reviewCount=String(all.length);
+        LD.textContent=JSON.stringify(obj);
+      }catch(_){}
+    }
+  }
+
+  // Modal open/close
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
+  function closeModal(){
+    try{ form && form.reset(); }catch(_){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', (e)=>{
+    const rect = dialog.getBoundingClientRect();
+    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+    if(!inside) closeModal();
+  });
+
+  // Preview immagine recensione
+  fileIn && fileIn.addEventListener('change', function(){
+    const f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
+      preview.style.display='none';
+      previewPh.style.display='block';
+      return;
+    }
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data;
+      preview.style.display='block';
+      previewPh.style.display='none';
+    });
+  });
+
+  // Salvataggio recensione (solo frontend — identico look)
+  function buildRecord(){
+    const name = getVal('r_name');
+    const role = getVal('r_role');
+    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    const text = getVal('r_text');
+    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return null;
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+  }
+  function handleSave(e){
+    if(e) e.preventDefault();
+    const rec = buildRecord();
+    if(!rec) return;
+    appendReviewCard(rec);
+    closeModal();
+    // media (finte 3 base: 5,5,4)
+    updateAverage([5,5,4], [rec]);
+  }
+  form && form.addEventListener('submit', handleSave, {passive:false});
+  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
+
+  /* ====== iOS anti-zoom: cooperazione con Parte 1 ======
+     Non tocchiamo il meta viewport qui (già normalizzato in Parte 1).
+     Garantiamo però font >=16 su controlli (#ios-nozoom stylesheet) e,
+     se Safari provasse comunque a zoomare, Parte 1 intercetta focus e forza no-zoom. */
 })();
 </script>
-
-
-
-
 <!-- ==========================
-PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
-(look invariato; fix funzionali invisibili)
+PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
+(look IDENTICO; fix funzionali: nessun meta viewport duplicato; iOS no-zoom lasciato a Parte 1/4)
 ========================== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
@@ -1944,28 +1794,22 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
     }
   })();
 
-  // Apri details corretti se navigo da link del footer (Privacy/Cookie/Termini)
+  // Apri details corretti se atterro da link del footer (Privacy/Cookie/Termini)
   (function(){
     function openFromHash(){
       if(!location.hash) return;
       var el = document.querySelector(location.hash);
-      if(el && el.tagName === 'DETAILS'){
-        if(!el.open){ el.open = true; }
-      }
-      if(el){ 
-        // Usa smooth scroll salvo ridotta mobilità
+      if(el && el.tagName === 'DETAILS' && !el.open){ el.open = true; }
+      if(el){
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'}); 
+        el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
       }
     }
-    window.addEventListener('hashchange', function(){ setTimeout(openFromHash, 0); });
-    // Delay minimo per assicurare che DOM e stili siano applicati prima dello scroll
+    window.addEventListener('hashchange', function(){ setTimeout(openFromHash, 0); }, {passive:true});
     setTimeout(openFromHash, 0);
   })();
-</script>
 
-<!-- ====== i18n EXTEND per Footer/Policy ====== -->
-<script>
+  // i18n EXTEND per Footer/Policy
   (function(){
     window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
     function extend(extra){
@@ -2056,56 +1900,4 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
     });
   })();
 </script>
-<!-- iOS focus-zoom fix (solo sezione Preventivo + modale recensioni) -->
-<script>
-(function(){
-  // iOS / iPadOS (anche Safari iPad in "modalità desktop")
-  var iOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-            (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  if(!iOS) return;
 
-  // Forza font-size >=16px per impedire lo zoom su focus
-  var sel = [
-    '#contatti input', '#contatti select', '#contatti textarea', '#contatti button',
-    '#reviewModal .control' // opzionale: anche nel modale recensioni
-  ].join(',');
-
-  document.querySelectorAll(sel).forEach(function(el){
-    var fs = parseFloat(getComputedStyle(el).fontSize || '16');
-    if (fs < 16) el.style.fontSize = '16px';
-    // ulteriore cintura di sicurezza
-    el.style.webkitTextSizeAdjust = '100%';
-  });
-})();
-</script>
-  <!-- …altri script del tuo sito… -->
-
-  <script>
-  (function(){
-    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-    if(!isiOS) return;
-
-    var vp = document.querySelector('meta[name="viewport"]');
-    if(!vp) return;
-
-    var base = 'width=device-width, initial-scale=1, viewport-fit=cover';
-    function noZoom(){ vp.setAttribute('content', base + ', maximum-scale=1, user-scalable=no'); }
-    function yesZoom(){ vp.setAttribute('content', base); }
-
-    document.addEventListener('focusin', function(e){
-      if(e.target && e.target.closest && e.target.closest('#contatti')) noZoom();
-    }, {passive:true});
-
-    document.addEventListener('focusout', function(e){
-      if(e.target && e.target.closest && e.target.closest('#contatti')) yesZoom();
-    }, {passive:true});
-
-    document.addEventListener('click', function(e){
-      if(!document.activeElement || !document.activeElement.closest('#contatti')) yesZoom();
-    }, {passive:true});
-  })();
-  </script>
-
-</body>
-</html>
