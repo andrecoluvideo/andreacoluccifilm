@@ -7,7 +7,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 <head>
   <meta charset="utf-8" />
  <meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
@@ -156,6 +156,25 @@ html { -webkit-text-size-adjust:100%; }
   /* Mantiene la dimensione del testo coerente su iOS */
   html { -webkit-text-size-adjust:100%; }
 </style>
+/* ===== iOS: blocca auto-zoom su focus perché TUTTO è >=16px ===== */
+:root { --ios-form-fz: 16px; }
+
+/* qualsiasi form control, anche dentro modali/dialog */
+input, select, textarea, button, label,
+dialog input, dialog select, dialog textarea, dialog button, dialog label,
+.control {
+  font-size: var(--ios-form-fz) !important;
+  line-height: 1.35 !important;
+  min-height: 44px !important;
+}
+
+/* importantissimo: anche le OPTION devono risultare >=16px su iOS */
+select, option {
+  font-size: var(--ios-form-fz) !important;
+}
+
+/* per sicurezza, disabilita zoom testuale automatico */
+html { -webkit-text-size-adjust: 100%; }
 
 </head>
 <body>
