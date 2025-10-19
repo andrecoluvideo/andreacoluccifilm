@@ -7,7 +7,7 @@
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="canonical" href="https://tuodominio.it/" />
 
-  <!-- Favicons (riusa il pacchetto che hai già) -->
+  <!-- Favicons -->
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
@@ -30,7 +30,7 @@
   <link rel="alternate" hreflang="es" href="https://tuodominio.it/?lang=es">
   <link rel="alternate" hreflang="x-default" href="https://tuodominio.it/">
 
-  <!-- Fonts (nuovo look) -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 
   <!-- Preconnect per Vimeo + fonts -->
@@ -46,9 +46,9 @@
       --panel:#0f1520;
       --glass:rgba(255,255,255,.06);
       --stroke:rgba(255,255,255,.12);
-      --neon1:#2ee7ff;   /* ciano */
-      --neon2:#ff3f9c;   /* magenta */
-      --accent:#62ffa6;  /* lime soft */
+      --neon1:#2ee7ff;
+      --neon2:#ff3f9c;
+      --accent:#62ffa6;
       --ring: 0 0 0 2px rgba(46,231,255,.18), 0 10px 30px rgba(255,63,156,.18);
       --radius:16px;
       --shadow: 0 12px 40px rgba(0,0,0,.35);
@@ -72,7 +72,7 @@
     .h2{font-size: clamp(28px,3vw,44px)}
     .h3{font-size: clamp(20px,2vw,26px)}
 
-    /* ====== NAV nuovo (sticky, split) ====== */
+    /* NAV */
     .nav{
       position:sticky;top:0;z-index:60;
       background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));
@@ -95,7 +95,7 @@
     }
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
 
-    /* ====== HERO nuovo (split layout con badge e CTA) ====== */
+    /* HERO */
     .hero{
       position:relative;overflow:hidden;
       background:
@@ -105,7 +105,7 @@
     }
     .hero-media{
       position:absolute;inset:0;z-index:0;pointer-events:none;
-      background:url('images/covers/cover_landing_hero.jpg') center/cover no-repeat;
+      background:url('/media/bg-portfolio.webp.jpg') center/cover no-repeat;
       opacity:.22; mix-blend:screen;
     }
     .hero-inner{position:relative;z-index:1;padding:42px 0}
@@ -123,7 +123,7 @@
     .hero-bio img{width:68px;height:68px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke)}
     .hero-bio small{color:#9fb2c7}
 
-    /* ====== RESPONSIVE ====== */
+    /* RESPONSIVE */
     @media (max-width: 980px){
       .hero-grid{grid-template-columns:1fr}
       .nav-inner{gap:10px}
@@ -132,7 +132,7 @@
 </head>
 <body>
 
-  <!-- ====== NAV ====== -->
+  <!-- NAV -->
   <nav class="nav" aria-label="Main">
     <div class="nav-inner container">
       <a href="#top" class="brand" aria-label="Homepage">
@@ -141,11 +141,11 @@
       </a>
 
       <div class="nav-links">
-        <a href="#reel">Reel</a>
-        <a href="#servizi">Servizi</a>
-        <a href="#pacchetti">Pacchetti</a>
-        <a href="#reviews">Recensioni</a>
-        <a href="#contatti" class="btn">Contatti</a>
+        <a href="#reel" data-i18n="nav.reel">Reel</a>
+        <a href="#servizi" data-i18n="nav.services">Servizi</a>
+        <a href="#pacchetti" data-i18n="nav.packs">Pacchetti</a>
+        <a href="#reviews" data-i18n="nav.reviews">Recensioni</a>
+        <a href="#contatti" class="btn" data-i18n="nav.contact">Contatti</a>
         <div class="lang" aria-label="Lingua">
           <a href="?lang=it" data-lang="it" class="active">IT</a>
           <a href="?lang=en" data-lang="en">EN</a>
@@ -155,7 +155,7 @@
     </div>
   </nav>
 
-  <!-- ====== HERO ====== -->
+  <!-- HERO -->
   <header class="hero" id="top">
     <div class="hero-media" aria-hidden="true"></div>
     <div class="hero-inner container">
@@ -175,11 +175,11 @@
           </div>
         </section>
 
-        <!-- Colonna bio-preview (diverso dal passato) -->
+        <!-- Colonna bio-preview -->
         <aside class="hero-bio glass">
           <div class="row">
-            <!-- Usa la tua foto bio (stesso percorso del sito Tenerife) -->
-            <img src="images/bio/andreacoluci_bio.jpg" alt="Andrea Colucci ritratto" />
+            <!-- foto bio (Tenerife) -->
+            <img src="/media/portfolio-1.jpg" alt="Andrea Colucci ritratto" />
             <div>
               <div class="headline h3" data-i18n="bio.previewTitle">Andrea Colucci</div>
               <small data-i18n="bio.previewSub">Filmmaker · Storyteller visivo</small>
@@ -194,8 +194,8 @@
       </div>
     </div>
   </header>
-PARTE 2 --------------------------------------------------------------------------------------
-    <!-- ====== STRISCIA METRICHE (compact) ====== -->
+
+  <!-- ====== STRISCIA METRICHE -->
   <section class="container" style="padding:24px 0 6px">
     <div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
       <div class="glass" style="padding:12px 14px;text-align:center">
@@ -217,7 +217,7 @@ PARTE 2 ------------------------------------------------------------------------
     </div>
   </section>
 
-  <!-- ====== SERVIZI (cards neon glass) ====== -->
+  <!-- ====== SERVIZI -->
   <section id="servizi" class="container" style="padding:28px 0 8px">
     <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px">
       <h2 class="headline h2" style="margin:0" data-i18n="services.title">Servizi principali</h2>
@@ -228,7 +228,6 @@ PARTE 2 ------------------------------------------------------------------------
       <!-- Brand/Commercial -->
       <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
         <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--neon1),var(--neon2));box-shadow:var(--ring);display:grid;place-items:center">
-          <!-- icona -->
           <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brand">
             <path d="M4 6h16v12H4z" opacity=".2"/>
             <path d="M4 6h16M4 18h16M9 6v12" stroke="#061016" stroke-width="2"/>
@@ -270,7 +269,7 @@ PARTE 2 ------------------------------------------------------------------------
     </div>
   </section>
 
-  <!-- ====== REEL CON TAB (compact + più luminosità) ====== -->
+  <!-- ====== REEL CON TAB -->
   <section id="reel" class="container" style="padding:28px 0 8px">
     <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px">
       <h2 class="headline h2" style="margin:0" data-i18n="reel.title">Reel selezionati</h2>
@@ -286,9 +285,9 @@ PARTE 2 ------------------------------------------------------------------------
       <button class="btn" data-tab="brand" data-i18n="reel.tab.brand">Brand & Travel</button>
     </nav>
 
-    <!-- Video grid (unica, filtrata via data-group) -->
+    <!-- Video grid -->
     <div id="reelGrid" class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
-      <!-- === COMMERCIALI === -->
+      <!-- COMMERCIALI -->
       <article class="glass videofx" data-group="commercial" style="overflow:hidden">
         <div class="ratio">
           <iframe
@@ -296,7 +295,7 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Spot — Energy</b><span class="soft">60s</span>
+          <b class="headline h3" data-i18n="reel.card1.t">Spot — Energy</b><span class="soft">60s</span>
         </div>
       </article>
 
@@ -307,7 +306,7 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Promo — Lifestyle</b><span class="soft">90s</span>
+          <b class="headline h3" data-i18n="reel.card2.t">Promo — Lifestyle</b><span class="soft">90s</span>
         </div>
       </article>
 
@@ -318,11 +317,11 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Brand — Motion</b><span class="soft">75s</span>
+          <b class="headline h3" data-i18n="reel.card3.t">Brand — Motion</b><span class="soft">75s</span>
         </div>
       </article>
 
-      <!-- === WEDDING === -->
+      <!-- WEDDING -->
       <article class="glass videofx" data-group="wedding" hidden style="overflow:hidden">
         <div class="ratio">
           <iframe
@@ -330,7 +329,7 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Wedding — Tears & Joy</b><span class="soft">2:30</span>
+          <b class="headline h3" data-i18n="reel.card4.t">Wedding — Tears & Joy</b><span class="soft">2:30</span>
         </div>
       </article>
 
@@ -341,11 +340,11 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Wedding — Sunset Vows</b><span class="soft">3:10</span>
+          <b class="headline h3" data-i18n="reel.card5.t">Wedding — Sunset Vows</b><span class="soft">3:10</span>
         </div>
       </article>
 
-      <!-- === BRAND & TRAVEL === -->
+      <!-- BRAND & TRAVEL -->
       <article class="glass videofx" data-group="brand" hidden style="overflow:hidden">
         <div class="ratio">
           <iframe
@@ -353,7 +352,7 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Travel — Ocean Drive</b><span class="soft">1:20</span>
+          <b class="headline h3" data-i18n="reel.card6.t">Travel — Ocean Drive</b><span class="soft">1:20</span>
         </div>
       </article>
 
@@ -364,7 +363,7 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Real Estate — Views</b><span class="soft">1:05</span>
+          <b class="headline h3" data-i18n="reel.card7.t">Real Estate — Views</b><span class="soft">1:05</span>
         </div>
       </article>
 
@@ -375,32 +374,23 @@ PARTE 2 ------------------------------------------------------------------------
             loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="mini-meta">
-          <b class="headline h3">Brand — Movement</b><span class="soft">0:55</span>
+          <b class="headline h3" data-i18n="reel.card8.t">Brand — Movement</b><span class="soft">0:55</span>
         </div>
       </article>
     </div>
   </section>
 
-  <!-- ====== STILI SPECIFICI (luminosità + ratio + meta) ====== -->
+  <!-- STILI SPECIFICI -->
   <style>
-    /* Wrapper 16:9 responsive */
     .ratio{position:relative;width:100%;padding-top:56.25%}
     .ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-
-    /* Più luce sui video */
-    .videofx iframe{
-      filter:brightness(1.28) contrast(1.16) saturate(1.08);
-      transition:filter .25s ease;
-    }
+    .videofx iframe{filter:brightness(1.28) contrast(1.16) saturate(1.08);transition:filter .25s ease;}
     .videofx:hover iframe{filter:brightness(1.42) contrast(1.22) saturate(1.12)}
-
     .mini-meta{
       display:flex;align-items:center;justify-content:space-between;
       gap:10px;padding:10px 12px;border-top:1px solid var(--stroke);
       background:rgba(255,255,255,.03)
     }
-
-    /* Responsive tighten */
     @media (max-width:1100px){
       #reel .grid[style*="repeat(3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
     }
@@ -410,7 +400,7 @@ PARTE 2 ------------------------------------------------------------------------
     }
   </style>
 
-  <!-- ====== SCRIPT TABS VIDEO (no dipendenze) ====== -->
+  <!-- SCRIPT TABS -->
   <script>
     (function(){
       const buttons = document.querySelectorAll('nav [data-tab]');
@@ -427,611 +417,796 @@ PARTE 2 ------------------------------------------------------------------------
         });
       }
       buttons.forEach(b=>b.addEventListener('click', ()=>setTab(b.getAttribute('data-tab'))));
-      // default
       setTab('commercial');
-      // pausa/riavvio quando si cambia tab (ottimizzazione leggera)
       function postAll(method){
         document.querySelectorAll('#reelGrid iframe').forEach(fr=>{
           try{ fr.contentWindow && fr.contentWindow.postMessage({method}, '*'); }catch(e){}
         });
       }
       buttons.forEach(b=>b.addEventListener('click', ()=>{ postAll('pause'); setTimeout(()=>postAll('play'), 200); }));
-      // pausa quando scheda non visibile (coerenza con Parte 1)
       document.addEventListener('visibilitychange', ()=> postAll(document.hidden ? 'pause':'play'));
     })();
   </script>
-PARTE 3------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  <!-- ====== PACCHETTI VIDEO COMMERCIALI (fila da 5) ====== -->
-<section id="pacchetti-videoprofessionali" class="container"
+
+  <!-- ====== PACCHETTI VIDEO COMMERCIALI -->
+  <section id="pacchetti" class="container"
          style="padding:28px 0 10px;
                 background-image:
                   linear-gradient(to bottom, rgba(10,10,10,1) 0%, rgba(10,10,10,0.85) 15%, rgba(10,10,10,0.1) 50%, rgba(10,10,10,0.85) 85%, rgba(10,10,10,1) 100%),
-                  url('images/covers/background_pack_flare.jpg');
+                  url('/media/bg-services.webp.jpg');
                 background-size:cover;background-position:center;background-repeat:no-repeat;">
-  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px">
-    <h2 class="headline h2" style="margin:0" data-i18n="packs.title">Pacchetti Video Commerciali</h2>
-    <a href="#contatti" class="btn" data-i18n="packs.cta">Richiedi preventivo</a>
-  </header>
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px">
+      <h2 class="headline h2" style="margin:0" data-i18n="packs.title">Pacchetti Video Commerciali</h2>
+      <a href="#contatti" class="btn" data-i18n="packs.cta">Richiedi preventivo</a>
+    </header>
 
-  <!-- griglia 5 colonne su desktop -->
-  <div class="grid packs-grid"
-       style="gap:12px;grid-template-columns:repeat(5,minmax(0,1fr))">
-
-    <!-- Basic -->
-    <a href="pack_basic.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
-      <div class="pack-media" style="position:relative;border-radius:12px;overflow:hidden">
-        <img src="images/packs/pack_basic_miniatura.jpg" alt="Basic Pack" loading="lazy"
-             style="width:100%;height:160px;object-fit:cover;display:block;filter:contrast(1.06) saturate(1.02)">
-        <div class="pack-grad"></div>
-        <div class="pack-body">
-          <h3 class="headline h3" style="margin:0 0 4px">Basic</h3>
-          <p class="soft" style="margin:0 0 8px">Video breve (&lt;1 min), riprese e montaggio base.</p>
-          <div class="price">€399</div>
+    <div class="grid packs-grid" style="gap:12px;grid-template-columns:repeat(5,minmax(0,1fr))">
+      <!-- Basic -->
+      <a href="pack_basic.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
+        <div class="pack-media" style="position:relative;border-radius:12px;overflow:hidden">
+          <img src="/media/portfolio-1.jpg" alt="Basic Pack" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;display:block;filter:contrast(1.06) saturate(1.02)">
+          <div class="pack-grad"></div>
+          <div class="pack-body">
+            <h3 class="headline h3" style="margin:0 0 4px">Basic</h3>
+            <p class="soft" style="margin:0 0 8px" data-i18n="packs.basic.desc">Video breve (&lt;1 min), riprese e montaggio base.</p>
+            <div class="price">€399</div>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
 
-    <!-- Standard -->
-    <a href="pack_standard.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
-      <div class="pack-media">
-        <img src="images/packs/pack_standard_miniatura.jpg" alt="Standard Pack" loading="lazy"
-             style="width:100%;height:160px;object-fit:cover;display:block">
-        <div class="pack-grad"></div>
-        <div class="pack-body">
-          <h3 class="headline h3" style="margin:0 0 4px">Standard</h3>
-          <p class="soft" style="margin:0 0 8px">Promo (&lt;3 min), montaggio avanzato e color grading.</p>
-          <div class="price">€599</div>
+      <!-- Standard -->
+      <a href="pack_standard.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
+        <div class="pack-media">
+          <img src="/media/portfolio-1.jpg" alt="Standard Pack" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;display:block">
+          <div class="pack-grad"></div>
+          <div class="pack-body">
+            <h3 class="headline h3" style="margin:0 0 4px">Standard</h3>
+            <p class="soft" style="margin:0 0 8px" data-i18n="packs.standard.desc">Promo (&lt;3 min), montaggio avanzato e color grading.</p>
+            <div class="price">€599</div>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
 
-    <!-- Premium -->
-    <a href="pack_premium.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
-      <div class="pack-media">
-        <img src="images/packs/pack_premium_miniatura.jpg" alt="Premium Pack" loading="lazy"
-             style="width:100%;height:160px;object-fit:cover;display:block">
-        <div class="pack-grad"></div>
-        <div class="pack-body">
-          <h3 class="headline h3" style="margin:0 0 4px">Premium</h3>
-          <p class="soft" style="margin:0 0 8px">Cinematografico (&gt;3 min), storytelling + drone.</p>
-          <div class="price">€999</div>
+      <!-- Premium -->
+      <a href="pack_premium.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
+        <div class="pack-media">
+          <img src="/media/portfolio-1.jpg" alt="Premium Pack" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;display:block">
+          <div class="pack-grad"></div>
+          <div class="pack-body">
+            <h3 class="headline h3" style="margin:0 0 4px">Premium</h3>
+            <p class="soft" style="margin:0 0 8px" data-i18n="packs.premium.desc">Cinematografico (&gt;3 min), storytelling + drone.</p>
+            <div class="price">€999</div>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
 
-    <!-- Elite Project -->
-    <a href="pack_elite.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
-      <div class="pack-media">
-        <img src="images/packs/pack_elite_miniatura.jpg" alt="Elite Project" loading="lazy"
-             style="width:100%;height:160px;object-fit:cover;display:block">
-        <div class="pack-grad"></div>
-        <div class="pack-body">
-          <h3 class="headline h3" style="margin:0 0 4px">Elite Project</h3>
-          <p class="soft" style="margin:0 0 8px">Produzione multi-giorno, multi-location, regia.</p>
-          <div class="price">€1.999</div>
+      <!-- Elite Project -->
+      <a href="pack_elite.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
+        <div class="pack-media">
+          <img src="/media/portfolio-1.jpg" alt="Elite Project" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;display:block">
+          <div class="pack-grad"></div>
+          <div class="pack-body">
+            <h3 class="headline h3" style="margin:0 0 4px">Elite Project</h3>
+            <p class="soft" style="margin:0 0 8px" data-i18n="packs.elite.desc">Produzione multi-giorno, multi-location, regia.</p>
+            <div class="price">€1.999</div>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
 
-    <!-- Full Storytelling (spostato in PRIMA FILA, a destra) -->
-    <a href="pack_fullstorytelling.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
-      <div class="pack-media">
-        <img src="images/packs/pack_fullstorytelling_miniatura.jpg" alt="Full Storytelling" loading="lazy"
-             style="width:100%;height:160px;object-fit:cover;display:block">
-        <div class="pack-grad"></div>
-        <div class="pack-body">
-          <h3 class="headline h3" style="margin:0 0 4px">Full Storytelling</h3>
-          <p class="soft" style="margin:0 0 8px">Piano completo: main video + short form continuativa.</p>
-          <div class="price">€3.500</div>
+      <!-- Full Storytelling -->
+      <a href="pack_fullstorytelling.html" class="glass pack-card" style="text-decoration:none;overflow:hidden">
+        <div class="pack-media">
+          <img src="/media/portfolio-1.jpg" alt="Full Storytelling" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;display:block">
+          <div class="pack-grad"></div>
+          <div class="pack-body">
+            <h3 class="headline h3" style="margin:0 0 4px">Full Storytelling</h3>
+            <p class="soft" style="margin:0 0 8px" data-i18n="packs.full.desc">Piano completo: main video + short form continuativa.</p>
+            <div class="price">€3.500</div>
+          </div>
         </div>
-      </div>
-    </a>
-  </div>
-
-  <!-- note stile locale -->
-  <style>
-    .pack-media{position:relative;border-radius:12px;overflow:hidden}
-    .pack-card{transition:transform .25s ease, box-shadow .25s ease}
-    .pack-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.3), var(--ring)}
-    .pack-grad{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.05) 60%, rgba(0,0,0,0))}
-    .pack-body{position:absolute;left:10px;right:10px;bottom:10px}
-    .price{font-weight:800;color:var(--neon1)}
-    @media (max-width:1200px){.packs-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important}}
-    @media (max-width:980px){.packs-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}}
-    @media (max-width:700px){.packs-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
-    @media (max-width:480px){.packs-grid{grid-template-columns:1fr !important}}
-  </style>
-</section>
-
-<!-- ====== CTA SUPER COMPATTA (Preventivo + WhatsApp) ====== -->
-<section id="cta" class="container" style="padding:20px 0 6px">
-  <div class="glass" style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px">
-    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-      <span class="headline h3" style="margin:0" data-i18n="cta.headline">Pronto a dare vita al tuo progetto?</span>
-      <span class="soft" data-i18n="cta.sub">Risposta in giornata, brief gratuito.</span>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a href="#contatti" class="btn fill" data-i18n="cta.quote">Richiedi preventivo</a>
-      <a class="btn" id="ctaWhatsApp" rel="noopener" target="_blank" data-i18n="cta.whatsapp">Scrivimi su WhatsApp</a>
-    </div>
-  </div>
-</section>
-<script>
-  // Link WhatsApp con messaggio precompilato (modifica numero)
-  (function(){
-    var wa = document.getElementById('ctaWhatsApp');
-    if(wa){
-      var tel = '393331234567'; // <— SOSTITUISCI con il tuo numero (senza +)
-      var msg = encodeURIComponent('Ciao Andrea! Vorrei un preventivo per un video. Mi chiamo ___ e sono di ___.');
-      wa.href = 'https://wa.me/'+tel+'?text='+msg;
-    }
-  })();
-</script>
-
-<!-- ====== BIO AVANZATA (sfondo + foto sovraimpressa) ====== -->
-<section id="bio" class="container"
-         style="padding:26px 0 8px;position:relative">
-  <div class="bio-wrap glass"
-       style="display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center;overflow:hidden">
-    <!-- Colonna testo -->
-    <div style="padding:18px 18px 18px 18px">
-      <div class="tag" style="margin-bottom:8px"><span data-i18n="bio.kicker">Su di me</span></div>
-      <h2 class="headline h2" style="margin:0 0 8px" data-i18n="bio.title">Andrea Colucci — Filmmaker & Storyteller</h2>
-      <p class="soft" style="margin:0 0 10px" data-i18n="bio.desc1">
-        Creo video emozionali e ad alto impatto per brand, turismo, barche e real estate. Da autodidatta a regia, con un unico obiettivo: trasformare storie in immagini memorabili.
-      </p>
-      <ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
-        <li class="chip">300+ progetti</li>
-        <li class="chip">Drone 4K certificato</li>
-        <li class="chip">Consegne verticali (Reels/Shorts)</li>
-        <li class="chip">Color grading professionale</li>
-      </ul>
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-        <a href="#reel" class="btn" data-i18n="bio.btn.reel">Guarda il Reel</a>
-        <a href="#contatti" class="btn fill" data-i18n="bio.btn.contact">Parliamone ora</a>
-      </div>
+      </a>
     </div>
 
-    <!-- Colonna immagine -->
-    <div class="bio-media" style="position:relative;min-height:240px">
-      <!-- sfondo bio -->
-      <img src="images/covers/cover_intro_commerciale.jpg" alt="Background" loading="lazy"
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.08)">
-      <!-- overlay grad -->
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.55),rgba(0,0,0,.15))"></div>
-      <!-- foto profilo sovraimpressa -->
-      <img src="images/andrea_profile.png" alt="Andrea Colucci" loading="lazy"
-           style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
-                  box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
-      <!-- badge mini -->
-      <div class="glass" style="position:absolute;left:14px;bottom:14px;padding:8px 10px;display:flex;gap:8px;align-items:center">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-7z" stroke="currentColor" stroke-width="1.5"/></svg>
-        <span class="soft" style="font-size:13px" data-i18n="bio.badge">Based in Italy • Working in Tenerife</span>
+    <style>
+      .pack-media{position:relative;border-radius:12px;overflow:hidden}
+      .pack-card{transition:transform .25s ease, box-shadow .25s ease}
+      .pack-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.3), var(--ring)}
+      .pack-grad{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.05) 60%, rgba(0,0,0,0))}
+      .pack-body{position:absolute;left:10px;right:10px;bottom:10px}
+      .price{font-weight:800;color:var(--neon1)}
+      @media (max-width:1200px){.packs-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important}}
+      @media (max-width:980px){.packs-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}}
+      @media (max-width:700px){.packs-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+      @media (max-width:480px){.packs-grid{grid-template-columns:1fr !important}}
+    </style>
+  </section>
+
+  <!-- CTA SUPER COMPATTA -->
+  <section id="cta" class="container" style="padding:20px 0 6px">
+    <div class="glass" style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <span class="headline h3" style="margin:0" data-i18n="cta.headline">Pronto a dare vita al tuo progetto?</span>
+        <span class="soft" data-i18n="cta.sub">Risposta in giornata, brief gratuito.</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="#contatti" class="btn fill" data-i18n="cta.quote">Richiedi preventivo</a>
+        <a class="btn" id="ctaWhatsApp" rel="noopener" target="_blank" data-i18n="cta.whatsapp">Scrivimi su WhatsApp</a>
       </div>
     </div>
-  </div>
+  </section>
+  <script>
+    (function(){
+      var wa = document.getElementById('ctaWhatsApp');
+      if(wa){
+        var tel = '393331234567';
+        var msg = encodeURIComponent('Ciao Andrea! Vorrei un preventivo per un video. Mi chiamo ___ e sono di ___.');
+        wa.href = 'https://wa.me/'+tel+'?text='+msg;
+      }
+    })();
+  </script>
 
-  <style>
-    .chip{
-      display:inline-block;padding:6px 10px;border-radius:999px;
-      background:rgba(255,255,255,.06);border:1px solid var(--stroke);font-size:13px
-    }
-    @media (max-width:980px){
-      #bio .bio-wrap{grid-template-columns:1fr !important}
-      #bio .bio-media{min-height:220px}
-    }
-  </style>
-</section>
+  <!-- BIO AVANZATA -->
+  <section id="bio" class="container" style="padding:26px 0 8px;position:relative">
+    <div class="bio-wrap glass" style="display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center;overflow:hidden">
+      <!-- testo -->
+      <div style="padding:18px 18px 18px 18px">
+        <div class="tag" style="margin-bottom:8px"><span data-i18n="bio.kicker">Su di me</span></div>
+        <h2 class="headline h2" style="margin:0 0 8px" data-i18n="bio.title">Andrea Colucci — Filmmaker & Storyteller</h2>
+        <p class="soft" style="margin:0 0 10px" data-i18n="bio.desc1">
+          Creo video emozionali e ad alto impatto per brand, turismo, barche e real estate. Da autodidatta a regia, con un unico obiettivo: trasformare storie in immagini memorabili.
+        </p>
+        <ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+          <li class="chip" data-i18n="bio.p1">300+ progetti</li>
+          <li class="chip" data-i18n="bio.p2">Drone 4K certificato</li>
+          <li class="chip" data-i18n="bio.p3">Consegne verticali (Reels/Shorts)</li>
+          <li class="chip" data-i18n="bio.p4">Color grading professionale</li>
+        </ul>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <a href="#reel" class="btn" data-i18n="bio.btn.reel">Guarda il Reel</a>
+          <a href="#contatti" class="btn fill" data-i18n="bio.btn.contact">Parliamone ora</a>
+        </div>
+      </div>
 
-<!-- ====== MINI BAR STICKY WHATSAPP (opzionale, poco invasiva) ====== -->
-<div id="miniBar" class="glass"
-     style="position:sticky;bottom:12px;margin:0 auto;left:0;right:0;z-index:20;max-width:680px;
+      <!-- immagine -->
+      <div class="bio-media" style="position:relative;min-height:240px">
+        <img src="/media/bg-services.webp.jpg" alt="Background" loading="lazy"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.08)">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.55),rgba(0,0,0,.15))"></div>
+        <img src="/media/portfolio-1.jpg" alt="Andrea Colucci" loading="lazy"
+             style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
+                    box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
+        <div class="glass" style="position:absolute;left:14px;bottom:14px;padding:8px 10px;display:flex;gap:8px;align-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-7z" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span class="soft" style="font-size:13px" data-i18n="bio.badge">Based in Italy • Working in Tenerife</span>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);font-size:13px}
+      @media (max-width:980px){
+        #bio .bio-wrap{grid-template-columns:1fr !important}
+        #bio .bio-media{min-height:220px}
+      }
+    </style>
+  </section>
+
+  <!-- MINI BAR STICKY WHATSAPP -->
+  <div id="miniBar" class="glass"
+      style="position:sticky;bottom:12px;margin:0 auto;left:0;right:0;z-index:20;max-width:680px;
             display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px">
-  <span class="soft" style="font-size:14px" data-i18n="minibar.text">Domande rapide? Rispondo su WhatsApp.</span>
-  <a class="btn" id="miniBarWA" target="_blank" rel="noopener" data-i18n="minibar.btn">Apri chat</a>
-</div>
-<script>
-  (function(){
-    var a = document.getElementById('miniBarWA');
-    if(a){
-      var tel = '3910911719'; // <— SOSTITUISCI con il tuo numero
-      var msg = encodeURIComponent('Ciao Andrea! Ho una domanda veloce sul tuo servizio.');
-      a.href = 'https://wa.me/'+tel+'?text='+msg;
+    <span class="soft" style="font-size:14px" data-i18n="minibar.text">Domande rapide? Rispondo su WhatsApp.</span>
+    <a class="btn" id="miniBarWA" target="_blank" rel="noopener" data-i18n="minibar.btn">Apri chat</a>
+  </div>
+  <script>
+    (function(){
+      var a = document.getElementById('miniBarWA');
+      if(a){
+        var tel = '3910911719';
+        var msg = encodeURIComponent('Ciao Andrea! Ho una domanda veloce sul tuo servizio.');
+        a.href = 'https://wa.me/'+tel+'?text='+msg;
+      }
+    })();
+  </script>
+
+  <!-- ====== RECENSIONI -->
+  <section id="reviews" class="container" style="padding:28px 0 6px">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
+      <h2 class="headline h2" style="margin:0" data-i18n="reviews.title">Cosa dicono di me</h2>
+      <span class="soft" style="white-space:nowrap" data-i18n="reviews.subtitle">Valutazione media 4.9/5</span>
+    </header>
+
+    <div class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
+      <!-- Card 1 -->
+      <figure class="glass review"
+              style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+        <img src="/media/portfolio-1.jpg" alt="Cliente" loading="lazy"
+             style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+        <figcaption>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong data-i18n="reviews.r1.who">Giulia R. — Hotel Manager</strong>
+            <span class="stars" aria-label="5 su 5">★★★★★</span>
+          </div>
+          <p class="soft" style="margin:6px 0 0" data-i18n="reviews.r1.text">
+            “Video emozionale perfetto per la nostra homepage. Brevi tagli verticali pronti per social — prenotazioni in crescita!”
+          </p>
+        </figcaption>
+      </figure>
+
+      <!-- Card 2 -->
+      <figure class="glass review"
+              style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+        <img src="/media/portfolio-1.jpg" alt="Cliente" loading="lazy"
+             style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+        <figcaption>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong data-i18n="reviews.r2.who">Marco D. — Boat Charter</strong>
+            <span class="stars" aria-label="5 su 5">★★★★★</span>
+          </div>
+          <p class="soft" style="margin:6px 0 0" data-i18n="reviews.r2.text">
+            “Riprese drone incredibili. Ha saputo raccontare l’esperienza a bordo come volevamo, zero stress sul set.”
+          </p>
+        </figcaption>
+      </figure>
+
+      <!-- Card 3 -->
+      <figure class="glass review"
+              style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+        <img src="/media/portfolio-1.jpg" alt="Cliente" loading="lazy"
+             style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+        <figcaption>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong data-i18n="reviews.r3.who">Sara & Luca — Wedding</strong>
+            <span class="stars" aria-label="4 su 5">★★★★☆</span>
+          </div>
+          <p class="soft" style="margin:6px 0 0" data-i18n="reviews.r3.text">
+            “Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto tra gli amici!”
+          </p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
+    </div>
+
+    <dialog id="reviewModal"
+            style="border:none;border-radius:16px;padding:0;max-width:520px;width:92vw;background:#0a0a0a;color:#fff">
+      <form method="dialog" style="padding:16px 16px 10px">
+        <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
+          <button class="btn" value="close" aria-label="Chiudi">×</button>
+        </header>
+        <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr">
+          <div class="field" style="grid-column:1 / -1">
+            <label class="label" for="r_name" data-i18n="reviews.form.name">Nome</label>
+            <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
+          </div>
+          <div class="field">
+            <label class="label" for="r_role" data-i18n="reviews.form.role">Ruolo</label>
+            <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
+          </div>
+          <div class="field">
+            <label class="label" for="r_stars" data-i18n="reviews.form.rating">Valutazione</label>
+            <select id="r_stars" class="control" required>
+              <option value="5">★★★★★ — 5</option>
+              <option value="4">★★★★☆ — 4</option>
+              <option value="3">★★★☆☆ — 3</option>
+              <option value="2">★★☆☆☆ — 2</option>
+              <option value="1">★☆☆☆☆ — 1</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:1 / -1">
+            <label class="label" for="r_text" data-i18n="reviews.form.review">Recensione</label>
+            <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn" value="close" data-i18n="common.cancel">Annulla</button>
+          <button class="btn fill" id="saveReview" type="button" data-i18n="reviews.save">Pubblica</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Servizi Video — Andrea Colucci",
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "36" }
     }
-  })();
-</script>
-parte 4 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  <!-- ====== RECENSIONI (compatte + SEO) ====== -->
-<section id="recensioni" class="container" style="padding:28px 0 6px">
-  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-    <h2 class="headline h2" style="margin:0" data-i18n="reviews.title">Cosa dicono di me</h2>
-    <span class="soft" style="white-space:nowrap" data-i18n="reviews.subtitle">Valutazione media 4.9/5</span>
-  </header>
+    </script>
 
-  <!-- griglia testimonianze -->
-  <div class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- Card 1 -->
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="images/reviews/avatar1.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Giulia R. — Hotel Manager</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Video emozionale perfetto per la nostra homepage. Brevi tagli verticali pronti per social — prenotazioni in crescita!”
-        </p>
-      </figcaption>
-    </figure>
+    <style>
+      .review .stars{letter-spacing:1px;color:var(--neon1)}
+      dialog::backdrop{background:rgba(0,0,0,.6)}
+      .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
+      .field .control{
+        width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
+        border-radius:10px;color:#fff;padding:10px 12px;outline:none
+      }
+      .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
+      @media (max-width:980px){#reviews .grid{grid-template-columns:1fr !important}}
+    </style>
+  </section>
 
-    <!-- Card 2 -->
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="images/reviews/avatar2.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Marco D. — Boat Charter</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Riprese drone incredibili. Ha saputo raccontare l’esperienza a bordo come volevamo, zero stress sul set.”
-        </p>
-      </figcaption>
-    </figure>
+  <!-- ====== RICHIESTA PREVENTIVO -->
+  <section id="contatti" class="container" style="padding:22px 0 6px">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
+      <h2 class="headline h2" style="margin:0" data-i18n="contact.title">Richiedi un preventivo</h2>
+      <span class="soft" data-i18n="contact.subtitle">Brief gratuito • risposta in giornata</span>
+    </header>
 
-    <!-- Card 3 -->
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="images/reviews/avatar3.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Sara & Luca — Wedding</strong>
-          <span class="stars" aria-label="5 su 5">★★★★☆</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto tra gli amici!”
-        </p>
-      </figcaption>
-    </figure>
-  </div>
-
-  <!-- pulsante lascia recensione (apre modale) -->
-  <div style="display:flex;justify-content:flex-end;margin-top:12px">
-    <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
-  </div>
-
-  <!-- Modal nuova recensione -->
-  <dialog id="reviewModal"
-          style="border:none;border-radius:16px;padding:0;max-width:520px;width:92vw;background:#0a0a0a;color:#fff">
-    <form method="dialog" style="padding:16px 16px 10px">
-      <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
-        <button class="btn" value="close" aria-label="Chiudi">×</button>
-      </header>
-      <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr">
-        <div class="field" style="grid-column:1 / -1">
-          <label class="label" for="r_name">Nome</label>
-          <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
+    <div class="glass" style="border-radius:16px;padding:14px">
+      <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div class="field">
+          <label class="label" for="q_name" data-i18n="contact.form.name">Nome e Cognome</label>
+          <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
         </div>
         <div class="field">
-          <label class="label" for="r_role">Ruolo</label>
-          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
+          <label class="label" for="q_email" data-i18n="contact.form.email">Email</label>
+          <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
         </div>
         <div class="field">
-          <label class="label" for="r_stars">Valutazione</label>
-          <select id="r_stars" class="control" required>
-            <option value="5">★★★★★ — 5</option>
-            <option value="4">★★★★☆ — 4</option>
-            <option value="3">★★★☆☆ — 3</option>
-            <option value="2">★★☆☆☆ — 2</option>
-            <option value="1">★☆☆☆☆ — 1</option>
+          <label class="label" for="q_phone" data-i18n="contact.form.phone">Telefono / WhatsApp</label>
+          <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
+        </div>
+        <div class="field">
+          <label class="label" for="q_service" data-i18n="contact.form.service">Servizio</label>
+          <select id="q_service" class="control" required>
+            <option value="" disabled selected data-i18n="contact.form.select">Seleziona…</option>
+            <option data-i18n="contact.form.opt1">Commerciali</option>
+            <option data-i18n="contact.form.opt2">Wedding</option>
+            <option data-i18n="contact.form.opt3">Music Video</option>
+            <option data-i18n="contact.form.opt4">Real Estate</option>
+            <option data-i18n="contact.form.opt5">Barche / Charter</option>
+            <option data-i18n="contact.form.opt6">Altro</option>
           </select>
         </div>
         <div class="field" style="grid-column:1 / -1">
-          <label class="label" for="r_text">Recensione</label>
-          <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
+          <label class="label" for="q_message" data-i18n="contact.form.msg">Messaggio</label>
+          <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
         </div>
-      </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button class="btn" value="close" data-i18n="common.cancel">Annulla</button>
-        <button class="btn fill" id="saveReview" type="button" data-i18n="reviews.save">Pubblica</button>
-      </div>
-    </form>
-  </dialog>
 
-  <!-- JSON-LD (aggregate rating) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "Servizi Video — Andrea Colucci",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "36"
-    }
-  }
-  </script>
+        <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
+          <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
+          <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
+        </div>
+      </form>
+    </div>
 
-  <style>
-    .review .stars{letter-spacing:1px;color:var(--neon1)}
-    dialog::backdrop{background:rgba(0,0,0,.6)}
-    .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
-    .field .control{
-      width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
-      border-radius:10px;color:#fff;padding:10px 12px;outline:none
-    }
-    .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
-    @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
-  </style>
-</section>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px">
+      <a class="btn" href="mailto:andreacolucci@hotmail.it">Email</a>
+      <a class="btn" id="quickWA" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a>
+      <a class="btn" href="https://youtube.com/@andrecolu_video" target="_blank" rel="noopener">YouTube</a>
+      <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
+    </div>
 
-<!-- ====== RICHIESTA PREVENTIVO (email + whatsapp) ====== -->
-<section id="contatti" class="container" style="padding:22px 0 6px">
-  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-    <h2 class="headline h2" style="margin:0" data-i18n="contact.title">Richiedi un preventivo</h2>
-    <span class="soft" data-i18n="contact.subtitle">Brief gratuito • risposta in giornata</span>
-  </header>
+    <script>
+      var WA_NUMBER = '393331234567';
 
-  <div class="glass" style="border-radius:16px;padding:14px">
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div class="field">
-        <label class="label" for="q_name">Nome e Cognome</label>
-        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
-      </div>
-      <div class="field">
-        <label class="label" for="q_email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
-      </div>
-      <div class="field">
-        <label class="label" for="q_phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
-      </div>
-      <div class="field">
-        <label class="label" for="q_service">Servizio</label>
-        <select id="q_service" class="control" required>
-          <option value="" disabled selected>Seleziona…</option>
-          <option>Commerciali</option>
-          <option>Wedding</option>
-          <option>Music Video</option>
-          <option>Real Estate</option>
-          <option>Barche / Charter</option>
-          <option>Altro</option>
-        </select>
-      </div>
-      <div class="field" style="grid-column:1 / -1">
-        <label class="label" for="q_message">Messaggio</label>
-        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
-      </div>
+      (function(){
+        var openBtn = document.getElementById('openReview');
+        var dialog  = document.getElementById('reviewModal');
+        var saveBtn = document.getElementById('saveReview');
+        if(openBtn && dialog){ openBtn.addEventListener('click', function(){ dialog.showModal(); }); }
+        if(saveBtn && dialog){
+          saveBtn.addEventListener('click', function(){
+            dialog.close();
+            alert('Grazie! La tua recensione sarà visibile a breve.');
+          });
+        }
+      })();
 
-      <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
-        <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
-        <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
-      </div>
-    </form>
-  </div>
+      function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
 
-  <!-- contatti rapidi -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px">
-    <a class="btn" href="mailto:andreacolucci@hotmail.it">Email</a>
-    <a class="btn" id="quickWA" target="_blank" rel="noopener">WhatsApp</a>
-    <a class="btn" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a>
-    <a class="btn" href="https://youtube.com/@andrecolu_video" target="_blank" rel="noopener">YouTube</a>
-    <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
-  </div>
-
-  <script>
-    // ——— CONFIGURA QUI il tuo numero WhatsApp (solo numeri, senza +)
-    var WA_NUMBER = '393331234567';
-
-    // Modale recensioni
-    (function(){
-      var openBtn = document.getElementById('openReview');
-      var dialog  = document.getElementById('reviewModal');
-      var saveBtn = document.getElementById('saveReview');
-      if(openBtn && dialog){
-        openBtn.addEventListener('click', function(){ dialog.showModal(); });
-      }
-      if(saveBtn && dialog){
-        saveBtn.addEventListener('click', function(){
-          // mock: chiude modale e mostra alert (integrazione futura: salvare su backend)
-          dialog.close();
-          alert('Grazie! La tua recensione sarà visibile a breve.');
+      (function(){
+        var btn = document.getElementById('sendMail');
+        if(!btn) return;
+        btn.addEventListener('click', function(){
+          var name = getVal('q_name');
+          var email= getVal('q_email');
+          var phone= getVal('q_phone');
+          var serv = getVal('q_service');
+          var msg  = getVal('q_message');
+          var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
+          var body = encodeURIComponent(
+            'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
+            '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
+          );
+          window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
         });
-      }
-    })();
+      })();
 
-    // Helpers
-    function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+      (function(){
+        var a = document.getElementById('sendWhatsApp');
+        if(!a) return;
+        a.addEventListener('click', function(){
+          var name = getVal('q_name') || '';
+          var phone= getVal('q_phone') || '';
+          var serv = getVal('q_service') || '';
+          var msg  = getVal('q_message') || '';
+          var text = encodeURIComponent(
+            'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
+            'Nome: ' + name + '\nTelefono: ' + phone + '\nServizio: ' + serv + '\n\n' + msg
+          );
+          a.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+        });
+      })();
 
-    // Email
-    (function(){
-      var btn = document.getElementById('sendMail');
-      if(!btn) return;
-      btn.addEventListener('click', function(){
-        var name = getVal('q_name');
-        var email= getVal('q_email');
-        var phone= getVal('q_phone');
-        var serv = getVal('q_service');
-        var msg  = getVal('q_message');
-        var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
-        var body = encodeURIComponent(
-          'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
-          '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
-        );
-        window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
-      });
-    })();
+      (function(){
+        var quick = document.getElementById('quickWA');
+        if(quick){
+          var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
+          quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+        }
+      })();
+    </script>
+  </section>
 
-    // WhatsApp (form)
-    (function(){
-      var a = document.getElementById('sendWhatsApp');
-      if(!a) return;
-      a.addEventListener('click', function(e){
-        var name = getVal('q_name') || '';
-        var phone= getVal('q_phone') || '';
-        var serv = getVal('q_service') || '';
-        var msg  = getVal('q_message') || '';
-        var text = encodeURIComponent(
-          'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
-          'Nome: ' + name + '\nTelefono: ' + phone + '\nServizio: ' + serv + '\n\n' + msg
-        );
-        a.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-      });
-    })();
+  <!-- ====== FOOTER -->
+  <footer id="footer" class="container" style="padding:24px 0 18px">
+    <div class="glass" style="
+        border-radius:18px;overflow:hidden;position:relative;
+        background:
+          radial-gradient(1200px 400px at 80% 120%, rgba(77,225,75,.06), transparent 50%),
+          rgba(255,255,255,.04)">
+      <div style="
+          background:url('/media/bg-portfolio.webp.jpg') center/cover no-repeat;
+          filter:brightness(.55) contrast(1.05) saturate(1.08);
+          position:absolute;inset:0;z-index:0"></div>
 
-    // WhatsApp rapido
-    (function(){
-      var quick = document.getElementById('quickWA');
-      if(quick){
-        var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
-        quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-      }
-    })();
-  </script>
-</section>
-parte 5--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  <!-- ====== FOOTER (neo–dark compatto, senza duplicati) ====== -->
-<footer id="footer" class="container" style="padding:24px 0 18px">
-  <div class="glass" style="
-      border-radius:18px;overflow:hidden;position:relative;
-      background:
-        radial-gradient(1200px 400px at 80% 120%, rgba(77,225,75,.06), transparent 50%),
-        rgba(255,255,255,.04)">
-    <div style="
-        background:url('images/covers/footer_background_cinematic.jpg') center/cover no-repeat;
-        filter:brightness(.55) contrast(1.05) saturate(1.08);
-        position:absolute;inset:0;z-index:0"></div>
+      <div style="position:absolute;inset:0;
+                  background:linear-gradient(to bottom, rgba(10,10,10,.1), rgba(10,10,10,.6) 40%, rgba(10,10,10,.9));
+                  z-index:1"></div>
 
-    <!-- overlay -->
-    <div style="position:absolute;inset:0;
-                background:linear-gradient(to bottom, rgba(10,10,10,.1), rgba(10,10,10,.6) 40%, rgba(10,10,10,.9));
-                z-index:1"></div>
+      <div style="position:relative;z-index:2;padding:18px 14px">
+        <div class="grid" style="gap:14px;grid-template-columns:2fr 1fr 1fr">
+          <div>
+            <h3 class="headline h3" style="margin:0 0 6px">Andrea Colucci</h3>
+            <p class="soft" style="margin:0 0 10px;max-width:46ch" data-i18n="footer.desc">
+              Filmmaker e storyteller visivo. Commerciali, Wedding, Music Video, Real Estate, Charter.
+            </p>
 
-    <!-- contenuto -->
-    <div style="position:relative;z-index:2;padding:18px 14px">
-      <div class="grid" style="gap:14px;grid-template-columns:2fr 1fr 1fr">
-        <!-- blocco 1 -->
-        <div>
-          <h3 class="headline h3" style="margin:0 0 6px">Andrea Colucci</h3>
-          <p class="soft" style="margin:0 0 10px;max-width:46ch">
-            Filmmaker e storyteller visivo. Commerciali, Wedding, Music Video, Real Estate, Charter.
-          </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a class="btn" href="mailto:andreacolucci@hotmail.it" aria-label="Email">Email</a>
+              <a class="btn" id="footerWA" target="_blank" rel="noopener" aria-label="WhatsApp">WhatsApp</a>
+              <a class="btn" href="#contatti" aria-label="Richiedi preventivo" data-i18n="footer.quote">Preventivo</a>
+            </div>
+          </div>
 
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <a class="btn" href="mailto:andreacolucci@hotmail.it" aria-label="Email">Email</a>
-            <a class="btn" id="footerWA" target="_blank" rel="noopener" aria-label="WhatsApp">WhatsApp</a>
-            <a class="btn" href="#contatti" aria-label="Richiedi preventivo">Preventivo</a>
+          <nav aria-label="Sezioni">
+            <h4 class="soft" style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em" data-i18n="footer.sections.t">Sezioni</h4>
+            <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
+              <li><a class="link" href="#reel" data-i18n="footer.sections.reel">Showreel</a></li>
+              <li><a class="link" href="#servizi" data-i18n="footer.sections.services">Servizi</a></li>
+              <li><a class="link" href="#pacchetti" data-i18n="footer.sections.packs">Pacchetti</a></li>
+              <li><a class="link" href="#reviews" data-i18n="footer.sections.reviews">Recensioni</a></li>
+              <li><a class="link" href="#contatti" data-i18n="footer.sections.contact">Contatti</a></li>
+            </ul>
+          </nav>
+
+          <div>
+            <h4 class="soft" style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em" data-i18n="footer.social.t">Social</h4>
+            <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
+              <li><a class="link" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a></li>
+              <li><a class="link" href="https://youtube.com/@andrecolu_video" target="_blank" rel="noopener">YouTube</a></li>
+              <li><a class="link" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a></li>
+            </ul>
           </div>
         </div>
 
-        <!-- blocco 2 -->
-        <nav aria-label="Sezioni">
-          <h4 class="soft" style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em">Sezioni</h4>
-          <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
-            <li><a class="link" href="#reel">Showreel</a></li>
-            <li><a class="link" href="#servizi">Servizi</a></li>
-            <li><a class="link" href="#pacchetti">Pacchetti</a></li>
-            <li><a class="link" href="#recensioni">Recensioni</a></li>
-            <li><a class="link" href="#contatti">Contatti</a></li>
-          </ul>
-        </nav>
-
-        <!-- blocco 3 -->
-        <div>
-          <h4 class="soft" style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em">Social</h4>
-          <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
-            <li><a class="link" href="https://instagram.com/andrecolu_video" target="_blank" rel="noopener">Instagram</a></li>
-            <li><a class="link" href="https://youtube.com/@andrecolu_video" target="_blank" rel="noopener">YouTube</a></li>
-            <li><a class="link" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="margin-top:14px;border-top:1px solid var(--stroke);padding-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-        <small class="soft">© 2025 Andrea Colucci — All rights reserved</small>
-        <div style="display:flex;gap:12px;align-items:center">
-          <!-- link ancora ai details sotto (niente duplicati) -->
-          <a class="link" href="#privacy">Privacy</a>
-          <a class="link" href="#cookie">Cookie</a>
-          <a class="link" href="#terms">Termini</a>
-          <button id="toTop" class="btn" aria-label="Torna su">↑</button>
+        <div style="margin-top:14px;border-top:1px solid var(--stroke);padding-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <small class="soft">© 2025 Andrea Colucci — All rights reserved</small>
+          <div style="display:flex;gap:12px;align-items:center">
+            <a class="link" href="#privacy">Privacy</a>
+            <a class="link" href="#cookie">Cookie</a>
+            <a class="link" href="#terms">Termini</a>
+            <button id="toTop" class="btn" aria-label="Torna su">↑</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<!-- ====== POLICY (accordion compatto) ====== -->
-<section id="policy" class="container" style="padding:10px 0 24px">
-  <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr 1fr">
-    <!-- Privacy -->
-    <details id="privacy" class="glass" style="border-radius:14px;padding:12px">
-      <summary class="headline h5" style="cursor:pointer">Privacy Policy</summary>
-      <div class="soft" style="margin-top:8px;line-height:1.55">
-        <p>Questo sito raccoglie alcuni dati personali (es. indirizzo IP) esclusivamente per statistiche e sicurezza. Nessun dato sensibile o marketing.</p>
-        <p>I dati sono conservati in modo sicuro e non ceduti a terzi. Puoi chiedere la cancellazione scrivendo a
-          <a class="link" href="mailto:andreacolucci@hotmail.it">andreacolucci@hotmail.it</a>.
-        </p>
-      </div>
-    </details>
+  <!-- POLICY (accordion) -->
+  <section id="policy" class="container" style="padding:10px 0 24px">
+    <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr 1fr">
+      <details id="privacy" class="glass" style="border-radius:14px;padding:12px">
+        <summary class="headline h5" style="cursor:pointer">Privacy Policy</summary>
+        <div class="soft" style="margin-top:8px;line-height:1.55">
+          <p data-i18n="policy.privacy.p1">Questo sito raccoglie alcuni dati personali (es. indirizzo IP) esclusivamente per statistiche e sicurezza. Nessun dato sensibile o marketing.</p>
+          <p data-i18n="policy.privacy.p2">I dati sono conservati in modo sicuro e non ceduti a terzi. Puoi chiedere la cancellazione scrivendo a <a class="link" href="mailto:andreacolucci@hotmail.it">andreacolucci@hotmail.it</a>.</p>
+        </div>
+      </details>
 
-    <!-- Cookie -->
-    <details id="cookie" class="glass" style="border-radius:14px;padding:12px">
-      <summary class="headline h5" style="cursor:pointer">Cookie Policy</summary>
-      <div class="soft" style="margin-top:8px;line-height:1.55">
-        <p>Usiamo solo cookie tecnici per il corretto funzionamento. Puoi disattivarli dal browser, ma alcune funzioni potrebbero limitarsi.</p>
-        <p>Per info: <a class="link" href="mailto:andreacolucci@hotmail.it">andreacolucci@hotmail.it</a>.</p>
-      </div>
-    </details>
+      <details id="cookie" class="glass" style="border-radius:14px;padding:12px">
+        <summary class="headline h5" style="cursor:pointer">Cookie Policy</summary>
+        <div class="soft" style="margin-top:8px;line-height:1.55">
+          <p data-i18n="policy.cookie.p1">Usiamo solo cookie tecnici per il corretto funzionamento. Puoi disattivarli dal browser, ma alcune funzioni potrebbero limitarsi.</p>
+          <p data-i18n="policy.cookie.p2">Per info: <a class="link" href="mailto:andreacolucci@hotmail.it">andreacolucci@hotmail.it</a>.</p>
+        </div>
+      </details>
 
-    <!-- Termini -->
-    <details id="terms" class="glass" style="border-radius:14px;padding:12px">
-      <summary class="headline h5" style="cursor:pointer">Terms of Service</summary>
-      <div class="soft" style="margin-top:8px;line-height:1.55">
-        <p>Tutti i contenuti (video, testi, immagini) sono © Andrea Colucci. È vietata la riproduzione senza autorizzazione scritta.</p>
-        <p>Il sito è fornito “così com’è”, senza garanzie. Nessuna responsabilità per danni derivanti dall’uso.</p>
-      </div>
-    </details>
-  </div>
-</section>
+      <details id="terms" class="glass" style="border-radius:14px;padding:12px">
+        <summary class="headline h5" style="cursor:pointer">Terms of Service</summary>
+        <div class="soft" style="margin-top:8px;line-height:1.55">
+          <p data-i18n="policy.terms.p1">Tutti i contenuti (video, testi, immagini) sono © Andrea Colucci. È vietata la riproduzione senza autorizzazione scritta.</p>
+          <p data-i18n="policy.terms.p2">Il sito è fornito “così com’è”, senza garanzie. Nessuna responsabilità per danni derivanti dall’uso.</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
-<!-- ====== SCRIPT utility footer/policy ====== -->
-<script>
-  // back-to-top
-  (function(){
-    var btn = document.getElementById('toTop');
-    if(!btn) return;
-    btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
-  })();
+  <!-- SCRIPT utility footer -->
+  <script>
+    (function(){
+      var btn = document.getElementById('toTop');
+      if(!btn) return;
+      btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+    })();
 
-  // WhatsApp nel footer (riusa WA_NUMBER se definito nella parte 4)
-  (function(){
-    var wa = document.getElementById('footerWA');
-    var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
-    if(wa){
-      var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito 🙌');
-      wa.href = 'https://wa.me/' + number + '?text=' + text;
-    }
-  })();
+    (function(){
+      var wa = document.getElementById('footerWA');
+      var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
+      if(wa){
+        var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito 🙌');
+        wa.href = 'https://wa.me/' + number + '?text=' + text;
+      }
+    })();
 
-  // Apri details corretti se navigo da link del footer (Privacy/Cookie/Termini)
-  (function(){
-    function openFromHash(){
-      if(!location.hash) return;
-      var el = document.querySelector(location.hash);
-      if(el && el.tagName === 'DETAILS' && !el.open){ el.open = true; }
-      // focus per accessibilità
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-    window.addEventListener('hashchange', openFromHash);
-    openFromHash();
-  })();
-</script>
+    (function(){
+      function openFromHash(){
+        if(!location.hash) return;
+        var el = document.querySelector(location.hash);
+        if(el && el.tagName === 'DETAILS' && !el.open){ el.open = true; }
+        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      window.addEventListener('hashchange', openFromHash);
+      openFromHash();
+    })();
+  </script>
+
+  <!-- ============ I18N: Dizionari IT/EN/ES + loader da ?lang ============ -->
+  <script>
+    (function(){
+      const dict = {
+        it: {
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
+          "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
+
+          "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.reviews":"Recensioni","nav.contact":"Contatti",
+
+          "hero.badge":"Chiavari · Riviera di Levante",
+          "hero.title":"Video che parlano, immagini che restano",
+          "hero.subtitle":"Spot commerciali, wedding e brand/travel con look cinematografico e performance social. Drone 4K certificato. Disponibile in Liguria e ovunque serva.",
+
+          "cta.watch":"Guarda il Reel","cta.quote":"Richiedi preventivo","cta.bio":"Chi sono",
+          "stats.projects":"Progetti realizzati","stats.views":"Visualizzazioni totali","stats.drone":"Drone certificato","stats.availability":"Disponibilità",
+
+          "services.title":"Servizi principali",
+          "services.cta":"Richiedi preventivo",
+          "services.brand.title":"Brand & Commercial",
+          "services.brand.desc":"Spot per aziende, hotel e location; script, riprese multi-camera, color grading e consegne ottimizzate per social/ADV.",
+          "services.wedding.title":"Wedding Film",
+          "services.wedding.desc":"Stile cinematografico, audio curato e storytelling emotivo. Trailer + film lungo, opzione drone dove consentito.",
+          "services.travel.title":"Travel & Real Estate",
+          "services.travel.desc":"Contenuti per turismo, barche, proprietà: riprese aeree, motion dinamico, consegne verticali (Reels/Shorts).",
+
+          "reel.title":"Reel selezionati","reel.hint":"Sfoglia per categoria",
+          "reel.tab.commercial":"Commerciali","reel.tab.wedding":"Wedding","reel.tab.brand":"Brand & Travel",
+          "reel.card1.t":"Spot — Energy","reel.card2.t":"Promo — Lifestyle","reel.card3.t":"Brand — Motion","reel.card4.t":"Wedding — Tears & Joy","reel.card5.t":"Wedding — Sunset Vows","reel.card6.t":"Travel — Ocean Drive","reel.card7.t":"Real Estate — Views","reel.card8.t":"Brand — Movement",
+
+          "packs.title":"Pacchetti Video Commerciali","packs.cta":"Richiedi preventivo",
+          "packs.basic.desc":"Video breve (<1 min), riprese e montaggio base.",
+          "packs.standard.desc":"Promo (<3 min), montaggio avanzato e color grading.",
+          "packs.premium.desc":"Cinematografico (>3 min), storytelling + drone.",
+          "packs.elite.desc":"Produzione multi-giorno, multi-location, regia.",
+          "packs.full.desc":"Piano completo: main video + short form continuativa.",
+
+          "cta.headline":"Pronto a dare vita al tuo progetto?","cta.sub":"Risposta in giornata, brief gratuito.","cta.whatsapp":"Scrivimi su WhatsApp",
+
+          "bio.kicker":"Su di me","bio.title":"Andrea Colucci — Filmmaker & Storyteller","bio.desc1":"Creo video emozionali e ad alto impatto per brand, turismo, barche e real estate. Da autodidatta a regia, con un unico obiettivo: trasformare storie in immagini memorabili.",
+          "bio.p1":"300+ progetti","bio.p2":"Drone 4K certificato","bio.p3":"Consegne verticali (Reels/Shorts)","bio.p4":"Color grading professionale",
+          "bio.btn.reel":"Guarda il Reel","bio.btn.contact":"Parliamone ora","bio.badge":"Based in Italy • Working in Tenerife",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Storyteller visivo","bio.previewText":"300+ progetti tra spot, videoclip e branded content. 800.000+ visualizzazioni su YT e IG. Amo creare ritmo, atmosfera e una narrativa che rimane.","bio.previewCta":"Scopri i servizi",
+
+          "minibar.text":"Domande rapide? Rispondo su WhatsApp.","minibar.btn":"Apri chat",
+
+          "reviews.title":"Cosa dicono di me","reviews.subtitle":"Valutazione media 4.9/5","reviews.cta":"Lascia una recensione",
+          "reviews.newTitle":"La tua esperienza","reviews.save":"Pubblica",
+          "reviews.form.name":"Nome","reviews.form.role":"Ruolo","reviews.form.rating":"Valutazione","reviews.form.review":"Recensione",
+          "reviews.r1.who":"Giulia R. — Hotel Manager","reviews.r1.text":"“Video emozionale perfetto per la nostra homepage. Brevi tagli verticali pronti per social — prenotazioni in crescita!”",
+          "reviews.r2.who":"Marco D. — Boat Charter","reviews.r2.text":"“Riprese drone incredibili. Ha saputo raccontare l’esperienza a bordo come volevamo, zero stress sul set.”",
+          "reviews.r3.who":"Sara & Luca — Wedding","reviews.r3.text":"“Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto tra gli amici!”",
+
+          "contact.title":"Richiedi un preventivo","contact.subtitle":"Brief gratuito • risposta in giornata",
+          "contact.form.name":"Nome e Cognome","contact.form.email":"Email","contact.form.phone":"Telefono / WhatsApp",
+          "contact.form.service":"Servizio","contact.form.select":"Seleziona…","contact.form.opt1":"Commerciali","contact.form.opt2":"Wedding","contact.form.opt3":"Music Video","contact.form.opt4":"Real Estate","contact.form.opt5":"Barche / Charter","contact.form.opt6":"Altro",
+          "contact.form.msg":"Messaggio","contact.sendEmail":"Invia via Email","contact.sendWA":"Invia su WhatsApp",
+
+          "footer.desc":"Filmmaker e storyteller visivo. Commerciali, Wedding, Music Video, Real Estate, Charter.",
+          "footer.quote":"Preventivo","footer.sections.t":"Sezioni","footer.sections.reel":"Showreel","footer.sections.services":"Servizi","footer.sections.packs":"Pacchetti","footer.sections.reviews":"Recensioni","footer.sections.contact":"Contatti","footer.social.t":"Social",
+
+          "policy.privacy.p1":"Questo sito raccoglie alcuni dati personali (es. indirizzo IP) esclusivamente per statistiche e sicurezza. Nessun dato sensibile o marketing.",
+          "policy.privacy.p2":"I dati sono conservati in modo sicuro e non ceduti a terzi. Puoi chiedere la cancellazione scrivendo a andreacolucci@hotmail.it.",
+          "policy.cookie.p1":"Usiamo solo cookie tecnici per il corretto funzionamento. Puoi disattivarli dal browser, ma alcune funzioni potrebbero limitarsi.",
+          "policy.cookie.p2":"Per info: andreacolucci@hotmail.it.",
+          "policy.terms.p1":"Tutti i contenuti (video, testi, immagini) sono © Andrea Colucci. È vietata la riproduzione senza autorizzazione scritta.",
+          "policy.terms.p2":"Il sito è fornito “così com’è”, senza garanzie. Nessuna responsabilità per danni derivanti dall’uso.",
+
+          "common.cancel":"Annulla"
+        },
+
+        en: {
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
+          "meta.description":"Filmmaker for brands, weddings and travel. Cinematic look and social performance. Chiavari & Ligurian Riviera.",
+
+          "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.reviews":"Reviews","nav.contact":"Contact",
+
+          "hero.badge":"Chiavari · Ligurian Riviera",
+          "hero.title":"Videos that speak, images that last",
+          "hero.subtitle":"Commercials, weddings and brand/travel with a cinematic look and social performance. Certified 4K drone. Available in Liguria and wherever needed.",
+
+          "cta.watch":"Watch the Reel","cta.quote":"Get a quote","cta.bio":"About me",
+          "stats.projects":"Projects delivered","stats.views":"Total views","stats.drone":"Certified drone","stats.availability":"Availability",
+
+          "services.title":"Main services",
+          "services.cta":"Get a quote",
+          "services.brand.title":"Brand & Commercial",
+          "services.brand.desc":"Ads for companies, hotels and venues; scripting, multi-camera, color grading and social/ads-ready deliveries.",
+          "services.wedding.title":"Wedding Film",
+          "services.wedding.desc":"Cinematic style, curated audio and emotive storytelling. Trailer + long film, drone where allowed.",
+          "services.travel.title":"Travel & Real Estate",
+          "services.travel.desc":"Content for tourism, boats and properties: aerial shots, dynamic motion, vertical deliveries (Reels/Shorts).",
+
+          "reel.title":"Selected reels","reel.hint":"Browse by category",
+          "reel.tab.commercial":"Commercials","reel.tab.wedding":"Weddings","reel.tab.brand":"Brand & Travel",
+          "reel.card1.t":"Spot — Energy","reel.card2.t":"Promo — Lifestyle","reel.card3.t":"Brand — Motion","reel.card4.t":"Wedding — Tears & Joy","reel.card5.t":"Wedding — Sunset Vows","reel.card6.t":"Travel — Ocean Drive","reel.card7.t":"Real Estate — Views","reel.card8.t":"Brand — Movement",
+
+          "packs.title":"Commercial Video Packages","packs.cta":"Get a quote",
+          "packs.basic.desc":"Short video (<1 min), shoot and basic edit.",
+          "packs.standard.desc":"Promo (<3 min), advanced edit and color grading.",
+          "packs.premium.desc":"Cinematic (>3 min), storytelling + drone.",
+          "packs.elite.desc":"Multi-day, multi-location production, directing.",
+          "packs.full.desc":"Full plan: main video + ongoing short-form.",
+
+          "cta.headline":"Ready to bring your project to life?","cta.sub":"Same-day reply, free brief.","cta.whatsapp":"Message me on WhatsApp",
+
+          "bio.kicker":"About me","bio.title":"Andrea Colucci — Filmmaker & Storyteller","bio.desc1":"I craft emotional, high-impact videos for brands, tourism, boats and real estate. Self-taught to directing, with one goal: turn stories into memorable images.",
+          "bio.p1":"300+ projects","bio.p2":"Certified 4K drone","bio.p3":"Vertical deliveries (Reels/Shorts)","bio.p4":"Professional color grading",
+          "bio.btn.reel":"Watch the Reel","bio.btn.contact":"Let’s talk now","bio.badge":"Based in Italy • Working in Tenerife",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Visual storyteller","bio.previewText":"300+ projects across ads, music videos and branded content. 800k+ views on YT & IG. I love rhythm, atmosphere and lasting narratives.","bio.previewCta":"See services",
+
+          "minibar.text":"Quick question? I reply on WhatsApp.","minibar.btn":"Open chat",
+
+          "reviews.title":"What clients say","reviews.subtitle":"Average rating 4.9/5","reviews.cta":"Leave a review",
+          "reviews.newTitle":"Your experience","reviews.save":"Publish",
+          "reviews.form.name":"Name","reviews.form.role":"Role","reviews.form.rating":"Rating","reviews.form.review":"Review",
+          "reviews.r1.who":"Giulia R. — Hotel Manager","reviews.r1.text":"“Emotional video perfect for our homepage. Vertical cuts ready for socials — bookings are up!”",
+          "reviews.r2.who":"Marco D. — Boat Charter","reviews.r2.text":"“Amazing drone shots. He told the onboard experience exactly as we wanted, zero stress on set.”",
+          "reviews.r3.who":"Sara & Luca — Wedding","reviews.r3.text":"“Perfect timeline of the day, Instagram trailer that really popped among friends!”",
+
+          "contact.title":"Request a quote","contact.subtitle":"Free brief • same-day reply",
+          "contact.form.name":"Full name","contact.form.email":"Email","contact.form.phone":"Phone / WhatsApp",
+          "contact.form.service":"Service","contact.form.select":"Select…","contact.form.opt1":"Commercials","contact.form.opt2":"Wedding","contact.form.opt3":"Music Video","contact.form.opt4":"Real Estate","contact.form.opt5":"Boats / Charter","contact.form.opt6":"Other",
+          "contact.form.msg":"Message","contact.sendEmail":"Send via Email","contact.sendWA":"Send on WhatsApp",
+
+          "footer.desc":"Filmmaker and visual storyteller. Commercials, Weddings, Music Videos, Real Estate, Charter.",
+          "footer.quote":"Get a quote","footer.sections.t":"Sections","footer.sections.reel":"Showreel","footer.sections.services":"Services","footer.sections.packs":"Packages","footer.sections.reviews":"Reviews","footer.sections.contact":"Contact","footer.social.t":"Social",
+
+          "policy.privacy.p1":"This site collects some personal data (e.g., IP address) only for stats and security. No sensitive data or marketing.",
+          "policy.privacy.p2":"Data is stored securely and not shared with third parties. You can request deletion at andreacolucci@hotmail.it.",
+          "policy.cookie.p1":"We use only technical cookies. You can disable them in your browser, but some features may be limited.",
+          "policy.cookie.p2":"Info: andreacolucci@hotmail.it.",
+          "policy.terms.p1":"All content (video, text, images) is © Andrea Colucci. Reproduction without written permission is prohibited.",
+          "policy.terms.p2":"The site is provided “as is”, without warranties. No liability for damages from its use.",
+
+          "common.cancel":"Cancel"
+        },
+
+        es: {
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari y Riviera",
+          "meta.description":"Filmmaker para marcas, bodas y travel. Look cinematográfico y rendimiento en redes. Chiavari y Riviera de Liguria.",
+
+          "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.reviews":"Reseñas","nav.contact":"Contacto",
+
+          "hero.badge":"Chiavari · Riviera de Liguria",
+          "hero.title":"Vídeos que hablan, imágenes que perduran",
+          "hero.subtitle":"Anuncios, bodas y brand/travel con look cinematográfico y rendimiento social. Dron 4K certificado. Disponible en Liguria y donde haga falta.",
+
+          "cta.watch":"Ver el Reel","cta.quote":"Pide presupuesto","cta.bio":"Quién soy",
+          "stats.projects":"Proyectos realizados","stats.views":"Visualizaciones totales","stats.drone":"Dron certificado","stats.availability":"Disponibilidad",
+
+          "services.title":"Servicios principales",
+          "services.cta":"Pide presupuesto",
+          "services.brand.title":"Brand & Comercial",
+          "services.brand.desc":"Anuncios para empresas, hoteles y espacios; guion, multi-cámara, color grading y entregas listas para redes/ads.",
+          "services.wedding.title":"Wedding Film",
+          "services.wedding.desc":"Estilo cinematográfico, audio cuidado y storytelling emotivo. Tráiler + film largo, dron donde esté permitido.",
+          "services.travel.title":"Travel & Real Estate",
+          "services.travel.desc":"Contenido para turismo, barcos y propiedades: tomas aéreas, motion dinámico, entregas verticales (Reels/Shorts).",
+
+          "reel.title":"Reels seleccionados","reel.hint":"Explora por categoría",
+          "reel.tab.commercial":"Comerciales","reel.tab.wedding":"Bodas","reel.tab.brand":"Brand & Travel",
+          "reel.card1.t":"Spot — Energy","reel.card2.t":"Promo — Lifestyle","reel.card3.t":"Brand — Motion","reel.card4.t":"Wedding — Tears & Joy","reel.card5.t":"Wedding — Sunset Vows","reel.card6.t":"Travel — Ocean Drive","reel.card7.t":"Real Estate — Views","reel.card8.t":"Brand — Movement",
+
+          "packs.title":"Paquetes de vídeo comercial","packs.cta":"Pide presupuesto",
+          "packs.basic.desc":"Vídeo corto (<1 min), rodaje y edición básica.",
+          "packs.standard.desc":"Promo (<3 min), edición avanzada y color grading.",
+          "packs.premium.desc":"Cinematográfico (>3 min), storytelling + dron.",
+          "packs.elite.desc":"Producción multi-día y multi-ubicación, dirección.",
+          "packs.full.desc":"Plan completo: vídeo principal + short-form continuo.",
+
+          "cta.headline":"¿Listo para dar vida a tu proyecto?","cta.sub":"Respuesta en el día, brief gratuito.","cta.whatsapp":"Escríbeme por WhatsApp",
+
+          "bio.kicker":"Sobre mí","bio.title":"Andrea Colucci — Filmmaker & Storyteller","bio.desc1":"Creo vídeos emocionales y de alto impacto para marcas, turismo, barcos e inmobiliaria. Autodidacta a dirección, con un objetivo: convertir historias en imágenes memorables.",
+          "bio.p1":"300+ proyectos","bio.p2":"Dron 4K certificado","bio.p3":"Entregas verticales (Reels/Shorts)","bio.p4":"Color grading profesional",
+          "bio.btn.reel":"Ver el Reel","bio.btn.contact":"Hablemos ahora","bio.badge":"Con base en Italia • Trabajando en Tenerife",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Narrador visual","bio.previewText":"300+ proyectos entre anuncios, videoclips y branded content. 800k+ visualizaciones en YT e IG. Me encanta crear ritmo, atmósfera y narrativa perdurable.","bio.previewCta":"Ver servicios",
+
+          "minibar.text":"¿Duda rápida? Respondo por WhatsApp.","minibar.btn":"Abrir chat",
+
+          "reviews.title":"Lo que dicen de mí","reviews.subtitle":"Valoración media 4.9/5","reviews.cta":"Deja una reseña",
+          "reviews.newTitle":"Tu experiencia","reviews.save":"Publicar",
+          "reviews.form.name":"Nombre","reviews.form.role":"Cargo","reviews.form.rating":"Valoración","reviews.form.review":"Reseña",
+          "reviews.r1.who":"Giulia R. — Hotel Manager","reviews.r1.text":"“Vídeo emocional perfecto para nuestra homepage. Cortes verticales listos para redes — ¡reservas al alza!”",
+          "reviews.r2.who":"Marco D. — Boat Charter","reviews.r2.text":"“Tomas de dron increíbles. Contó la experiencia a bordo tal como queríamos, cero estrés en el set.”",
+          "reviews.r3.who":"Sara & Luca — Boda","reviews.r3.text":"“Timeline perfecta de todo el día, tráiler para Instagram que arrasó entre amigos!”",
+
+          "contact.title":"Pide presupuesto","contact.subtitle":"Brief gratuito • respuesta en el día",
+          "contact.form.name":"Nombre y Apellidos","contact.form.email":"Email","contact.form.phone":"Teléfono / WhatsApp",
+          "contact.form.service":"Servicio","contact.form.select":"Seleccionar…","contact.form.opt1":"Comerciales","contact.form.opt2":"Bodas","contact.form.opt3":"Videoclip","contact.form.opt4":"Inmobiliaria","contact.form.opt5":"Barcos / Charter","contact.form.opt6":"Otro",
+          "contact.form.msg":"Mensaje","contact.sendEmail":"Enviar por Email","contact.sendWA":"Enviar por WhatsApp",
+
+          "footer.desc":"Filmmaker y narrador visual. Comerciales, Bodas, Videoclips, Inmobiliaria, Charter.",
+          "footer.quote":"Presupuesto","footer.sections.t":"Secciones","footer.sections.reel":"Showreel","footer.sections.services":"Servicios","footer.sections.packs":"Paquetes","footer.sections.reviews":"Reseñas","footer.sections.contact":"Contacto","footer.social.t":"Redes",
+
+          "policy.privacy.p1":"Este sitio recopila algunos datos personales (p. ej., IP) solo para estadísticas y seguridad. Sin datos sensibles ni marketing.",
+          "policy.privacy.p2":"Los datos se almacenan de forma segura y no se comparten con terceros. Puedes solicitar su eliminación en andreacolucci@hotmail.it.",
+          "policy.cookie.p1":"Usamos solo cookies técnicas. Puedes desactivarlas en el navegador, pero algunas funciones pueden verse limitadas.",
+          "policy.cookie.p2":"Info: andreacolucci@hotmail.it.",
+          "policy.terms.p1":"Todo el contenido (vídeo, texto, imágenes) es © Andrea Colucci. Prohibida su reproducción sin permiso escrito.",
+          "policy.terms.p2":"El sitio se ofrece “tal cual”, sin garantías. Sin responsabilidad por daños derivados de su uso.",
+
+          "common.cancel":"Cancelar"
+        }
+      };
+
+      function applyI18n(lang){
+        const d = dict[lang] || dict.it;
+        document.querySelectorAll('[data-i18n]').forEach(el=>{
+          const key = el.getAttribute('data-i18n');
+          if(d[key] !== undefined){
+            if(el.tagName === 'META'){
+              el.setAttribute('content', d[key]);
+            } else {
+              el.innerHTML = d[key];
+            }
+          }
+        });
+        document.documentElement.lang = lang;
+        document.querySelectorAll('.lang a').forEach(a=>{
+          a.classList.toggle('active', a.getAttribute('data-lang')===lang);
+        });
+      }
+
+      function getLang(){
+        const url = new URL(location.href);
+        const q = (url.searchParams.get('lang') || '').toLowerCase();
+        if(q && ['it','en','es'].includes(q)) return q;
+        return 'it';
+      }
+
+      applyI18n(getLang());
+    })();
+  </script>
 
 </body>
 </html>
