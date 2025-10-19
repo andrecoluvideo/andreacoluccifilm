@@ -46,6 +46,20 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     /* Transizione hide-on-scroll (mobile) */
 .nav{ transition: transform .25s ease; will-change: transform; }
 @media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
+/* ===== Mobile: riduci pulsante "Richiedi preventivo" nella navbar ===== */
+@media (max-width:700px){
+  .nav .btn[data-i18n="nav.quote"]{
+    font-size: 13px !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    line-height: 1.1;
+    transform: scale(.95);
+  }
+  /* opzionale: se vuoi anche leggermente più trasparente */
+  .nav .btn[data-i18n="nav.quote"]:not(:hover){
+    opacity: .9;
+  }
+}
 
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
