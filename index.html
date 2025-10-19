@@ -43,6 +43,10 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 
     /* NAV (identico schema: brand + link + lingue) */
     .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke)}
+    /* Transizione hide-on-scroll (mobile) */
+.nav{ transition: transform .25s ease; will-change: transform; }
+@media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
+
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
     .brand .logo{width:28px;height:28px}
@@ -286,54 +290,32 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         window.__i18n.apply(lang);
       });
 
-      // CTA verso #contatti (sempre scroll dolce)
-      function toContacts(ev){
-        const t=document.querySelector('#contatti'); if(!t) return;
-        ev.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-      document.querySelectorAll('a[href="#contatti"], .nav a.btn[data-i18n="nav.quote"], .btn[data-i18n="cta.quote"]').forEach(a=>{
-        a.addEventListener('click', toContacts, {passive:false});
-      });
-
-      // ===== Stub consenso "silenzioso" (nessun banner al primo accesso)
-      // Puoi attivare in altre parti: window.__consent.enable('analytics') ecc.
-      window.__consent = (function(){
-        const KEY='ac_consents_v1';
-        function read(){ try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(_){return{}} }
-        function save(obj){ try{localStorage.setItem(KEY, JSON.stringify(obj));}catch(_){ } }
-        return {
-          has:(k)=>!!read()[k],
-          enable:(k)=>{ const o=read(); o[k]=true; save(o); },
-          disable:(k)=>{ const o=read(); delete o[k]; save(o); },
-          all:()=>read()
-        };
-      })();
-    })();
-  </script>
-  <script>
-  /* ===== CTA universale → #contatti (smooth scroll) ===== */
-  (function(){
-    function toContacts(e){
-      var t = document.querySelector('#contatti'); if(!t) return;
-      e.preventDefault();
-      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+     <script>
+/* ===== CTA universale → #contatti (smooth scroll) ===== */
+(function(){
+  function toContacts(e){
+    var t = document.querySelector('#contatti'); if(!t) return;
+    e.preventDefault();
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+  }
+  // Cattura TUTTI i click su link che devono portare ai contatti
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a');
+    if(!a) return;
+    // Qualsiasi href="#contatti"
+    if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
+    // I testi “Richiedi preventivo” / “Get a quote” / “Pide presupuesto”
+    var txt = (a.textContent || '').trim().toLowerCase();
+    if(['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos'].includes(txt)){
+      // Se non ha già l’ancora, lo forziamo
+      a.setAttribute('href','#contatti');
+      return toContacts(e);
     }
-    // Cattura TUTTI i click su link che devono portare ai contatti
-    document.addEventListener('click', function(e){
-      var a = e.target.closest('a');
-      if(!a) return;
-      // Qualsiasi href="#contatti"
-      if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
-      // I testi “Richiedi preventivo” / “Get a quote” / “Pide presupuesto”
-      var txt = (a.textContent || '').trim().toLowerCase();
-      if(['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos'].includes(txt)){
-        // Se non ha già l’ancora, lo forziamo
-        a.setAttribute('href','#contatti');
-        return toContacts(e);
-      }
-    }, {passive:false});
-  })();
+  }, {passive:false});
+})();
+</script>
+
 <script>
 (function(){
   /* SCROLL UNIVERSALE A #contatti */
@@ -377,125 +359,53 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     window.__i18n.apply = function(lang){ prev(lang); try{ bindContactsScroll(); }catch(e){} };
   })();
 
-  /* RECENSIONI: append immediato + localStorage + sync tab */
-  var grid=document.getElementById('reviewsGrid');
-  var avgText=document.getElementById('avgRatingText');
-  var LD=document.getElementById('reviewsJsonLd');
+  /* ===============================
+     NAV MOBILE: hide/show on scroll
+     =============================== */
+  (function(){
+    var nav = document.querySelector('.nav');
+    if(!nav) return;
 
-  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+    var lastY = window.scrollY || 0;
+    var ticking = false;
 
-  function appendReviewCard(rec){
-    if(!grid||!rec) return;
-    var fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    var img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    if(rec.img&&/^data:image\//.test(rec.img)) img.src=rec.img;
-    else img.src=['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    var cap=document.createElement('figcaption');
-    var top=document.createElement('div');
-    top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    var strong=document.createElement('strong');
-    strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    var stars=document.createElement('span');
-    stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    var p=document.createElement('p');
-    p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
-  }
+    function onScroll(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        // Solo mobile
+        if(window.innerWidth > 700){
+          nav.classList.remove('nav--hidden');
+          lastY = window.scrollY || 0;
+          ticking = false;
+          return;
+        }
+        var y = window.scrollY || 0;
 
-  function loadLocalReviews(){
-    try{
-      var baseStars=[5,5,4];
-      var extras=JSON.parse(localStorage.getItem('ac_reviews')||'[]');
-      extras.forEach(appendReviewCard);
-      var all=baseStars.concat(extras.map(r=>Number(r.stars)||0)).filter(Boolean);
-      var avg=Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-      if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-      if(LD){ var obj=JSON.parse(LD.textContent); obj.aggregateRating.ratingValue=String(avg); obj.aggregateRating.reviewCount=String(all.length); LD.textContent=JSON.stringify(obj); }
-    }catch(e){}
-  }
+        // Filtra micro-movimenti
+        if(Math.abs(y - lastY) < 6){
+          ticking = false;
+          return;
+        }
 
-  (function hijackSave(){
-    var saveBtn=document.getElementById('saveReview');
-    if(!saveBtn) return;
-    saveBtn.addEventListener('click',function(){
-      try{
-        var getVal=id=>document.getElementById(id)?.value.trim()||'';
-        var name=getVal('r_name'), role=getVal('r_role'), stars=parseInt(document.getElementById('r_stars')?.value||'5',10), text=getVal('r_text');
-        var preview=document.getElementById('r_preview');
-        var img64=(preview&&preview.src&&preview.style.display!=='none')?preview.src:'';
-        if(!name||!text) return;
-        var rec={name,role,stars,text,img:img64,ts:Date.now()};
-        var arr=JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
-        localStorage.setItem('ac_reviews',JSON.stringify(arr));
-        appendReviewCard(rec); loadLocalReviews();
-        try{ var bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec}); bc.close(); }catch(e){}
-      }catch(e){}
-    },{capture:true});
-  })();
+        // Nasconde quando si scende (oltre un piccolo offset), mostra quando si sale
+        var hide = (y > lastY) && (y > 80);
+        nav.classList.toggle('nav--hidden', hide);
 
-  try{
-    var bc=new BroadcastChannel('ac_reviews_channel');
-    bc.onmessage=function(ev){ if(ev&&ev.data&&ev.data.type==='new_review'&&ev.data.rec){ appendReviewCard(ev.data.rec); loadLocalReviews(); } };
-  }catch(e){}
+        lastY = y;
+        ticking = false;
+      });
+    }
 
-  loadLocalReviews();
-})();
-</script>
-<script>
-(function(){
-  // Trova SEMPRE la sezione contatti "vera" (quella in Parte 4)
-  function getMainContactsSection(){
-    var els = document.querySelectorAll('#contatti');
-    return els.length ? els[els.length - 1] : null;
-  }
-  function smoothToContacts(e){
-    var t = getMainContactsSection(); if(!t) return;
-    e && e.preventDefault();
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    t.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'start'});
-  }
-  // Aggancia tutti i link/bottoni che devono scorrere (IT/EN/ES)
-  var SELECTORS = [
-    'a[href="#contatti"]',
-    '.nav a.btn[data-i18n="nav.quote"]',
-    '.btn[data-i18n="cta.quote"]',
-    '.btn.fill[data-i18n="cta.quote"]',
-    '.btn[data-i18n="bio.btn.contact"]',
-    '.btn[data-i18n="packs.cta"]',
-    '#cta a[href="#contatti"]',
-    '#pacchetti-videoprofessionali a[href="#contatti"]',
-    '#footer a[data-i18n="footer.quote"]'
-  ];
-  function bind(){
-    document.querySelectorAll(SELECTORS.join(',')).forEach(function(a){
-      if(a.__boundToContacts) return;
-      a.__boundToContacts = true;
-      a.addEventListener('click', smoothToContacts, {passive:false});
-    });
-    // fallback anche se manca data-i18n e cambia testo per lingua
-    document.body.addEventListener('click', function(e){
-      var el = e.target.closest('a,button'); if(!el) return;
-      var txt = (el.textContent||'').trim().toLowerCase();
-      if(/parliamone ora|richiedi preventivo|let'?s talk|get a quote|pide presupuesto/.test(txt)){
-        smoothToContacts(e);
-      }
-    }, {passive:false});
-  }
-  bind();
-  // Se cambi lingua, ribinda
-  (function patchI18n(){
-    window.__i18n = window.__i18n || {apply:function(){}};
-    var prev = window.__i18n.apply.bind(window.__i18n);
-    window.__i18n.apply = function(lang){ prev(lang); try{ bind(); }catch(e){} };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', function(){
+      // Se torno desktop, assicuro visibile
+      if(window.innerWidth > 700) nav.classList.remove('nav--hidden');
+    }, {passive:true});
   })();
 })();
 </script>
+
 
 </body>
 </html>
