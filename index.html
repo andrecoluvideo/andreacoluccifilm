@@ -1426,95 +1426,49 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
 (function(){
+  // ====== Riferimenti DOM ======
   var grid    = document.getElementById('reviewsGrid');
   var avgText = document.getElementById('avgRatingText');
   var LD      = document.getElementById('reviewsJsonLd');
-  var form    = document.getElementById('reviewForm');
-  var saveBtn = document.getElementById('saveReview');
-  var dialog  = document.getElementById('reviewModal');
-  var fileIn  = document.getElementById('r_img');
-  var preview = document.getElementById('r_preview');
-  var previewPh = document.getElementById('r_preview_ph');
+
+  var dialog     = document.getElementById('reviewModal');
+  var form       = document.getElementById('reviewForm');
+  var openBtn    = document.getElementById('openReview');
+  var closeBtn   = document.getElementById('closeReview');
+  var cancelBtn  = document.getElementById('cancelReview');
+  var saveBtn    = document.getElementById('saveReview');
+
+  var fileIn   = document.getElementById('r_img');
+  var preview  = document.getElementById('r_preview');
+  var previewPh= document.getElementById('r_preview_ph');
 
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
 
-  function appendReviewCard(rec){
-    if(!grid) return;
-    var fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    var img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
-    else img.src=['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    var cap=document.createElement('figcaption');
-    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
+  // ====== UI: apri/chiudi modale ======
+  function openDialog(){
+    if(!dialog) return;
+    if(typeof dialog.showModal === 'function'){ dialog.showModal(); }
+    else { dialog.setAttribute('open', 'open'); } // fallback Safari vecchi
   }
-
-  function updateAverage(){
-    var base=[5,5,4], extra=[];
-    try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
-    var all = base.concat(extra).filter(Boolean);
-    var avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{
-        var obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
-      }catch(e){}
-    }
-  }
-
-  function loadSaved(){
-    try{
-      var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
-      arr.sort(function(a,b){return (b.ts||0)-(a.ts||0)}).forEach(appendReviewCard);
-    }catch(e){}
-    updateAverage();
-  }
-
   function closeDialog(){
-    try{ form && form.reset(); }catch(e){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+    try{ form && form.reset(); }catch(_){}
+    if(preview){ preview.style.display='none'; }
+    if(previewPh){ previewPh.style.display='block'; }
+    if(dialog?.open){ dialog.close(); } else { dialog?.removeAttribute('open'); }
   }
 
-  function handleSave(e){
-    if(e) e.preventDefault();
-    var name = getVal('r_name');
-    var role = getVal('r_role');
-    var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    var text = getVal('r_text');
-    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-    if(!name || !text) return;
+  openBtn  && openBtn.addEventListener('click', openDialog,  {passive:false});
+  closeBtn && closeBtn.addEventListener('click', closeDialog, {passive:false});
+  cancelBtn&& cancelBtn.addEventListener('click', closeDialog,{passive:false});
+  // chiusura cliccando fuori (fallback per <dialog> senza backdrop support)
+  dialog && dialog.addEventListener('click', function(e){
+    var r = dialog.getBoundingClientRect();
+    var inside = e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom;
+    if(!inside) closeDialog();
+  });
 
-    var rec={name:name, role:role, stars:stars, text:text, img:img64, ts:Date.now()};
-    try{
-      var list = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); list.push(rec);
-      localStorage.setItem('ac_reviews', JSON.stringify(list));
-    }catch(e){}
-
-    appendReviewCard(rec);
-    updateAverage();
-    closeDialog();
-
-    // sync tra tab
-    try{ var bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec:rec}); bc.close(); }catch(e){}
-  }
-
-  // === Hook immagine → anteprima tonda
+  // ====== Upload immagine → miniatura tonda ======
   function readImageToThumb(file, cb){
     try{
       var fr=new FileReader();
@@ -1534,18 +1488,88 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
   }
   fileIn && fileIn.addEventListener('change', function(){
     var f=this.files && this.files[0];
-    if(!f){ preview.style.display='none'; previewPh.style.display='block'; return; }
+    if(!f){ if(preview) preview.style.display='none'; if(previewPh) previewPh.style.display='block'; return; }
     readImageToThumb(f, function(err,data){
       if(err) return;
-      preview.src=data; preview.style.display='block'; previewPh.style.display='none';
+      if(preview){ preview.src=data; preview.style.display='block'; }
+      if(previewPh){ previewPh.style.display='none'; }
     });
   });
 
-  // === Bind sia sul SUBMIT sia sul CLICK per essere a prova di tutto
-  form && form.addEventListener('submit', handleSave, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
+  // ====== Render card + media rating ======
+  function appendReviewCard(rec){
+    if(!grid||!rec) return;
+    var fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    var img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    img.src = (rec.img && /^data:image\//.test(rec.img)) ? rec.img
+            : ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    var cap=document.createElement('figcaption');
+    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
 
-  // Ricevi nuove recensioni da altre tab
+  function updateAverage(){
+    var base=[5,5,4], extra=[];
+    try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(function(r){return Number(r.stars)||0}); }catch(_){}
+    var all = base.concat(extra).filter(Boolean);
+    var avg = all.length ? Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10 : 5;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
+      try{
+        var obj=JSON.parse(LD.textContent);
+        obj.aggregateRating.ratingValue=String(avg);
+        obj.aggregateRating.reviewCount=String(all.length);
+        LD.textContent=JSON.stringify(obj);
+      }catch(_){}
+    }
+  }
+
+  function loadSaved(){
+    try{
+      var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
+      arr.sort(function(a,b){return (b.ts||0)-(a.ts||0)}).forEach(appendReviewCard);
+    }catch(_){}
+    updateAverage();
+  }
+
+  // ====== Salva recensione (immediato + persistenza locale + sync TAB) ======
+  function handleSave(e){
+    e && e.preventDefault();
+    var name = getVal('r_name');
+    var role = getVal('r_role');
+    var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    var text = getVal('r_text');
+    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return;
+
+    var rec={name:name, role:role, stars:stars, text:text, img:img64, ts:Date.now()};
+    try{
+      var list = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); list.push(rec);
+      localStorage.setItem('ac_reviews', JSON.stringify(list));
+    }catch(_){}
+
+    appendReviewCard(rec);
+    updateAverage();
+    closeDialog();
+
+    try{
+      var bc=new BroadcastChannel('ac_reviews_channel');
+      bc.postMessage({type:'new_review',rec:rec}); bc.close();
+    }catch(_){}
+  }
+
+  form   && form.addEventListener('submit', handleSave, {passive:false});
+  saveBtn&& saveBtn.addEventListener('click',  handleSave, {passive:false});
+
   try{
     var bc=new BroadcastChannel('ac_reviews_channel');
     bc.onmessage=function(ev){
@@ -1554,15 +1578,13 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
         updateAverage();
       }
     };
-  }catch(e){}
+  }catch(_){}
 
-  // Inizializza
-  document.addEventListener('DOMContentLoaded', loadSaved);
-  // Se il DOM è già pronto
-  if(document.readyState==='interactive'||document.readyState==='complete'){ loadSaved(); }
-
+  // Carica subito (lo script è dopo il markup, quindi gli elementi esistono)
+  loadSaved();
 })();
 </script>
+
 
 
 <!-- ==========================
