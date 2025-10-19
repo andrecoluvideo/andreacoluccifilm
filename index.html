@@ -33,7 +33,7 @@
     .btn.fill{background:linear-gradient(135deg,var(--neon1),var(--neon2));border-color:transparent;color:#061016}
     .tag{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--glass)}
 
-    /* NAV */
+    /* NAV (identico schema: brand + link + lingue) */
     .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke)}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
@@ -43,36 +43,30 @@
     .lang a{padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff}
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
 
-    /* HERO con background leggibile */
-    .hero{position:relative;overflow:hidden;background:
-      radial-gradient(1400px 600px at 80% -10%, rgba(46,231,255,.16), transparent 60%),
-      radial-gradient(1200px 500px at 10% 110%, rgba(255,63,156,.10), transparent 60%),
-      #0b0f14;}
-    .hero-media{
-      position:absolute;inset:0;z-index:0;pointer-events:none;
+    /* HERO (stesso layout: colonna testo/CTA + colonna bio) */
+    .hero{position:relative;overflow:hidden;background:#0b0f14}
+    .hero-media{position:absolute;inset:0;z-index:0;pointer-events:none;
       background:
-        linear-gradient(to bottom, rgba(7,10,14,.45), rgba(7,10,14,.65)),  /* velo per leggibilità */
-        url('/media/hero.webp.jpg') center/cover no-repeat;
-      opacity:.9;
-    }
+        linear-gradient(to bottom, rgba(7,10,14,.48), rgba(7,10,14,.66)),
+        url('/media/hero.webp.jpg') center/cover no-repeat;}
     .hero-inner{position:relative;z-index:1;padding:42px 0}
     .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}
-    .hero-card{padding:22px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+    .hero-card{padding:22px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--stroke);backdrop-filter:blur(8px)}
     .hero-bio{padding:22px;border-radius:18px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.03)}
     .hero-bio .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .hero-bio img{width:68px;height:68px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke)}
 
-    /* METRICHE compatte */
+    /* METRICHE (stessa striscia a 4) */
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .metric{padding:12px 14px;text-align:center}
 
-    /* RESPONSIVE */
+    /* Responsive invariato */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 
-  <!-- ====== NAV ====== -->
+  <!-- ====== NAV (schema originale) ====== -->
   <nav class="nav" aria-label="Main">
     <div class="nav-inner container">
       <a href="#top" class="brand" aria-label="Homepage">
@@ -86,7 +80,7 @@
         <a href="#pacchetti-videoprofessionali" data-i18n="nav.packs">Pacchetti</a>
         <a href="#contatti" class="btn" data-i18n="nav.quote">Richiedi preventivo</a>
 
-        <!-- Switcher lingue (no scroll) -->
+        <!-- Lingue (pushState, senza reload/scroll) -->
         <div class="lang" aria-label="Lingua">
           <a href="?lang=it" data-lang="it" class="active">IT</a>
           <a href="?lang=en" data-lang="en">EN</a>
@@ -96,7 +90,7 @@
     </div>
   </nav>
 
-  <!-- ====== HERO ====== -->
+  <!-- ====== HERO (schema originale) ====== -->
   <header class="hero" id="top">
     <div class="hero-media" aria-hidden="true"></div>
     <div class="hero-inner container">
@@ -134,7 +128,7 @@
     </div>
   </header>
 
-  <!-- ====== STRISCIA METRICHE (compatta) ====== -->
+  <!-- ====== STRISCIA METRICHE (4 card) ====== -->
   <section class="container" style="padding:24px 0 6px">
     <div class="metrics">
       <div class="glass metric">
@@ -156,13 +150,16 @@
     </div>
   </section>
 
-  <!-- (Segnaposto sezione contatti, per il corretto ancoraggio del CTA) -->
+  <!-- (Segnaposto #contatti per ancoraggio CTA) -->
   <section id="contatti" style="padding:1px 0"></section>
 
-  <!-- i18n: dizionari + applicazione + switch senza scroll -->
+  <!-- ====== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ====== -->
   <script>
     (function(){
-      const dict = {
+      // Dizionari base (le Parti 2→5 potranno estendere con window.__i18n.__dict)
+      window.__i18n = window.__i18n || { __dict:{}, apply:null };
+
+      const base = {
         it:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
@@ -204,28 +201,29 @@
         }
       };
 
-      function apply(lang){
+      // Applica traduzioni (senza toccare layout/markup)
+      window.__i18n.apply = function(lang){
+        const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict[lang]||{});
         document.querySelectorAll('[data-i18n]').forEach(el=>{
-          const k=el.getAttribute('data-i18n'); const t=dict[lang]&&dict[lang][k];
+          const k = el.getAttribute('data-i18n'); const t = dict[k];
           if(!t) return;
           if(el.tagName==='META'){ el.setAttribute('content', t); }
           else el.textContent = t;
         });
-        document.title = dict[lang]['meta.title'] || document.title;
+        document.title = dict['meta.title'] || document.title;
         document.documentElement.lang = lang;
-        // attiva linguetta
         document.querySelectorAll('.lang [data-lang]').forEach(a=>{
           a.classList.toggle('active', a.getAttribute('data-lang')===lang);
         });
-      }
+      };
 
-      // init lingua da URL o localStorage
+      // Init lingua da URL o localStorage
       const urlLang = new URLSearchParams(location.search).get('lang');
-      const saved = localStorage.getItem('ac_lang');
-      const start = urlLang || saved || document.documentElement.lang || 'it';
-      apply(start);
+      const saved   = localStorage.getItem('ac_lang');
+      const start   = urlLang || saved || document.documentElement.lang || 'it';
+      window.__i18n.apply(start);
 
-      // switch senza scroll/refresh
+      // Switch lingua senza refresh/scroll
       document.querySelectorAll('.lang [data-lang]').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -233,28 +231,27 @@
           localStorage.setItem('ac_lang', lang);
           const url=new URL(location.href); url.searchParams.set('lang', lang);
           history.pushState({lang},'',url.toString());
-          apply(lang);
+          window.__i18n.apply(lang);
         });
       });
-      window.addEventListener('popstate', (e)=>{
+      window.addEventListener('popstate', ()=>{
         const lang = new URLSearchParams(location.search).get('lang') || 'it';
-        apply(lang);
+        window.__i18n.apply(lang);
       });
 
-      // CTA verso la sezione corretta (sempre #contatti)
+      // CTA verso #contatti (sempre scroll dolce)
+      function toContacts(ev){
+        const t=document.querySelector('#contatti'); if(!t) return;
+        ev.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+      }
       document.querySelectorAll('a[href="#contatti"], .nav a.btn[data-i18n="nav.quote"], .btn[data-i18n="cta.quote"]').forEach(a=>{
-        a.addEventListener('click', (ev)=>{
-          // assicurati che esista #contatti
-          const target = document.querySelector('#contatti');
-          if(!target) return; // se non esiste qui, verrà gestito nella parte dove è definito
-          ev.preventDefault();
-          target.scrollIntoView({behavior:'smooth', block:'start'});
-        });
+        a.addEventListener('click', toContacts, {passive:false});
       });
     })();
   </script>
 </body>
 </html>
+<!-- FINE PARTE 1/5 — Continua con la Parte 2/5 (Servizi + Reel) -->
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (incolonnati)
 ========================== -->
@@ -451,7 +448,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     }
     document.addEventListener('visibilitychange', ()=> postAll(document.hidden ? 'pause':'play'));
 
-    // assicurati che le CTA "Richiedi preventivo" qui puntino a #contatti
+    // CTA "Richiedi preventivo" in questa sezione → #contatti con scroll dolce
     document.querySelectorAll('#servizi a[href="#contatti"]').forEach(a=>{
       a.addEventListener('click', function(e){
         const target=document.querySelector('#contatti'); if(!target) return;
@@ -464,17 +461,14 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 <!-- ====== i18n EXTEND (Servizi + Reel) ====== -->
 <script>
   (function(){
-    // se in Parte 1 hai già definito __i18n.apply, estendiamo solo i dizionari:
-    function extend(dictExtra){
-      if(!window.__i18n){ window.__i18n = { __dict:{}, apply:null }; }
-      const D = (window.__i18n.__dict = window.__i18n.__dict || {});
-      Object.keys(dictExtra).forEach(k=>{
-        D[k] = Object.assign({}, D[k]||{}, dictExtra[k]);
-      });
-      // se esiste apply, riapplica la lingua corrente
+    // estensione semplice al dizionario globale definito in Parte 1
+    const extend = (extra)=>{
+      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
+      const D = window.__i18n.__dict;
+      Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
       const lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
-    }
+    };
 
     extend({
       it:{
@@ -662,15 +656,15 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 </section>
 <script>
   (function(){
-    // WhatsApp CTA
+    // WhatsApp CTA → usa WA_NUMBER se definito globalmente
     var wa = document.getElementById('ctaWhatsApp');
     if(wa){
       var tel = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
       var msg = encodeURIComponent('Ciao Andrea! Vorrei un preventivo per un video. Mi chiamo ___ e sono di ___.');
       wa.href = 'https://wa.me/'+tel+'?text='+msg;
     }
-    // scroll dolce sul contatto da ogni CTA di questa parte
-    document.querySelectorAll('#pacchetti-videoprofessionali a[href="#contatti"], #cta a[href="#contatti"]').forEach(a=>{
+    // Scroll dolce #contatti da CTA
+    document.querySelectorAll('#cta a[href="#contatti"], #pacchetti-videoprofessionali a[href="#contatti"]').forEach(a=>{
       a.addEventListener('click', function(e){
         var t=document.querySelector('#contatti'); if(!t) return;
         e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
@@ -703,10 +697,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 
     <!-- Immagini -->
     <div class="bio-media" style="position:relative;min-height:240px">
-      <!-- sfondo: normale, senza filtro scuro -->
+      <!-- sfondo chiaro: nessun overlay -->
       <img src="/media/about-1.jpg" alt="Andrea Colucci con camera in mano" loading="lazy"
            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:none">
-      <!-- foto piccola: in due -->
+      <!-- foto piccola sovrapposta -->
       <img src="/media/about-2.jpg" alt="Andrea Colucci e collega" loading="lazy"
            style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
                   box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
@@ -731,8 +725,8 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 <script>
   (function(){
     function extend(extra){
-      if(!window.__i18n){ window.__i18n = { __dict:{}, apply:null }; }
-      const D = (window.__i18n.__dict = window.__i18n.__dict || {});
+      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
+      const D = window.__i18n.__dict;
       Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
       const lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
@@ -1067,7 +1061,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
     let uploadedDataURL = null;
 
-    // leggi file e crea thumb 120x120
+    // leggi file e crea thumb 120x120 (crop centrale)
     function readImageToThumb(file, cb){
       try{
         const fr = new FileReader();
@@ -1079,7 +1073,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI
             const ctx = canvas.getContext('2d');
             canvas.width=size; canvas.height=size;
 
-            // crop quadrato centrato
             const s = Math.min(img.width, img.height);
             const sx = (img.width - s)/2;
             const sy = (img.height - s)/2;
@@ -1131,7 +1124,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       img.alt = 'Cliente';
       img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
 
-      // Se l'utente ha caricato un'immagine, usa quella; altrimenti fallback a 3 placeholder
+      // immagine utente o placeholder
       if(rec.img && /^data:image\//.test(rec.img)){ img.src = rec.img; }
       else{
         const imgs = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'];
@@ -1272,8 +1265,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 <script>
   (function(){
     function extend(extra){
-      if(!window.__i18n){ window.__i18n = { __dict:{}, apply:null }; }
-      const D = (window.__i18n.__dict = window.__i18n.__dict || {});
+      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
+      const D = window.__i18n.__dict;
       Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
       const lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
@@ -1501,7 +1494,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
     });
   })();
 
-  // WhatsApp nel footer (riusa WA_NUMBER definito in Parte 4)
+  // WhatsApp nel footer (riusa WA_NUMBER definito in altre parti)
   (function(){
     var wa = document.getElementById('footerWA');
     var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
@@ -1527,11 +1520,11 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
 <!-- ====== i18n EXTEND per Footer/Policy ====== -->
 <script>
   (function(){
-    if(!window.__i18n){ window.__i18n = {}; }
+    window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
     function extend(extra){
-      window.__i18n.__dict = window.__i18n.__dict || {};
+      const D = (window.__i18n.__dict = window.__i18n.__dict || {});
       Object.keys(extra).forEach(function(k){
-        window.__i18n.__dict[k] = Object.assign({}, window.__i18n.__dict[k]||{}, extra[k]);
+        D[k] = Object.assign({}, D[k]||{}, extra[k]);
       });
       var lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
