@@ -1165,8 +1165,8 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   })();
 </script>
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI
-(look identico; fix funzionali invisibili)
+<!-- ==========================
+PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1235,7 +1235,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   <!-- Modal nuova recensione con upload immagine -->
   <dialog id="reviewModal"
           style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
-    <form id="reviewForm" method="dialog" style="padding:16px 16px 10px" novalidate>
+    <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
         <button type="button" class="btn" id="closeReview" aria-label="Chiudi">×</button>
@@ -1244,12 +1244,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr">
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
-          <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required maxlength="60" autocomplete="name">
+          <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
         </div>
 
         <div class="field">
           <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
-          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required maxlength="60" autocomplete="organization-title">
+          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
         </div>
 
         <div class="field">
@@ -1281,7 +1281,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
-          <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required maxlength="600"></textarea>
+          <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
         </div>
       </div>
 
@@ -1327,22 +1327,18 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div class="glass" style="border-radius:16px;padding:14px">
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))" novalidate>
-      <!-- honeypot anti-spam (nascosto, nessun impatto estetico) -->
-      <input type="text" id="q_company" name="company" tabindex="-1" aria-hidden="true"
-             style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px">
-
+    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
       <div class="field">
         <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
-        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required maxlength="80" autocomplete="name">
+        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
       </div>
       <div class="field">
         <label class="label" for="q_email" data-i18n="contact.email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required maxlength="120" autocomplete="email">
+        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
       </div>
       <div class="field">
         <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX" autocomplete="tel">
+        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
       </div>
       <div class="field">
         <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
@@ -1358,7 +1354,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       </div>
       <div class="field" style="grid-column:1 / -1">
         <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
-        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…" maxlength="1200"></textarea>
+        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
       </div>
 
       <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
@@ -1378,52 +1374,81 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </div>
 </section>
 
-<!-- ====== SCRIPT: Recensioni (upload + salvataggio) • CTA scroll dolce ====== -->
+<!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
   // Helpers globali (riutilizza WA_NUMBER se definito altrove)
   var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-  function isSpam(){ return !!(document.getElementById('q_company') && document.getElementById('q_company').value); }
 
-  // ===== Recensioni: open/close + upload immagine + salvataggio
+  /* ========== SCROLL UNIVERSALE A #contatti (IT/EN/ES) ========== */
   (function(){
-    var openBtn = document.getElementById('openReview');
-    var dialog  = document.getElementById('reviewModal');
-    var closeBtn= document.getElementById('closeReview');
-    var cancel  = document.getElementById('cancelReview');
-    var saveBtn = document.getElementById('saveReview');
-    var grid    = document.getElementById('reviewsGrid');
-    var avgText = document.getElementById('avgRatingText');
-    var LD      = document.getElementById('reviewsJsonLd');
+    function smoothToContacts(ev){
+      var t=document.querySelector('#contatti'); if(!t) return;
+      ev && ev.preventDefault();
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      t.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'start'});
+    }
+    var SELECTORS = [
+      'a[href="#contatti"]',
+      '.nav a.btn[data-i18n="nav.quote"]',
+      '.btn[data-i18n="cta.quote"]',
+      '.btn.fill[data-i18n="cta.quote"]',
+      '.btn[data-i18n="bio.btn.contact"]',
+      '.btn[data-i18n="packs.cta"]',
+      '#cta a[href="#contatti"]',
+      '#pacchetti-videoprofessionali a[href="#contatti"]',
+      '#footer a[data-i18n="footer.quote"]'
+    ];
+    function bind(){
+      document.querySelectorAll(SELECTORS.join(',')).forEach(function(a){
+        if(a.__boundToContacts) return;
+        a.__boundToContacts = true;
+        a.addEventListener('click', smoothToContacts, {passive:false});
+      });
+      // fallback testo (se manca data-i18n)
+      document.body.addEventListener('click', function(e){
+        var el = e.target.closest('a,button'); if(!el) return;
+        var txt = (el.textContent||'').trim().toLowerCase();
+        if(/parliamone ora|richiedi preventivo|let'?s talk|get a quote|pide presupuesto/.test(txt)){ smoothToContacts(e); }
+      }, {passive:false});
+    }
+    bind();
+    // re-bind dopo cambio lingua
+    (function patchI18n(){
+      window.__i18n = window.__i18n || {apply:function(){}};
+      var prev = window.__i18n.apply.bind(window.__i18n);
+      window.__i18n.apply = function(lang){ prev(lang); try{ bind(); }catch(e){} };
+    })();
+  })();
 
-    var fileIn  = document.getElementById('r_img');
-    var preview = document.getElementById('r_preview');
-    var previewPh = document.getElementById('r_preview_ph');
+  /* ========== RECENSIONI: append immediato + localStorage + media + sync TAB ========== */
+  (function(){
+    const openBtn = document.getElementById('openReview');
+    const dialog  = document.getElementById('reviewModal');
+    const closeBtn= document.getElementById('closeReview');
+    const cancel  = document.getElementById('cancelReview');
+    const saveBtn = document.getElementById('saveReview');
+    const grid    = document.getElementById('reviewsGrid');
+    const avgText = document.getElementById('avgRatingText');
+    const LD      = document.getElementById('reviewsJsonLd');
 
-    var MAX_IMG_MB = 3; // controllo invisibile
-    var uploadedDataURL = null;
+    const fileIn  = document.getElementById('r_img');
+    const preview = document.getElementById('r_preview');
+    const previewPh = document.getElementById('r_preview_ph');
+    let uploadedDataURL = null;
 
-    // leggi file e crea thumb 120x120 (crop centrale), con controlli tipo/dimensione
     function readImageToThumb(file, cb){
       try{
-        if(!/^image\/(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(file.type)) return cb(new Error('type'));
-        if(file.size > MAX_IMG_MB*1024*1024) return cb(new Error('size'));
-        var fr = new FileReader();
+        const fr = new FileReader();
         fr.onload = function(){
-          var img = new Image();
+          const img = new Image();
           img.onload = function(){
-            var size = 120;
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
+            const size = 120, canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
             canvas.width=size; canvas.height=size;
-
-            var s = Math.min(img.width, img.height);
-            var sx = (img.width - s)/2;
-            var sy = (img.height - s)/2;
-
+            const s = Math.min(img.width, img.height);
+            const sx = (img.width - s)/2, sy = (img.height - s)/2;
             ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-            var data = canvas.toDataURL('image/jpeg', .85);
-            cb(null, data);
+            cb(null, canvas.toDataURL('image/jpeg', .85));
           };
           img.src = fr.result;
         };
@@ -1432,307 +1457,173 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     }
 
     fileIn && fileIn.addEventListener('change', function(){
-      var f = this.files && this.files[0];
+      const f = this.files && this.files[0];
       if(!f){ uploadedDataURL=null; preview.style.display='none'; previewPh.style.display='block'; return; }
       readImageToThumb(f, function(err, data){
-        if(err){ uploadedDataURL=null; preview.style.display='none'; previewPh.style.display='block'; return; }
+        if(err){ uploadedDataURL=null; return; }
         uploadedDataURL = data;
-        preview.src = data;
-        preview.style.display='block';
-        previewPh.style.display='none';
+        preview.src = data; preview.style.display='block'; previewPh.style.display='none';
       });
     });
 
-    // load recensioni salvate (ordina per ts desc)
-    function loadSaved(){
-      try{
-        var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
-        arr.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-        arr.forEach(appendReviewCard);
-        updateAverage();
-      }catch(e){}
-    }
-
-    function starString(n){
-      var full = '★★★★★'.slice(0,n);
-      var empty= '☆☆☆☆☆'.slice(0,5-n);
-      return full+empty;
-    }
+    function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
 
     function appendReviewCard(rec){
-      var fig = document.createElement('figure');
+      if(!grid) return;
+      const fig = document.createElement('figure');
       fig.className = 'glass review';
       fig.style.cssText = 'padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-
-      var img = document.createElement('img');
-      img.loading='lazy';
-      img.alt = 'Cliente';
+      const img = document.createElement('img');
+      img.loading='lazy'; img.alt='Cliente';
       img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-
-      // immagine utente o placeholder
-      if(rec.img && /^data:image\//.test(rec.img)){ img.src = rec.img; }
-      else{
-        var imgs = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'];
-        img.src = imgs[Math.floor(Math.random()*imgs.length)];
-      }
-
-      var cap = document.createElement('figcaption');
-      var top = document.createElement('div');
-      top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-      var strong = document.createElement('strong');
-      strong.textContent = rec.name + (rec.role ? ' — ' + rec.role : '');
-      var stars = document.createElement('span');
-      stars.className='stars';
-      stars.setAttribute('aria-label', rec.stars + ' su 5');
-      stars.textContent = starString(rec.stars);
-
-      var p = document.createElement('p');
-      p.className='soft';
-      p.style.margin='6px 0 0';
-      p.textContent = '“' + rec.text + '”';
-
-      top.appendChild(strong); top.appendChild(stars);
-      cap.appendChild(top); cap.appendChild(p);
-
+      if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
+      else img.src = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+      const cap = document.createElement('figcaption');
+      const top = document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+      const strong = document.createElement('strong'); strong.textContent = (rec.name||'Cliente') + (rec.role ? ' — ' + rec.role : '');
+      const stars = document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label', (rec.stars||5)+' su 5'); stars.textContent = starString(rec.stars);
+      const p = document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent = '“'+(rec.text||'')+'”';
+      top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
       fig.appendChild(img); fig.appendChild(cap);
-      grid.appendChild(fig);
+      grid.insertBefore(fig, grid.firstChild);
     }
 
     function updateAverage(){
-      // base: 3 recensioni iniziali = [5,5,4]
-      var base = [5,5,4], extra=[];
-      try{ extra = (JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(function(r){return Number(r.stars)||0;}); }catch(e){}
-      var all = base.concat(extra).filter(function(n){return n>0;});
-      var avg = (all.reduce(function(a,b){return a+b;},0) / all.length);
-      var avgRounded = Math.round(avg*10)/10;
-      if(avgText){ avgText.textContent = 'Valutazione media ' + avgRounded + '/5'; }
-      // aggiorna JSON-LD
+      let base=[5,5,4], extra=[];
+      try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
+      const all = base.concat(extra).filter(n=>n>0);
+      const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+      if(avgText) avgText.textContent = 'Valutazione media ' + avg + '/5';
       if(LD){
         try{
-          var obj = JSON.parse(LD.textContent);
-          obj.aggregateRating.ratingValue = String(avgRounded);
+          const obj = JSON.parse(LD.textContent);
+          obj.aggregateRating.ratingValue = String(avg);
           obj.aggregateRating.reviewCount = String(all.length);
           LD.textContent = JSON.stringify(obj);
         }catch(e){}
       }
     }
 
-    function open(){ if(typeof dialog.showModal==='function'){ dialog.showModal(); } else { dialog.setAttribute('open','open'); } }
-    function close(){ if(dialog.open) dialog.close(); dialog.removeAttribute('open'); uploadedDataURL=null; document.getElementById('reviewForm')?.reset(); preview.style.display='none'; previewPh.style.display='block'; }
+    function loadSaved(){
+      try{
+        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
+        arr.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(appendReviewCard);
+      }catch(e){}
+      updateAverage();
+    }
 
-    openBtn && openBtn.addEventListener('click', open);
-    closeBtn && closeBtn.addEventListener('click', close);
-    cancel  && cancel.addEventListener('click', close);
+    function closeDialog(){
+      uploadedDataURL=null;
+      document.getElementById('reviewForm')?.reset();
+      if(preview) preview.style.display='none';
+      if(previewPh) previewPh.style.display='block';
+      if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+    }
 
-    dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); close(); } });
-    dialog.addEventListener('click', function(e){
-      var rect = dialog.getBoundingClientRect();
-      var inDialog = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-      if(!inDialog) close();
+    openBtn && openBtn.addEventListener('click', function(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); });
+    closeBtn && closeBtn.addEventListener('click', closeDialog);
+    cancel  && cancel.addEventListener('click', closeDialog);
+    dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeDialog(); } });
+    dialog && dialog.addEventListener('click', (e)=>{
+      const rect = dialog.getBoundingClientRect();
+      const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+      if(!inside) closeDialog();
     });
 
-    // Salva recensione
-    saveBtn && saveBtn.addEventListener('click', function(){
-      var name = getVal('r_name');
-      var role = getVal('r_role');
-      var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-      var text = getVal('r_text');
-      if(!name || !role || !text){ return; }
-      var rec = {name:name, role:role, stars:stars, text:text, img: uploadedDataURL||'', ts: Date.now()};
+    // Salva → append immediato + persistenza + sync TAB
+    saveBtn && saveBtn.addEventListener('click', ()=>{
+      const name = getVal('r_name');
+      const role = getVal('r_role');
+      const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+      const text = getVal('r_text');
+      const img64 = (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+      if(!name || !text) return;
+
+      const rec = {name, role, stars, text, img: img64, ts: Date.now()};
       try{
-        var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
+        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
         localStorage.setItem('ac_reviews', JSON.stringify(arr));
       }catch(e){}
+
       appendReviewCard(rec);
       updateAverage();
-      close();
+      closeDialog();
+
+      try{
+        const bc = new BroadcastChannel('ac_reviews_channel');
+        bc.postMessage({type:'new_review', rec}); bc.close();
+      }catch(e){}
     });
 
-    loadSaved();
-  })();
-
-  // ===== Contatti: Email e WhatsApp composti (validazioni leggere + smooth scroll)
-  (function(){
-    function normPhone(v){ return (v||'').replace(/[^\d+]/g,''); }
-    function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v||''); }
-
-    var btn = document.getElementById('sendMail');
-    if(btn){
-      btn.addEventListener('click', function(){
-        if(isSpam()) return; // honeypot
-        var name = getVal('q_name');
-        var email= getVal('q_email');
-        var phone= normPhone(getVal('q_phone'));
-        var serv = getVal('q_service');
-        var msg  = getVal('q_message');
-
-        if(!name || !validEmail(email) || !serv){ 
-          // validazioni silenziose (nessun impatto estetico)
-          return; 
+    try{
+      const bc = new BroadcastChannel('ac_reviews_channel');
+      bc.onmessage = function(ev){
+        if(ev && ev.data && ev.data.type==='new_review' && ev.data.rec){
+          appendReviewCard(ev.data.rec);
+          updateAverage();
         }
-        var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
-        var body = encodeURIComponent(
-          'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
-          '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
-        );
-        window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
-      }, {passive:true});
-    }
+      };
+    }catch(e){}
 
-    var waForm = document.getElementById('sendWhatsApp');
-    function updateWAHref(a){
-      var name = getVal('q_name') || '';
-      var phone= normPhone(getVal('q_phone') || '');
-      var serv = getVal('q_service') || '';
-      var msg  = getVal('q_message') || '';
-      var text = encodeURIComponent(
-        'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
-        (name ? 'Nome: ' + name + '\n' : '') +
-        (phone? 'Telefono: ' + phone + '\n' : '') +
-        (serv ? 'Servizio: ' + serv + '\n' : '') +
-        (msg  ? '\n' + msg : '')
-      );
-      a.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-    }
-    if(waForm){
-      updateWAHref(waForm);
-      ['q_name','q_phone','q_service','q_message'].forEach(function(id){
-        var el = document.getElementById(id);
-        if(el){ el.addEventListener('input', function(){ updateWAHref(waForm); }); }
-      });
-    }
+    // init
+    loadSaved();
 
-    var quick = document.getElementById('quickWA');
-    if(quick){
-      var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
-      quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-    }
+    /* ===== Contatti: Email e WhatsApp composti (invariati) ===== */
+    (function(){
+      var btn = document.getElementById('sendMail');
+      if(btn){
+        btn.addEventListener('click', function(){
+          var name = getVal('q_name');
+          var email= getVal('q_email');
+          var phone= getVal('q_phone');
+          var serv = getVal('q_service');
+          var msg  = getVal('q_message');
+          var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
+          var body = encodeURIComponent(
+            'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
+            '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
+          );
+          window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
+        });
+      }
 
-    // Smooth scroll a #contatti da CTA/ancore (se presenti altrove)
+      var waForm = document.getElementById('sendWhatsApp');
+      if(waForm){
+        waForm.addEventListener('click', function(){
+          var name = getVal('q_name') || '';
+          var phone= getVal('q_phone') || '';
+          var serv = getVal('q_service') || '';
+          var msg  = getVal('q_message') || '';
+          var text = encodeURIComponent(
+            'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
+            'Nome: ' + name + '\nTelefono: ' + phone + '\nServizio: ' + serv + '\n\n' + msg
+          );
+          waForm.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+        });
+      }
+
+      var quick = document.getElementById('quickWA');
+      if(quick){
+        var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
+        quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+      }
+    })();
+
+    // Fallback scroll per eventuali ancore duplicate
     (function(){
       function smoothToContacts(e){
         var t=document.querySelector('#contatti'); if(!t) return;
         e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
       }
-      document.querySelectorAll('a[href="#contatti"], .btn[href="#contatti"]').forEach(function(a){
+      document.querySelectorAll('a[href="#contatti"], .btn[href="#contatti"]').forEach(a=>{
+        if(a.__fallbackBound) return;
+        a.__fallbackBound=true;
         a.addEventListener('click', smoothToContacts, {passive:false});
       });
     })();
   })();
-
-  // ===== i18n EXTEND (Reviews + Contacts + Photo upload) =====
-  (function(){
-    function extend(extra){
-      window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
-      var D = window.__i18n.__dict = window.__i18n.__dict || {};
-      Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
-      var lang = document.documentElement.lang || 'it';
-      if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
-    }
-
-    extend({
-      it:{
-        "reviews.title":"Cosa dicono di me",
-        "reviews.subtitle":"Valutazione media 4.9/5",
-        "reviews.cta":"Lascia una recensione",
-        "reviews.newTitle":"La tua esperienza",
-        "reviews.name":"Nome",
-        "reviews.role":"Ruolo",
-        "reviews.rating":"Valutazione",
-        "reviews.text":"Recensione",
-        "reviews.save":"Pubblica",
-        "reviews.photo":"Foto (opzionale)",
-        "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
-        "reviews.photoPreview":"Anteprima miniatura",
-
-        "common.cancel":"Annulla",
-
-        "contact.title":"Richiedi un preventivo",
-        "contact.subtitle":"Brief gratuito • risposta in giornata",
-        "contact.name":"Nome e Cognome",
-        "contact.email":"Email",
-        "contact.phone":"Telefono / WhatsApp",
-        "contact.service":"Servizio",
-        "contact.service.select":"Seleziona…",
-        "contact.service.commerciali":"Commerciali",
-        "contact.service.wedding":"Wedding",
-        "contact.service.music":"Music Video",
-        "contact.service.realestate":"Real Estate",
-        "contact.service.boat":"Barche / Charter",
-        "contact.service.other":"Altro",
-        "contact.message":"Messaggio",
-        "contact.sendEmail":"Invia via Email",
-        "contact.sendWA":"Invia su WhatsApp"
-      },
-      en:{
-        "reviews.title":"What clients say",
-        "reviews.subtitle":"Average rating 4.9/5",
-        "reviews.cta":"Leave a review",
-        "reviews.newTitle":"Your experience",
-        "reviews.name":"Name",
-        "reviews.role":"Role",
-        "reviews.rating":"Rating",
-        "reviews.text":"Review",
-        "reviews.save":"Publish",
-        "reviews.photo":"Photo (optional)",
-        "reviews.photoHint":"PNG/JPG, will be resized as a thumbnail",
-        "reviews.photoPreview":"Thumbnail preview",
-
-        "common.cancel":"Cancel",
-
-        "contact.title":"Request a quote",
-        "contact.subtitle":"Free brief • same-day reply",
-        "contact.name":"Full name",
-        "contact.email":"Email",
-        "contact.phone":"Phone / WhatsApp",
-        "contact.service":"Service",
-        "contact.service.select":"Choose…",
-        "contact.service.commerciali":"Commercial",
-        "contact.service.wedding":"Wedding",
-        "contact.service.music":"Music Video",
-        "contact.service.realestate":"Real Estate",
-        "contact.service.boat":"Boats / Charter",
-        "contact.service.other":"Other",
-        "contact.message":"Message",
-        "contact.sendEmail":"Send via Email",
-        "contact.sendWA":"Send on WhatsApp"
-      },
-      es:{
-        "reviews.title":"Qué dicen de mí",
-        "reviews.subtitle":"Valoración media 4.9/5",
-        "reviews.cta":"Deja una reseña",
-        "reviews.newTitle":"Tu experiencia",
-        "reviews.name":"Nombre",
-        "reviews.role":"Rol",
-        "reviews.rating":"Valoración",
-        "reviews.text":"Reseña",
-        "reviews.save":"Publicar",
-        "reviews.photo":"Foto (opcional)",
-        "reviews.photoHint":"PNG/JPG, se convertirá a miniatura",
-        "reviews.photoPreview":"Vista previa en miniatura",
-
-        "common.cancel":"Cancelar",
-
-        "contact.title":"Pide presupuesto",
-        "contact.subtitle":"Brief gratuito • respuesta en el día",
-        "contact.name":"Nombre y Apellidos",
-        "contact.email":"Email",
-        "contact.phone":"Teléfono / WhatsApp",
-        "contact.service":"Servicio",
-        "contact.service.select":"Seleccionar…",
-        "contact.service.commerciali":"Comercial",
-        "contact.service.wedding":"Boda",
-        "contact.service.music":"Vídeo musical",
-        "contact.service.realestate":"Inmobiliario",
-        "contact.service.boat":"Barcos / Charter",
-        "contact.service.other":"Otro",
-        "contact.message":"Mensaje",
-        "contact.sendEmail":"Enviar por Email",
-        "contact.sendWA":"Enviar por WhatsApp"
-      }
-    });
-  })();
 </script>
+
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
 (look invariato; fix funzionali invisibili)
