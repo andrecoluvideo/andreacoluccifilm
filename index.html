@@ -135,6 +135,28 @@ html { -webkit-text-size-adjust:100%; }
   .btn{ padding:12px 16px !important; }
 }
   </style>
+  /* ===== iOS: blocco definitivo auto-zoom su focus ===== */
+:root { --ios-fz: 16px; }
+
+/* TUTTI i controlli, anche dentro dialog/modal */
+input, select, textarea, button, label, .control,
+dialog input, dialog select, dialog textarea, dialog button, dialog label {
+  font-size: var(--ios-fz) !important;
+  line-height: 1.35 !important;
+  min-height: 44px !important;
+}
+
+/* importantissimo su iOS: anche le option del select */
+select, option { font-size: var(--ios-fz) !important; }
+
+/* nessun “ingrandimento testuale” automatico di Safari */
+html { -webkit-text-size-adjust: 100%; }
+
+/* per sicurezza: quando vanno in focus non cambiano metrica */
+input:focus, select:focus, textarea:focus {
+  font-size: var(--ios-fz) !important;
+}
+
   <style>
   /* iOS: evita zoom su focus (font >=16px) */
   input, select, textarea {
