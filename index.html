@@ -1663,6 +1663,80 @@ PART 4 / 5 — RECENSIONI • CONTATTI
      se Safari provasse comunque a zoomare, Parte 1 intercetta focus e forza no-zoom. */
 })();
 </script>
+<!-- ===== HOTFIX iOS anti-zoom per #contatti (pre-focus) ===== -->
+<script>
+(function(){
+  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+  if(!isiOS) return;
+
+  // 1) Assicura un solo meta viewport "base"
+  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+  (function normalize(){
+    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
+    if(!metas.length){
+      var m = document.createElement('meta');
+      m.name = 'viewport'; m.content = VP_BASE;
+      document.head.appendChild(m);
+    } else {
+      for(var i=1;i<metas.length;i++) metas[i].remove();
+      metas[0].setAttribute('content', VP_BASE);
+    }
+  })();
+  var vp = document.querySelector('meta[name="viewport"]');
+  function noZoom(){
+    if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no');
+  }
+  function yesZoom(){
+    if(vp) vp.setAttribute('content', VP_BASE);
+  }
+  function ensure17px(el){
+    try{
+      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
+      if(fs < 17){
+        el.style.fontSize   = '17px';
+        el.style.lineHeight = '1.35';
+        el.style.minHeight  = '44px';
+      }
+    }catch(_){}
+  }
+  function isFormCtrl(el){
+    return el && el.closest && el.closest('#contatti') &&
+           /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+  }
+
+  // 2) PRIMA del focus: blocca zoom (touchstart/pointerdown in CAPTURE)
+  var opts = {capture:true, passive:true};
+  document.addEventListener('touchstart', function(e){
+    var t = e.target;
+    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+  }, opts);
+  document.addEventListener('pointerdown', function(e){
+    var t = e.target;
+    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+  }, opts);
+
+  // 3) Durante l’uso: mantieni noZoom; al blur ripristina
+  document.addEventListener('focusin', function(e){
+    var t = e.target;
+    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+  }, {passive:true});
+  document.addEventListener('blur', function(e){
+    var t = e.target;
+    if(isFormCtrl(t)){ setTimeout(yesZoom, 50); }
+  }, true);
+
+  // 4) Failsafe: se il focus esce dal form, riabilita zoom
+  document.addEventListener('focusin', function(e){
+    if(!(e.target && e.target.closest('#contatti'))) yesZoom();
+  }, {passive:true});
+
+  // 5) Ulteriore failsafe: se l’utente fa una gesture, consenti zoom
+  window.addEventListener('gesturestart', yesZoom, {passive:true});
+})();
+</script>
+<!-- ===== /HOTFIX ===== -->
+
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 (look IDENTICO; fix funzionali: nessun meta viewport duplicato; iOS no-zoom lasciato a Parte 1/4)
