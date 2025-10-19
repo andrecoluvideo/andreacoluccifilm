@@ -1507,6 +1507,27 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
   </div>
 </section>
+<style>
+/* ===== iOS anti-zoom SOLO per la sezione Preventivo ===== */
+#contatti input,
+#contatti select,
+#contatti textarea,
+#contatti button,
+#contatti .control {
+  font-size:16px !important;
+  line-height:1.35 !important;
+  min-height:44px !important;
+}
+
+/* importante anche per le option del select su iOS */
+#contatti select, 
+#contatti option {
+  font-size:16px !important;
+}
+
+/* niente auto-ridimensionamento del testo su iOS */
+#contatti { -webkit-text-size-adjust:100%; }
+</style>
 
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
@@ -2014,3 +2035,28 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
     });
   })();
 </script>
+<!-- iOS focus-zoom fix (solo sezione Preventivo + modale recensioni) -->
+<script>
+(function(){
+  // iOS / iPadOS (anche Safari iPad in "modalità desktop")
+  var iOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+            (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+  if(!iOS) return;
+
+  // Forza font-size >=16px per impedire lo zoom su focus
+  var sel = [
+    '#contatti input', '#contatti select', '#contatti textarea', '#contatti button',
+    '#reviewModal .control' // opzionale: anche nel modale recensioni
+  ].join(',');
+
+  document.querySelectorAll(sel).forEach(function(el){
+    var fs = parseFloat(getComputedStyle(el).fontSize || '16');
+    if (fs < 16) el.style.fontSize = '16px';
+    // ulteriore cintura di sicurezza
+    el.style.webkitTextSizeAdjust = '100%';
+  });
+})();
+</script>
+
+</body>
+</html>
