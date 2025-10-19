@@ -1425,246 +1425,242 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
 
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
+/* ===========================================================
+   RECENSIONI — frontend con backend Apps Script + fallback
+   Sostituisce il vecchio script di Parte 4
+   =========================================================== */
 (function(){
-  /* ====== ELEMENTI ====== */
-  var grid    = document.getElementById('reviewsGrid');
-  var avgText = document.getElementById('avgRatingText');
-  var LD      = document.getElementById('reviewsJsonLd');
+  /* ===== CONFIG ===== */
+  // URL del tuo deployment Apps Script (quello /exec)
+  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbyTnAeCcSRDNOCHGiDyLjq9hR3VxPP197mxEH3ok3emRszaHB81yCknedcAD8bK62nD_A/exec';
+  // Copia qui ESATTAMENTE il valore salvato in Proprietà Script -> REVIEWS_API_KEY
+  const API_KEY = '<<acfilms_2025_secretKey_93Jv7>>';
+  // Timeout fetch (ms)
+  const FETCH_TIMEOUT = 9000;
 
-  var dialog  = document.getElementById('reviewModal');
-  var form    = document.getElementById('reviewForm');
-  var openBtn = document.getElementById('openReview');
-  var closeBtn= document.getElementById('closeReview');
-  var cancel  = document.getElementById('cancelReview');
-  var saveBtn = document.getElementById('saveReview');
+  /* ===== DOM refs ===== */
+  const grid     = document.getElementById('reviewsGrid');
+  const avgText  = document.getElementById('avgRatingText');
+  const LD       = document.getElementById('reviewsJsonLd');
+  const form     = document.getElementById('reviewForm');
+  const dialog   = document.getElementById('reviewModal');
+  const openBtn  = document.getElementById('openReview');
+  const closeBtn = document.getElementById('closeReview');
+  const cancelBtn= document.getElementById('cancelReview');
+  const saveBtn  = document.getElementById('saveReview');
+  const fileIn   = document.getElementById('r_img');
+  const preview  = document.getElementById('r_preview');
+  const previewPh= document.getElementById('r_preview_ph');
 
-  var fileIn  = document.getElementById('r_img');
-  var preview = document.getElementById('r_preview');
-  var previewPh = document.getElementById('r_preview_ph');
-
+  /* ===== Utils ===== */
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-
-  function appendReviewCard(rec){
-    if(!grid) return;
-    var fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    var img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
-    else img.src=['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    var cap=document.createElement('figcaption');
-    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
-  }
-
-  function updateAverage(){
-    var base=[5,5,4], extra=[];
-    try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
-    var all = base.concat(extra).filter(Boolean);
-    var avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{
-        var obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
-      }catch(e){}
-    }
-  }
-
-  function loadSaved(){
+  function toDataUrlThumb(file, cb){
     try{
-      var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
-      arr.sort(function(a,b){return (b.ts||0)-(a.ts||0)}).forEach(appendReviewCard);
-    }catch(e){}
-    updateAverage();
-  }
-
-  /* ====== FALLBACK <dialog> (mini-polyfill) ====== */
-  var supportsDialog = (typeof HTMLDialogElement==='function' && dialog && typeof dialog.showModal==='function');
-
-  var overlay = null;
-  function ensureOverlay(){
-    if(overlay) return;
-    overlay = document.createElement('div');
-    overlay.className = '__dlg_backdrop';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);display:none';
-    document.body.appendChild(overlay);
-  }
-
-  function openModal(){
-    if(!dialog) return;
-    if(supportsDialog){
-      try{ dialog.showModal(); }catch(_){ dialog.setAttribute('open','open'); }
-      return;
-    }
-    // fallback: stile modale “vero” anche senza supporto <dialog>
-    ensureOverlay();
-    // posiziona dialog come overlay
-    dialog.setAttribute('open','open'); // per CSS esistente
-    dialog.style.position='fixed';
-    dialog.style.zIndex='9999';
-    dialog.style.left='50%';
-    dialog.style.top='50%';
-    dialog.style.transform='translate(-50%,-50%)';
-    dialog.style.maxHeight='90vh';
-    dialog.style.overflow='auto';
-    overlay.style.display='block';
-    dialog.__fallbackOpen = true;
-  }
-
-  function closeModal(){
-    if(!dialog) return;
-    if(supportsDialog){
-      if(dialog.open) dialog.close();
-      else dialog.removeAttribute('open');
-      return;
-    }
-    dialog.removeAttribute('open');
-    dialog.__fallbackOpen = false;
-    if(overlay) overlay.style.display='none';
-  }
-
-  /* backdrop click / esc per fallback */
-  function onDocKey(e){
-    if(e.key==='Escape'){
-      e.preventDefault();
-      closeModal();
-    }
-  }
-  function onBackdropClick(e){
-    if(!dialog || !dialog.__fallbackOpen) return;
-    // chiudi se clic fuori rettangolo
-    var rect = dialog.getBoundingClientRect();
-    var inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-    if(!inside) closeModal();
-  }
-
-  /* ====== BIND BOTTONI MODALE ====== */
-  function bindModalControls(){
-    if(openBtn && !openBtn.__boundOpen){
-      openBtn.__boundOpen = true;
-      openBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); }, {passive:false});
-    }
-    if(closeBtn && !closeBtn.__boundClose){
-      closeBtn.__boundClose = true;
-      closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeModal(); }, {passive:false});
-    }
-    if(cancel && !cancel.__boundCancel){
-      cancel.__boundCancel = true;
-      cancel.addEventListener('click', function(e){ e.preventDefault(); closeModal(); }, {passive:false});
-    }
-    // backdrop ed ESC (fallback)
-    ensureOverlay();
-    if(overlay && !overlay.__bound){
-      overlay.__bound = true;
-      overlay.addEventListener('click', onBackdropClick, {passive:false});
-      document.addEventListener('keydown', onDocKey, {passive:false});
-    }
-    // anche click sul bordo del <dialog> (chiusura a clic esterno in supporto nativo)
-    if(dialog && !dialog.__outsideClick){
-      dialog.__outsideClick = true;
-      dialog.addEventListener('click', function(e){
-        // solo quando supporta nativo: chiudi se click fuori area form
-        if(!supportsDialog){ return; }
-        var rect = dialog.getBoundingClientRect();
-        var inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-        if(!inside) closeModal();
-      });
-    }
-  }
-
-  /* ====== SALVATAGGIO RECENSIONE ====== */
-  function closeDialog(){
-    try{ form && form.reset(); }catch(e){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    closeModal();
-  }
-
-  function handleSave(e){
-    if(e) e.preventDefault();
-    var name = getVal('r_name');
-    var role = getVal('r_role');
-    var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    var text = getVal('r_text');
-    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-    if(!name || !text) return;
-
-    var rec={name:name, role:role, stars:stars, text:text, img:img64, ts:Date.now()};
-    try{
-      var list = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); list.push(rec);
-      localStorage.setItem('ac_reviews', JSON.stringify(list));
-    }catch(e){}
-
-    appendReviewCard(rec);
-    updateAverage();
-    closeDialog();
-
-    // sync tra tab/sessioni dello stesso dispositivo
-    try{ var bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec:rec}); bc.close(); }catch(e){}
-  }
-
-  // immagini → anteprima tonda
-  function readImageToThumb(file, cb){
-    try{
-      var fr=new FileReader();
+      const fr=new FileReader();
       fr.onload=function(){
-        var img=new Image();
+        const img=new Image();
         img.onload=function(){
-          var size=120, canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
-          canvas.width=size; canvas.height=size;
-          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          c.width=size; c.height=size;
+          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
           ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-          cb(null, canvas.toDataURL('image/jpeg', .85));
+          cb(null, c.toDataURL('image/jpeg', .85));
         };
         img.src=fr.result;
       };
       fr.readAsDataURL(file);
     }catch(e){ cb(e); }
   }
+  function appendReviewCard(rec){
+    if(!grid || !rec) return;
+    const fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    const img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
+    else img.src = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    const cap=document.createElement('figcaption');
+    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
+  function updateAverage(baseStars, extras){
+    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    if(!all.length) return;
+    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
+      try{
+        const obj=JSON.parse(LD.textContent);
+        obj.aggregateRating.ratingValue=String(avg);
+        obj.aggregateRating.reviewCount=String(all.length);
+        LD.textContent=JSON.stringify(obj);
+      }catch(_){}
+    }
+  }
+
+  /* ===== Local cache (fallback) ===== */
+  const LS_KEY = 'ac_reviews';
+  function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch(_){ return []; } }
+  function lsPush(rec){
+    try{
+      const arr = lsGet(); arr.push(rec);
+      localStorage.setItem(LS_KEY, JSON.stringify(arr));
+    }catch(_){}
+  }
+
+  /* ===== Backend fetch helpers ===== */
+  function withTimeout(promise, ms){
+    return new Promise((res,rej)=>{
+      const t=setTimeout(()=>rej(new Error('timeout')), ms);
+      promise.then(v=>{clearTimeout(t);res(v);}).catch(e=>{clearTimeout(t);rej(e);});
+    });
+  }
+  async function fetchRemote(){
+    if(!ENDPOINT_URL) return [];
+    const url = ENDPOINT_URL + (API_KEY ? ('?key='+encodeURIComponent(API_KEY)) : '');
+    const r = await withTimeout(fetch(url, {mode:'cors'}), FETCH_TIMEOUT);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    if(!j || !j.ok) throw new Error('bad payload');
+    return Array.isArray(j.items) ? j.items : [];
+  }
+  async function postRemote(rec){
+    if(!ENDPOINT_URL) return;
+    const r = await withTimeout(fetch(ENDPOINT_URL, {
+      method:'POST',
+      mode:'cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({key:API_KEY}, rec))
+    }), FETCH_TIMEOUT);
+    // anche se fallisce non blocchiamo l’UX
+    // ma proviamo a leggere la risposta per debug
+    try{ await r.json(); }catch(_){}
+  }
+
+  /* ===== Apertura/chiusura modale (fix bottone) ===== */
+  function openModal(){
+    if(dialog?.showModal) dialog.showModal();
+    else dialog?.setAttribute('open','open');
+  }
+  function closeModal(){
+    try{ form && form.reset(); }catch(_){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', (e)=>{
+    const rect = dialog.getBoundingClientRect();
+    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+    if(!inside) closeModal();
+  });
+
+  /* ===== Upload immagine → miniatura tonda ===== */
   fileIn && fileIn.addEventListener('change', function(){
-    var f=this.files && this.files[0];
+    const f = this.files && this.files[0];
     if(!f){ preview.style.display='none'; previewPh.style.display='block'; return; }
-    readImageToThumb(f, function(err,data){
-      if(err) return;
-      preview.src=data; preview.style.display='block'; previewPh.style.display='none';
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
     });
   });
 
-  // bind submit/pubblica
+  /* ===== Salvataggio: append immediato + cache + POST al backend ===== */
+  function buildRecord(){
+    const name = getVal('r_name');
+    const role = getVal('r_role');
+    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    const text = getVal('r_text');
+    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return null;
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+  }
+  async function handleSave(e){
+    if(e) e.preventDefault();
+    const rec = buildRecord();
+    if(!rec) return;
+
+    // 1) Append immediato (UX)
+    appendReviewCard(rec);
+    // 2) Aggiorna media con baseStars (fake) + tutte locale+remote (lo ricalcoliamo dopo il POST)
+    lsPush(rec);
+    // 3) Broadcast ad altre tab
+    try{ const bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec}); bc.close(); }catch(_){}
+    // 4) Chiudi modale
+    closeModal();
+
+    // 5) POST backend (non blocca UI). Se fallisce, rimane in locale.
+    try{
+      await postRemote(rec);
+      // dopo 1.5s ricarichiamo la lista dal backend per avere l'ordine server-side
+      setTimeout(initLoad, 1500);
+    }catch(_){
+      // Ignora errori: la card locale resta visibile
+    }
+  }
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  // ricevi da altre tab (stesso device)
+  // Ricezione da altre tab
   try{
-    var bc=new BroadcastChannel('ac_reviews_channel');
+    const bc=new BroadcastChannel('ac_reviews_channel');
     bc.onmessage=function(ev){
       if(ev && ev.data && ev.data.type==='new_review' && ev.data.rec){
         appendReviewCard(ev.data.rec);
-        updateAverage();
+        // media la ricalcoliamo alla prossima initLoad
       }
     };
-  }catch(e){}
+  }catch(_){}
 
-  // init
-  bindModalControls();
+  /* ===== Prima render: uniamo base + remote + locale (priorità: remote) ===== */
+  const BASE_STARS = [5,5,4]; // le 3 card statiche già in pagina
+  async function initLoad(){
+    // 1) pulizia duplicati dinamici (lascia le 3 di base)
+    // (non tocchiamo le tre card statiche già in HTML)
+    // 2) carica remote
+    let remote = [];
+    try{ remote = await fetchRemote(); }catch(_){ remote = []; }
+    // 3) svuota le card dinamiche già appendate (tutte tranne le prime 3 figure già presenti nel markup)
+    try{
+      const figs = Array.from(grid.querySelectorAll('figure.glass.review'));
+      // mantieni solo le prime 3 originali (se vuoi tenere sempre quelle)
+      for(let i=3;i<figs.length;i++){ figs[i].remove(); }
+    }catch(_){}
+
+    // 4) append remote (recenti in alto: l’API già ordina desc, ma riordiniamo per sicurezza)
+    remote.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(appendReviewCard);
+
+    // 5) append locale non ancora presenti (match per ts+name+text)
+    const loc = lsGet();
+    const seen = new Set(remote.map(r => String((r.ts||'')+'|'+(r.name||'')+'|'+(r.text||''))));
+    loc.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(r=>{
+      const k = String((r.ts||'')+'|'+(r.name||'')+'|'+(r.text||''));
+      if(!seen.has(k)) appendReviewCard(r);
+    });
+
+    // 6) aggiorna media
+    updateAverage(BASE_STARS, remote.concat(loc));
+  }
+
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', function(){ bindModalControls(); loadSaved(); });
+    document.addEventListener('DOMContentLoaded', initLoad);
   }else{
-    loadSaved();
+    initLoad();
   }
 })();
 </script>
+
 
 
 
