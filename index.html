@@ -1,3 +1,7 @@
+<!-- ==========================
+PART 1 / 5 — NAV • HERO • METRICHE • i18n base
+(identico nel look; aggiunti solo fix funzionali invisibili)
+========================== -->
 <!doctype html>
 <html lang="it">
 <head>
@@ -6,6 +10,10 @@
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
+
+  <!-- Performance: preconnect ai font (nessun impatto visivo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
@@ -62,6 +70,11 @@
 
     /* Responsive invariato */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
+
+    /* FIX invisibile: altezza minima hero su mobile con safe-area (non cambia il look su desktop) */
+    @media (max-width:700px){
+      .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))}
+    }
   </style>
 </head>
 <body>
@@ -203,7 +216,7 @@
 
       // Applica traduzioni (senza toccare layout/markup)
       window.__i18n.apply = function(lang){
-        const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict[lang]||{});
+        const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict?.[lang]||{});
         document.querySelectorAll('[data-i18n]').forEach(el=>{
           const k = el.getAttribute('data-i18n'); const t = dict[k];
           if(!t) return;
@@ -217,22 +230,23 @@
         });
       };
 
-      // Init lingua da URL o localStorage
+      // Init lingua da URL o localStorage (mantiene lo scroll)
       const urlLang = new URLSearchParams(location.search).get('lang');
       const saved   = localStorage.getItem('ac_lang');
       const start   = urlLang || saved || document.documentElement.lang || 'it';
       window.__i18n.apply(start);
 
-      // Switch lingua senza refresh/scroll
+      // Switch lingua senza refresh/scroll (preserva posizione)
       document.querySelectorAll('.lang [data-lang]').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
           const lang=a.getAttribute('data-lang')||'it';
+          if(lang === (document.documentElement.lang||'it')) return; // evita lavoro inutile
           localStorage.setItem('ac_lang', lang);
           const url=new URL(location.href); url.searchParams.set('lang', lang);
           history.pushState({lang},'',url.toString());
           window.__i18n.apply(lang);
-        });
+        }, {passive:false});
       });
       window.addEventListener('popstate', ()=>{
         const lang = new URLSearchParams(location.search).get('lang') || 'it';
@@ -247,13 +261,28 @@
       document.querySelectorAll('a[href="#contatti"], .nav a.btn[data-i18n="nav.quote"], .btn[data-i18n="cta.quote"]').forEach(a=>{
         a.addEventListener('click', toContacts, {passive:false});
       });
+
+      // ===== Stub consenso "silenzioso" (nessun banner al primo accesso)
+      // Puoi attivare in altre parti: window.__consent.enable('analytics') ecc.
+      window.__consent = (function(){
+        const KEY='ac_consents_v1';
+        function read(){ try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(_){return{}} }
+        function save(obj){ try{localStorage.setItem(KEY, JSON.stringify(obj));}catch(_){ } }
+        return {
+          has:(k)=>!!read()[k],
+          enable:(k)=>{ const o=read(); o[k]=true; save(o); },
+          disable:(k)=>{ const o=read(); delete o[k]; save(o); },
+          all:()=>read()
+        };
+      })();
     })();
   </script>
 </body>
 </html>
-<!-- FINE PARTE 1/5 — Continua con la Parte 2/5 (Servizi + Reel) -->
+<!-- FINE PARTE 1/5 — Proseguo con la Parte 2/5 mantenendo lo stesso look -->
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (incolonnati)
+(look invariato; aggiunti solo fix funzionali invisibili)
 ========================== -->
 
 <!-- ====== SERVIZI (6 card) ====== -->
@@ -438,22 +467,41 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   }
 </style>
 
-<!-- ====== SCRIPT REEL: pausa/riavvio su visibilità + CTA quote corrette ====== -->
+<!-- ====== SCRIPT REEL: pausa/riavvio su visibilità + viewport + CTA quote ====== -->
 <script>
   (function(){
+    // PostMessage helper per tutti i frame Reel
     function postAll(method){
-      document.querySelectorAll('#reel iframe').forEach(fr=>{
-        try{ fr.contentWindow && fr.contentWindow.postMessage({method}, '*'); }catch(e){}
+      document.querySelectorAll('#reel iframe').forEach(function(fr){
+        try{ fr.contentWindow && fr.contentWindow.postMessage({method: method}, '*'); }catch(e){}
       });
     }
-    document.addEventListener('visibilitychange', ()=> postAll(document.hidden ? 'pause':'play'));
 
-    // CTA "Richiedi preventivo" in questa sezione → #contatti con scroll dolce
-    document.querySelectorAll('#servizi a[href="#contatti"]').forEach(a=>{
+    // Pausa/Play se la pagina perde/riacquista visibilità
+    document.addEventListener('visibilitychange', function(){
+      postAll(document.hidden ? 'pause' : 'play');
+    });
+
+    // IntersectionObserver: pausa i video fuori viewport (risparmio batteria)
+    var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
+    if('IntersectionObserver' in window && frames.length){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          try{
+            var m = en.isIntersecting ? 'play' : 'pause';
+            en.target.contentWindow && en.target.contentWindow.postMessage({method:m}, '*');
+          }catch(e){}
+        });
+      }, {root:null, rootMargin:'0px 0px 0px 0px', threshold:0.25});
+      frames.forEach(function(fr){ io.observe(fr); });
+    }
+
+    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll)
+    document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
       a.addEventListener('click', function(e){
-        const target=document.querySelector('#contatti'); if(!target) return;
-        e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'});
-      });
+        var t = document.querySelector('#contatti'); if(!t) return;
+        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+      }, {passive:false});
     });
   })();
 </script>
@@ -462,13 +510,13 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 <script>
   (function(){
     // estensione semplice al dizionario globale definito in Parte 1
-    const extend = (extra)=>{
-      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
-      const D = window.__i18n.__dict;
-      Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
-      const lang = document.documentElement.lang || 'it';
+    function extend(extra){
+      window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+      var D = window.__i18n.__dict = window.__i18n.__dict || {};
+      Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+      var lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
-    };
+    }
 
     extend({
       it:{
@@ -543,8 +591,10 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     });
   })();
 </script>
+<!-- FINE PARTE 2/5 — Proseguo con la Parte 3/5 (Pacchetti • CTA • Bio) con look identico -->
 <!-- ==========================
 PART 3 / 5 — PACCHETTI • CTA • BIO
+(look identico; fix funzionali: no-404 pack, WA prefill, 3a foto bio solo mobile)
 ========================== -->
 
 <!-- ====== PACCHETTI VIDEO COMMERCIALI (unica sezione) ====== -->
@@ -561,7 +611,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 
   <div class="grid packs-grid" style="gap:12px;grid-template-columns:repeat(5,minmax(0,1fr))">
     <!-- Basic -->
-    <a href="pack_basic.html" class="glass pack-card" data-pack="basic" style="text-decoration:none;overflow:hidden">
+    <a href="pack_basic.html" class="glass pack-card" data-pack="Basic" style="text-decoration:none;overflow:hidden">
       <div class="pack-media">
         <img src="/media/portfolio-1.jpg" alt="Basic Pack" loading="lazy"
              style="width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08) saturate(1.06)">
@@ -575,7 +625,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     </a>
 
     <!-- Standard -->
-    <a href="pack_standard.html" class="glass pack-card" data-pack="standard" style="text-decoration:none;overflow:hidden">
+    <a href="pack_standard.html" class="glass pack-card" data-pack="Standard" style="text-decoration:none;overflow:hidden">
       <div class="pack-media">
         <img src="/media/bg-realestate.webp.jpg" alt="Standard Pack" loading="lazy"
              style="width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08) saturate(1.06)">
@@ -589,7 +639,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     </a>
 
     <!-- Premium -->
-    <a href="pack_premium.html" class="glass pack-card" data-pack="premium" style="text-decoration:none;overflow:hidden">
+    <a href="pack_premium.html" class="glass pack-card" data-pack="Premium" style="text-decoration:none;overflow:hidden">
       <div class="pack-media">
         <img src="/media/bg-turismo.webp.jpg" alt="Premium Pack" loading="lazy"
              style="width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08) saturate(1.06)">
@@ -603,7 +653,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     </a>
 
     <!-- Elite Project -->
-    <a href="pack_elite.html" class="glass pack-card" data-pack="elite" style="text-decoration:none;overflow:hidden">
+    <a href="pack_elite.html" class="glass pack-card" data-pack="Elite Project" style="text-decoration:none;overflow:hidden">
       <div class="pack-media">
         <img src="/media/bg-portfolio.webp.jpg" alt="Elite Project Pack" loading="lazy"
              style="width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08) saturate(1.06)">
@@ -617,7 +667,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     </a>
 
     <!-- Full Storytelling -->
-    <a href="pack_fullstorytelling.html" class="glass pack-card" data-pack="fullstory" style="text-decoration:none;overflow:hidden">
+    <a href="pack_fullstorytelling.html" class="glass pack-card" data-pack="Full Storytelling" style="text-decoration:none;overflow:hidden">
       <div class="pack-media">
         <img src="/media/bg-charter.webp.jpg" alt="Full Storytelling Pack" loading="lazy"
              style="width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08) saturate(1.06)">
@@ -654,24 +704,6 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     </div>
   </div>
 </section>
-<script>
-  (function(){
-    // WhatsApp CTA → usa WA_NUMBER se definito globalmente
-    var wa = document.getElementById('ctaWhatsApp');
-    if(wa){
-      var tel = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
-      var msg = encodeURIComponent('Ciao Andrea! Vorrei un preventivo per un video. Mi chiamo ___ e sono di ___.');
-      wa.href = 'https://wa.me/'+tel+'?text='+msg;
-    }
-    // Scroll dolce #contatti da CTA
-    document.querySelectorAll('#cta a[href="#contatti"], #pacchetti-videoprofessionali a[href="#contatti"]').forEach(a=>{
-      a.addEventListener('click', function(e){
-        var t=document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
-      });
-    });
-  })();
-</script>
 
 <!-- ====== BIO (sfondo NON scurito) ====== -->
 <section id="bio" class="container" style="padding:26px 0 8px;position:relative">
@@ -704,6 +736,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       <img src="/media/about-2.jpg" alt="Andrea Colucci e collega" loading="lazy"
            style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
                   box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
+      <!-- terza foto SOLO mobile per riempire il "buco" -->
+      <img src="/media/hero.webp.jpg" alt="" loading="lazy" class="bio-third-mobile"
+           style="display:none;position:absolute;left:14px;top:14px;width:120px;height:120px;object-fit:cover;border-radius:14px;
+                  box-shadow:0 8px 20px rgba(0,0,0,.4), 0 0 0 3px rgba(255,255,255,.05)">
       <!-- badge -->
       <div class="glass" style="position:absolute;left:14px;bottom:14px;padding:8px 10px;display:flex;gap:8px;align-items:center">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-7z" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -718,6 +754,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       #bio .bio-wrap{grid-template-columns:1fr !important}
       #bio .bio-media{min-height:220px}
     }
+    /* Mostra la terza foto solo su schermi piccoli (riempie il buco mobile) */
+    @media (max-width:700px){
+      #bio .bio-third-mobile{display:block !important}
+    }
   </style>
 </section>
 
@@ -725,10 +765,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 <script>
   (function(){
     function extend(extra){
-      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
-      const D = window.__i18n.__dict;
-      Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
-      const lang = document.documentElement.lang || 'it';
+      window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+      var D = window.__i18n.__dict = window.__i18n.__dict || {};
+      Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+      var lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
     }
 
@@ -829,8 +869,62 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
     });
   })();
 </script>
+
+<!-- ====== SCRIPT: Pack no-404 + CTA scroll + WhatsApp con pack ====== -->
+<script>
+  (function(){
+    // Numero WhatsApp riusabile
+    var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
+
+    // Memorizza ultimo pack selezionato per prefill WhatsApp/Email
+    var lastPack = null;
+
+    // Intercetta click sulle card pacchetti (evita 404 se pagine non esistono)
+    document.querySelectorAll('.pack-card').forEach(function(card){
+      card.addEventListener('click', function(e){
+        try{
+          var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+          lastPack = pack;
+          // sezione contatti
+          var t = document.querySelector('#contatti');
+          if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+          // Prefill campi form se presenti
+          var qmsg = document.getElementById('q_message');
+          if(qmsg && (!qmsg.value || !qmsg.value.includes(pack))){
+            var base = qmsg.value ? (qmsg.value.trim() + "\n") : "";
+            qmsg.value = base + "Pacchetto di interesse: " + pack;
+          }
+        }catch(_){}
+      }, {passive:false});
+    });
+
+    // CTA WhatsApp (se presente in questa parte) con pack precompilato
+    (function(){
+      var wa = document.getElementById('ctaWhatsApp');
+      if(!wa) return;
+      var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
+      if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
+      wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
+      // Aggiorna il messaggio ogni volta che si clicca, includendo eventuale lastPack aggiornato
+      wa.addEventListener('click', function(){
+        var t = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
+        if(lastPack){ t += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
+        wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + t;
+      });
+    })();
+
+    // Smooth scroll generico verso #contatti da CTA presenti qui
+    document.querySelectorAll('#cta a[href="#contatti"], #pacchetti-videoprofessionali a[href="#contatti"]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        var t=document.querySelector('#contatti'); if(!t) return;
+        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+      }, {passive:false});
+    });
+  })();
+</script>
 <!-- ==========================
 PART 4 / 5 — RECENSIONI • CONTATTI
+(look identico; fix funzionali invisibili)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -899,7 +993,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   <!-- Modal nuova recensione con upload immagine -->
   <dialog id="reviewModal"
           style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
-    <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
+    <form id="reviewForm" method="dialog" style="padding:16px 16px 10px" novalidate>
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
         <button type="button" class="btn" id="closeReview" aria-label="Chiudi">×</button>
@@ -908,12 +1002,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr">
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
-          <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
+          <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required maxlength="60" autocomplete="name">
         </div>
 
         <div class="field">
           <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
-          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
+          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required maxlength="60" autocomplete="organization-title">
         </div>
 
         <div class="field">
@@ -945,7 +1039,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
-          <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
+          <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required maxlength="600"></textarea>
         </div>
       </div>
 
@@ -991,18 +1085,22 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div class="glass" style="border-radius:16px;padding:14px">
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
+    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))" novalidate>
+      <!-- honeypot anti-spam (nascosto, nessun impatto estetico) -->
+      <input type="text" id="q_company" name="company" tabindex="-1" aria-hidden="true"
+             style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px">
+
       <div class="field">
         <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
-        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
+        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required maxlength="80" autocomplete="name">
       </div>
       <div class="field">
         <label class="label" for="q_email" data-i18n="contact.email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
+        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required maxlength="120" autocomplete="email">
       </div>
       <div class="field">
         <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
+        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX" autocomplete="tel">
       </div>
       <div class="field">
         <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
@@ -1018,7 +1116,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       </div>
       <div class="field" style="grid-column:1 / -1">
         <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
-        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
+        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…" maxlength="1200"></textarea>
       </div>
 
       <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
@@ -1043,42 +1141,46 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   // Helpers globali (riutilizza WA_NUMBER se definito altrove)
   var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function isSpam(){ return !!(document.getElementById('q_company') && document.getElementById('q_company').value); }
 
   // ===== Recensioni: open/close + upload immagine + salvataggio
   (function(){
-    const openBtn = document.getElementById('openReview');
-    const dialog  = document.getElementById('reviewModal');
-    const closeBtn= document.getElementById('closeReview');
-    const cancel  = document.getElementById('cancelReview');
-    const saveBtn = document.getElementById('saveReview');
-    const grid    = document.getElementById('reviewsGrid');
-    const avgText = document.getElementById('avgRatingText');
-    const LD      = document.getElementById('reviewsJsonLd');
+    var openBtn = document.getElementById('openReview');
+    var dialog  = document.getElementById('reviewModal');
+    var closeBtn= document.getElementById('closeReview');
+    var cancel  = document.getElementById('cancelReview');
+    var saveBtn = document.getElementById('saveReview');
+    var grid    = document.getElementById('reviewsGrid');
+    var avgText = document.getElementById('avgRatingText');
+    var LD      = document.getElementById('reviewsJsonLd');
 
-    const fileIn  = document.getElementById('r_img');
-    const preview = document.getElementById('r_preview');
-    const previewPh = document.getElementById('r_preview_ph');
+    var fileIn  = document.getElementById('r_img');
+    var preview = document.getElementById('r_preview');
+    var previewPh = document.getElementById('r_preview_ph');
 
-    let uploadedDataURL = null;
+    var MAX_IMG_MB = 3; // controllo invisibile
+    var uploadedDataURL = null;
 
-    // leggi file e crea thumb 120x120 (crop centrale)
+    // leggi file e crea thumb 120x120 (crop centrale), con controlli tipo/dimensione
     function readImageToThumb(file, cb){
       try{
-        const fr = new FileReader();
+        if(!/^image\/(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(file.type)) return cb(new Error('type'));
+        if(file.size > MAX_IMG_MB*1024*1024) return cb(new Error('size'));
+        var fr = new FileReader();
         fr.onload = function(){
-          const img = new Image();
+          var img = new Image();
           img.onload = function(){
-            const size = 120;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            var size = 120;
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
             canvas.width=size; canvas.height=size;
 
-            const s = Math.min(img.width, img.height);
-            const sx = (img.width - s)/2;
-            const sy = (img.height - s)/2;
+            var s = Math.min(img.width, img.height);
+            var sx = (img.width - s)/2;
+            var sy = (img.height - s)/2;
 
             ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-            const data = canvas.toDataURL('image/jpeg', .85);
+            var data = canvas.toDataURL('image/jpeg', .85);
             cb(null, data);
           };
           img.src = fr.result;
@@ -1088,10 +1190,10 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     }
 
     fileIn && fileIn.addEventListener('change', function(){
-      const f = this.files && this.files[0];
+      var f = this.files && this.files[0];
       if(!f){ uploadedDataURL=null; preview.style.display='none'; previewPh.style.display='block'; return; }
       readImageToThumb(f, function(err, data){
-        if(err){ uploadedDataURL=null; return; }
+        if(err){ uploadedDataURL=null; preview.style.display='none'; previewPh.style.display='block'; return; }
         uploadedDataURL = data;
         preview.src = data;
         preview.style.display='block';
@@ -1099,27 +1201,28 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       });
     });
 
-    // load recensioni salvate
+    // load recensioni salvate (ordina per ts desc)
     function loadSaved(){
       try{
-        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
+        var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
+        arr.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
         arr.forEach(appendReviewCard);
         updateAverage();
       }catch(e){}
     }
 
     function starString(n){
-      const full = '★★★★★'.slice(0,n);
-      const empty= '☆☆☆☆☆'.slice(0,5-n);
+      var full = '★★★★★'.slice(0,n);
+      var empty= '☆☆☆☆☆'.slice(0,5-n);
       return full+empty;
     }
 
     function appendReviewCard(rec){
-      const fig = document.createElement('figure');
+      var fig = document.createElement('figure');
       fig.className = 'glass review';
       fig.style.cssText = 'padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
 
-      const img = document.createElement('img');
+      var img = document.createElement('img');
       img.loading='lazy';
       img.alt = 'Cliente';
       img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
@@ -1127,21 +1230,21 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       // immagine utente o placeholder
       if(rec.img && /^data:image\//.test(rec.img)){ img.src = rec.img; }
       else{
-        const imgs = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'];
+        var imgs = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'];
         img.src = imgs[Math.floor(Math.random()*imgs.length)];
       }
 
-      const cap = document.createElement('figcaption');
-      const top = document.createElement('div');
+      var cap = document.createElement('figcaption');
+      var top = document.createElement('div');
       top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-      const strong = document.createElement('strong');
+      var strong = document.createElement('strong');
       strong.textContent = rec.name + (rec.role ? ' — ' + rec.role : '');
-      const stars = document.createElement('span');
+      var stars = document.createElement('span');
       stars.className='stars';
       stars.setAttribute('aria-label', rec.stars + ' su 5');
       stars.textContent = starString(rec.stars);
 
-      const p = document.createElement('p');
+      var p = document.createElement('p');
       p.className='soft';
       p.style.margin='6px 0 0';
       p.textContent = '“' + rec.text + '”';
@@ -1155,18 +1258,16 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
     function updateAverage(){
       // base: 3 recensioni iniziali = [5,5,4]
-      let base = [5,5,4], extra=[];
-      try{ extra = (JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
-      const all = base.concat(extra).filter(n=>n>0);
-      const avg = (all.reduce((a,b)=>a+b,0) / all.length);
-      const avgRounded = Math.round(avg*10)/10;
-      if(avgText){
-        avgText.textContent = 'Valutazione media ' + avgRounded + '/5';
-      }
+      var base = [5,5,4], extra=[];
+      try{ extra = (JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(function(r){return Number(r.stars)||0;}); }catch(e){}
+      var all = base.concat(extra).filter(function(n){return n>0;});
+      var avg = (all.reduce(function(a,b){return a+b;},0) / all.length);
+      var avgRounded = Math.round(avg*10)/10;
+      if(avgText){ avgText.textContent = 'Valutazione media ' + avgRounded + '/5'; }
       // aggiorna JSON-LD
       if(LD){
         try{
-          const obj = JSON.parse(LD.textContent);
+          var obj = JSON.parse(LD.textContent);
           obj.aggregateRating.ratingValue = String(avgRounded);
           obj.aggregateRating.reviewCount = String(all.length);
           LD.textContent = JSON.stringify(obj);
@@ -1181,23 +1282,23 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     closeBtn && closeBtn.addEventListener('click', close);
     cancel  && cancel.addEventListener('click', close);
 
-    dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); close(); } });
-    dialog.addEventListener('click', (e)=>{
-      const rect = dialog.getBoundingClientRect();
-      const inDialog = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+    dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); close(); } });
+    dialog.addEventListener('click', function(e){
+      var rect = dialog.getBoundingClientRect();
+      var inDialog = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
       if(!inDialog) close();
     });
 
     // Salva recensione
-    saveBtn && saveBtn.addEventListener('click', ()=>{
-      const name = getVal('r_name');
-      const role = getVal('r_role');
-      const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-      const text = getVal('r_text');
-      if(!name || !text){ return; }
-      const rec = {name, role, stars, text, img: uploadedDataURL||'', ts: Date.now()};
+    saveBtn && saveBtn.addEventListener('click', function(){
+      var name = getVal('r_name');
+      var role = getVal('r_role');
+      var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+      var text = getVal('r_text');
+      if(!name || !role || !text){ return; }
+      var rec = {name:name, role:role, stars:stars, text:text, img: uploadedDataURL||'', ts: Date.now()};
       try{
-        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
+        var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
         localStorage.setItem('ac_reviews', JSON.stringify(arr));
       }catch(e){}
       appendReviewCard(rec);
@@ -1208,37 +1309,54 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     loadSaved();
   })();
 
-  // ===== Contatti: Email e WhatsApp composti
+  // ===== Contatti: Email e WhatsApp composti (validazioni leggere + smooth scroll)
   (function(){
+    function normPhone(v){ return (v||'').replace(/[^\d+]/g,''); }
+    function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v||''); }
+
     var btn = document.getElementById('sendMail');
     if(btn){
       btn.addEventListener('click', function(){
+        if(isSpam()) return; // honeypot
         var name = getVal('q_name');
         var email= getVal('q_email');
-        var phone= getVal('q_phone');
+        var phone= normPhone(getVal('q_phone'));
         var serv = getVal('q_service');
         var msg  = getVal('q_message');
+
+        if(!name || !validEmail(email) || !serv){ 
+          // validazioni silenziose (nessun impatto estetico)
+          return; 
+        }
         var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
         var body = encodeURIComponent(
           'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
           '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
         );
         window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
-      });
+      }, {passive:true});
     }
 
     var waForm = document.getElementById('sendWhatsApp');
+    function updateWAHref(a){
+      var name = getVal('q_name') || '';
+      var phone= normPhone(getVal('q_phone') || '');
+      var serv = getVal('q_service') || '';
+      var msg  = getVal('q_message') || '';
+      var text = encodeURIComponent(
+        'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
+        (name ? 'Nome: ' + name + '\n' : '') +
+        (phone? 'Telefono: ' + phone + '\n' : '') +
+        (serv ? 'Servizio: ' + serv + '\n' : '') +
+        (msg  ? '\n' + msg : '')
+      );
+      a.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+    }
     if(waForm){
-      waForm.addEventListener('click', function(){
-        var name = getVal('q_name') || '';
-        var phone= getVal('q_phone') || '';
-        var serv = getVal('q_service') || '';
-        var msg  = getVal('q_message') || '';
-        var text = encodeURIComponent(
-          'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
-          'Nome: ' + name + '\nTelefono: ' + phone + '\nServizio: ' + serv + '\n\n' + msg
-        );
-        waForm.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
+      updateWAHref(waForm);
+      ['q_name','q_phone','q_service','q_message'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){ el.addEventListener('input', function(){ updateWAHref(waForm); }); }
       });
     }
 
@@ -1247,28 +1365,26 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
       quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
     }
+
+    // Smooth scroll a #contatti da CTA/ancore (se presenti altrove)
+    (function(){
+      function smoothToContacts(e){
+        var t=document.querySelector('#contatti'); if(!t) return;
+        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      document.querySelectorAll('a[href="#contatti"], .btn[href="#contatti"]').forEach(function(a){
+        a.addEventListener('click', smoothToContacts, {passive:false});
+      });
+    })();
   })();
 
-  // ===== Scroll dolce a #contatti da ogni CTA (in caso di ancore duplicate altrove)
-  (function(){
-    function smoothToContacts(e){
-      var t=document.querySelector('#contatti'); if(!t) return;
-      e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-    document.querySelectorAll('a[href="#contatti"], .btn[href="#contatti"]').forEach(a=>{
-      a.addEventListener('click', smoothToContacts, {passive:false});
-    });
-  })();
-</script>
-
-<!-- ====== i18n EXTEND (Reviews + Contacts + Photo upload) ====== -->
-<script>
+  // ===== i18n EXTEND (Reviews + Contacts + Photo upload) =====
   (function(){
     function extend(extra){
-      window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
-      const D = window.__i18n.__dict;
-      Object.keys(extra).forEach(k=>{ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
-      const lang = document.documentElement.lang || 'it';
+      window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+      var D = window.__i18n.__dict = window.__i18n.__dict || {};
+      Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+      var lang = document.documentElement.lang || 'it';
       if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
     }
 
@@ -1377,6 +1493,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 </script>
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
+(look invariato; fix funzionali invisibili)
 ========================== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
@@ -1484,20 +1601,21 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
 
 <!-- ====== SCRIPT utility footer/policy/i18n ====== -->
 <script>
-  // Back-to-top
+  // Back-to-top (rispetta prefers-reduced-motion)
   (function(){
     var btn = document.getElementById('toTop');
     if(!btn) return;
     btn.addEventListener('click', function(e){
       e.preventDefault();
-      window.scrollTo({top:0, behavior:'smooth'});
-    });
+      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top:0, behavior: prefersReduced ? 'auto' : 'smooth' });
+    }, {passive:false});
   })();
 
-  // WhatsApp nel footer (riusa WA_NUMBER definito in altre parti)
+  // WhatsApp nel footer (riusa WA_NUMBER se definito altrove)
   (function(){
     var wa = document.getElementById('footerWA');
-    var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
+    var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? (''+WA_NUMBER).replace(/[^\d]/g,'') : '393331234567';
     if(wa){
       var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito 🙌');
       wa.href = 'https://wa.me/' + number + '?text=' + text;
@@ -1509,20 +1627,27 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
     function openFromHash(){
       if(!location.hash) return;
       var el = document.querySelector(location.hash);
-      if(el && el.tagName === 'DETAILS' && !el.open){ el.open = true; }
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      if(el && el.tagName === 'DETAILS'){
+        if(!el.open){ el.open = true; }
+      }
+      if(el){ 
+        // Usa smooth scroll salvo ridotta mobilità
+        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'}); 
+      }
     }
-    window.addEventListener('hashchange', openFromHash);
-    openFromHash();
+    window.addEventListener('hashchange', function(){ setTimeout(openFromHash, 0); });
+    // Delay minimo per assicurare che DOM e stili siano applicati prima dello scroll
+    setTimeout(openFromHash, 0);
   })();
 </script>
 
 <!-- ====== i18n EXTEND per Footer/Policy ====== -->
 <script>
   (function(){
-    window.__i18n = window.__i18n || { __dict:{}, apply:()=>{} };
+    window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
     function extend(extra){
-      const D = (window.__i18n.__dict = window.__i18n.__dict || {});
+      var D = (window.__i18n.__dict = window.__i18n.__dict || {});
       Object.keys(extra).forEach(function(k){
         D[k] = Object.assign({}, D[k]||{}, extra[k]);
       });
@@ -1549,7 +1674,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
         "policy.privacy.p2":"I dati sono conservati in modo sicuro e non ceduti a terzi. Puoi chiedere la cancellazione scrivendo a andreacolucci@hotmail.it.",
 
         "policy.cookie.t":"Cookie Policy",
-        "policy.cookie.p1":"Usiamo solo cookie tecnici per il corretto funzionamento. Puoi disattivarli dal browser, ma alcune funzioni potrebbero limitarsi.",
+        "policy.cookie.p1":"Usiamo solo cookie tecnici per il corretto funzionamento. Puoi disattivarli nel browser, ma alcune funzioni potrebbero limitarsi.",
         "policy.cookie.p2":"Per info: andreacolucci@hotmail.it.",
 
         "policy.terms.t":"Terms of Service",
