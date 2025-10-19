@@ -1348,8 +1348,25 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
       </div>
     </form>
   </div>
-    </form>
-  </div>
+    <style>
+  @media (max-width: 700px){
+    /* Evita zoom iOS su focus (solo mobile) */
+    #quoteForm .control,
+    #reviewForm .control,
+    #quoteForm input,
+    #quoteForm select,
+    #quoteForm textarea,
+    #reviewForm input,
+    #reviewForm select,
+    #reviewForm textarea{
+      font-size:16px !important;
+      min-height:44px;
+    }
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+</style>
+
 
   <!-- SCRIPT: invio via email / WhatsApp -->
   <script>
