@@ -196,7 +196,8 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   </section>
 
   <!-- (Segnaposto #contatti per ancoraggio CTA) -->
-  <section id="contatti" style="padding:1px 0"></section>
+<section id="contatti-anchor" style="padding:1px 0"></section>
+
 
   <!-- ====== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ====== -->
   <script>
@@ -446,7 +447,55 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   loadLocalReviews();
 })();
 </script>
-
+<script>
+(function(){
+  // Trova SEMPRE la sezione contatti "vera" (quella in Parte 4)
+  function getMainContactsSection(){
+    var els = document.querySelectorAll('#contatti');
+    return els.length ? els[els.length - 1] : null;
+  }
+  function smoothToContacts(e){
+    var t = getMainContactsSection(); if(!t) return;
+    e && e.preventDefault();
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    t.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'start'});
+  }
+  // Aggancia tutti i link/bottoni che devono scorrere (IT/EN/ES)
+  var SELECTORS = [
+    'a[href="#contatti"]',
+    '.nav a.btn[data-i18n="nav.quote"]',
+    '.btn[data-i18n="cta.quote"]',
+    '.btn.fill[data-i18n="cta.quote"]',
+    '.btn[data-i18n="bio.btn.contact"]',
+    '.btn[data-i18n="packs.cta"]',
+    '#cta a[href="#contatti"]',
+    '#pacchetti-videoprofessionali a[href="#contatti"]',
+    '#footer a[data-i18n="footer.quote"]'
+  ];
+  function bind(){
+    document.querySelectorAll(SELECTORS.join(',')).forEach(function(a){
+      if(a.__boundToContacts) return;
+      a.__boundToContacts = true;
+      a.addEventListener('click', smoothToContacts, {passive:false});
+    });
+    // fallback anche se manca data-i18n e cambia testo per lingua
+    document.body.addEventListener('click', function(e){
+      var el = e.target.closest('a,button'); if(!el) return;
+      var txt = (el.textContent||'').trim().toLowerCase();
+      if(/parliamone ora|richiedi preventivo|let'?s talk|get a quote|pide presupuesto/.test(txt)){
+        smoothToContacts(e);
+      }
+    }, {passive:false});
+  }
+  bind();
+  // Se cambi lingua, ribinda
+  (function patchI18n(){
+    window.__i18n = window.__i18n || {apply:function(){}};
+    var prev = window.__i18n.apply.bind(window.__i18n);
+    window.__i18n.apply = function(lang){ prev(lang); try{ bind(); }catch(e){} };
+  })();
+})();
+</script>
 
 </body>
 </html>
@@ -1376,253 +1425,145 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
 
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
 <script>
-  // Helpers globali (riutilizza WA_NUMBER se definito altrove)
-  var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? WA_NUMBER : '393331234567';
+(function(){
+  var grid    = document.getElementById('reviewsGrid');
+  var avgText = document.getElementById('avgRatingText');
+  var LD      = document.getElementById('reviewsJsonLd');
+  var form    = document.getElementById('reviewForm');
+  var saveBtn = document.getElementById('saveReview');
+  var dialog  = document.getElementById('reviewModal');
+  var fileIn  = document.getElementById('r_img');
+  var preview = document.getElementById('r_preview');
+  var previewPh = document.getElementById('r_preview_ph');
+
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
 
-  /* ========== SCROLL UNIVERSALE A #contatti (IT/EN/ES) ========== */
-  (function(){
-    function smoothToContacts(ev){
-      var t=document.querySelector('#contatti'); if(!t) return;
-      ev && ev.preventDefault();
-      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      t.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'start'});
-    }
-    var SELECTORS = [
-      'a[href="#contatti"]',
-      '.nav a.btn[data-i18n="nav.quote"]',
-      '.btn[data-i18n="cta.quote"]',
-      '.btn.fill[data-i18n="cta.quote"]',
-      '.btn[data-i18n="bio.btn.contact"]',
-      '.btn[data-i18n="packs.cta"]',
-      '#cta a[href="#contatti"]',
-      '#pacchetti-videoprofessionali a[href="#contatti"]',
-      '#footer a[data-i18n="footer.quote"]'
-    ];
-    function bind(){
-      document.querySelectorAll(SELECTORS.join(',')).forEach(function(a){
-        if(a.__boundToContacts) return;
-        a.__boundToContacts = true;
-        a.addEventListener('click', smoothToContacts, {passive:false});
-      });
-      // fallback testo (se manca data-i18n)
-      document.body.addEventListener('click', function(e){
-        var el = e.target.closest('a,button'); if(!el) return;
-        var txt = (el.textContent||'').trim().toLowerCase();
-        if(/parliamone ora|richiedi preventivo|let'?s talk|get a quote|pide presupuesto/.test(txt)){ smoothToContacts(e); }
-      }, {passive:false});
-    }
-    bind();
-    // re-bind dopo cambio lingua
-    (function patchI18n(){
-      window.__i18n = window.__i18n || {apply:function(){}};
-      var prev = window.__i18n.apply.bind(window.__i18n);
-      window.__i18n.apply = function(lang){ prev(lang); try{ bind(); }catch(e){} };
-    })();
-  })();
+  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
 
-  /* ========== RECENSIONI: append immediato + localStorage + media + sync TAB ========== */
-  (function(){
-    const openBtn = document.getElementById('openReview');
-    const dialog  = document.getElementById('reviewModal');
-    const closeBtn= document.getElementById('closeReview');
-    const cancel  = document.getElementById('cancelReview');
-    const saveBtn = document.getElementById('saveReview');
-    const grid    = document.getElementById('reviewsGrid');
-    const avgText = document.getElementById('avgRatingText');
-    const LD      = document.getElementById('reviewsJsonLd');
+  function appendReviewCard(rec){
+    if(!grid) return;
+    var fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    var img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
+    else img.src=['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    var cap=document.createElement('figcaption');
+    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
 
-    const fileIn  = document.getElementById('r_img');
-    const preview = document.getElementById('r_preview');
-    const previewPh = document.getElementById('r_preview_ph');
-    let uploadedDataURL = null;
-
-    function readImageToThumb(file, cb){
+  function updateAverage(){
+    var base=[5,5,4], extra=[];
+    try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
+    var all = base.concat(extra).filter(Boolean);
+    var avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
       try{
-        const fr = new FileReader();
-        fr.onload = function(){
-          const img = new Image();
-          img.onload = function(){
-            const size = 120, canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
-            canvas.width=size; canvas.height=size;
-            const s = Math.min(img.width, img.height);
-            const sx = (img.width - s)/2, sy = (img.height - s)/2;
-            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-            cb(null, canvas.toDataURL('image/jpeg', .85));
-          };
-          img.src = fr.result;
-        };
-        fr.readAsDataURL(file);
-      }catch(e){ cb(e); }
-    }
-
-    fileIn && fileIn.addEventListener('change', function(){
-      const f = this.files && this.files[0];
-      if(!f){ uploadedDataURL=null; preview.style.display='none'; previewPh.style.display='block'; return; }
-      readImageToThumb(f, function(err, data){
-        if(err){ uploadedDataURL=null; return; }
-        uploadedDataURL = data;
-        preview.src = data; preview.style.display='block'; previewPh.style.display='none';
-      });
-    });
-
-    function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-
-    function appendReviewCard(rec){
-      if(!grid) return;
-      const fig = document.createElement('figure');
-      fig.className = 'glass review';
-      fig.style.cssText = 'padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-      const img = document.createElement('img');
-      img.loading='lazy'; img.alt='Cliente';
-      img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-      if(rec.img && /^data:image\//.test(rec.img)) img.src = rec.img;
-      else img.src = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-      const cap = document.createElement('figcaption');
-      const top = document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-      const strong = document.createElement('strong'); strong.textContent = (rec.name||'Cliente') + (rec.role ? ' — ' + rec.role : '');
-      const stars = document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label', (rec.stars||5)+' su 5'); stars.textContent = starString(rec.stars);
-      const p = document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent = '“'+(rec.text||'')+'”';
-      top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-      fig.appendChild(img); fig.appendChild(cap);
-      grid.insertBefore(fig, grid.firstChild);
-    }
-
-    function updateAverage(){
-      let base=[5,5,4], extra=[];
-      try{ extra=(JSON.parse(localStorage.getItem('ac_reviews')||'[]')||[]).map(r=>Number(r.stars)||0); }catch(e){}
-      const all = base.concat(extra).filter(n=>n>0);
-      const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-      if(avgText) avgText.textContent = 'Valutazione media ' + avg + '/5';
-      if(LD){
-        try{
-          const obj = JSON.parse(LD.textContent);
-          obj.aggregateRating.ratingValue = String(avg);
-          obj.aggregateRating.reviewCount = String(all.length);
-          LD.textContent = JSON.stringify(obj);
-        }catch(e){}
-      }
-    }
-
-    function loadSaved(){
-      try{
-        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
-        arr.sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(appendReviewCard);
+        var obj=JSON.parse(LD.textContent);
+        obj.aggregateRating.ratingValue=String(avg);
+        obj.aggregateRating.reviewCount=String(all.length);
+        LD.textContent=JSON.stringify(obj);
       }catch(e){}
-      updateAverage();
     }
+  }
 
-    function closeDialog(){
-      uploadedDataURL=null;
-      document.getElementById('reviewForm')?.reset();
-      if(preview) preview.style.display='none';
-      if(previewPh) previewPh.style.display='block';
-      if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-    }
-
-    openBtn && openBtn.addEventListener('click', function(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); });
-    closeBtn && closeBtn.addEventListener('click', closeDialog);
-    cancel  && cancel.addEventListener('click', closeDialog);
-    dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeDialog(); } });
-    dialog && dialog.addEventListener('click', (e)=>{
-      const rect = dialog.getBoundingClientRect();
-      const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-      if(!inside) closeDialog();
-    });
-
-    // Salva → append immediato + persistenza + sync TAB
-    saveBtn && saveBtn.addEventListener('click', ()=>{
-      const name = getVal('r_name');
-      const role = getVal('r_role');
-      const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-      const text = getVal('r_text');
-      const img64 = (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-      if(!name || !text) return;
-
-      const rec = {name, role, stars, text, img: img64, ts: Date.now()};
-      try{
-        const arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); arr.push(rec);
-        localStorage.setItem('ac_reviews', JSON.stringify(arr));
-      }catch(e){}
-
-      appendReviewCard(rec);
-      updateAverage();
-      closeDialog();
-
-      try{
-        const bc = new BroadcastChannel('ac_reviews_channel');
-        bc.postMessage({type:'new_review', rec}); bc.close();
-      }catch(e){}
-    });
-
+  function loadSaved(){
     try{
-      const bc = new BroadcastChannel('ac_reviews_channel');
-      bc.onmessage = function(ev){
-        if(ev && ev.data && ev.data.type==='new_review' && ev.data.rec){
-          appendReviewCard(ev.data.rec);
-          updateAverage();
-        }
-      };
+      var arr = JSON.parse(localStorage.getItem('ac_reviews')||'[]');
+      arr.sort(function(a,b){return (b.ts||0)-(a.ts||0)}).forEach(appendReviewCard);
+    }catch(e){}
+    updateAverage();
+  }
+
+  function closeDialog(){
+    try{ form && form.reset(); }catch(e){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+
+  function handleSave(e){
+    if(e) e.preventDefault();
+    var name = getVal('r_name');
+    var role = getVal('r_role');
+    var stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    var text = getVal('r_text');
+    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return;
+
+    var rec={name:name, role:role, stars:stars, text:text, img:img64, ts:Date.now()};
+    try{
+      var list = JSON.parse(localStorage.getItem('ac_reviews')||'[]'); list.push(rec);
+      localStorage.setItem('ac_reviews', JSON.stringify(list));
     }catch(e){}
 
-    // init
-    loadSaved();
+    appendReviewCard(rec);
+    updateAverage();
+    closeDialog();
 
-    /* ===== Contatti: Email e WhatsApp composti (invariati) ===== */
-    (function(){
-      var btn = document.getElementById('sendMail');
-      if(btn){
-        btn.addEventListener('click', function(){
-          var name = getVal('q_name');
-          var email= getVal('q_email');
-          var phone= getVal('q_phone');
-          var serv = getVal('q_service');
-          var msg  = getVal('q_message');
-          var subject = encodeURIComponent('Richiesta Preventivo — ' + (serv||'Servizio'));
-          var body = encodeURIComponent(
-            'Nome: ' + name + '\nEmail: ' + email + '\nTelefono: ' + phone +
-            '\nServizio: ' + serv + '\n\nMessaggio:\n' + msg
-          );
-          window.location.href = 'mailto:andreacolucci@hotmail.it?subject=' + subject + '&body=' + body;
-        });
-      }
+    // sync tra tab
+    try{ var bc=new BroadcastChannel('ac_reviews_channel'); bc.postMessage({type:'new_review',rec:rec}); bc.close(); }catch(e){}
+  }
 
-      var waForm = document.getElementById('sendWhatsApp');
-      if(waForm){
-        waForm.addEventListener('click', function(){
-          var name = getVal('q_name') || '';
-          var phone= getVal('q_phone') || '';
-          var serv = getVal('q_service') || '';
-          var msg  = getVal('q_message') || '';
-          var text = encodeURIComponent(
-            'Ciao Andrea! 👋\nVorrei un preventivo.\n' +
-            'Nome: ' + name + '\nTelefono: ' + phone + '\nServizio: ' + serv + '\n\n' + msg
-          );
-          waForm.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-        });
-      }
+  // === Hook immagine → anteprima tonda
+  function readImageToThumb(file, cb){
+    try{
+      var fr=new FileReader();
+      fr.onload=function(){
+        var img=new Image();
+        img.onload=function(){
+          var size=120, canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
+          canvas.width=size; canvas.height=size;
+          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          cb(null, canvas.toDataURL('image/jpeg', .85));
+        };
+        img.src=fr.result;
+      };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(e); }
+  }
+  fileIn && fileIn.addEventListener('change', function(){
+    var f=this.files && this.files[0];
+    if(!f){ preview.style.display='none'; previewPh.style.display='block'; return; }
+    readImageToThumb(f, function(err,data){
+      if(err) return;
+      preview.src=data; preview.style.display='block'; previewPh.style.display='none';
+    });
+  });
 
-      var quick = document.getElementById('quickWA');
-      if(quick){
-        var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito, ho bisogno di info 🙌');
-        quick.href = 'https://wa.me/' + WA_NUMBER + '?text=' + text;
-      }
-    })();
+  // === Bind sia sul SUBMIT sia sul CLICK per essere a prova di tutto
+  form && form.addEventListener('submit', handleSave, {passive:false});
+  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-    // Fallback scroll per eventuali ancore duplicate
-    (function(){
-      function smoothToContacts(e){
-        var t=document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'});
+  // Ricevi nuove recensioni da altre tab
+  try{
+    var bc=new BroadcastChannel('ac_reviews_channel');
+    bc.onmessage=function(ev){
+      if(ev && ev.data && ev.data.type==='new_review' && ev.data.rec){
+        appendReviewCard(ev.data.rec);
+        updateAverage();
       }
-      document.querySelectorAll('a[href="#contatti"], .btn[href="#contatti"]').forEach(a=>{
-        if(a.__fallbackBound) return;
-        a.__fallbackBound=true;
-        a.addEventListener('click', smoothToContacts, {passive:false});
-      });
-    })();
-  })();
+    };
+  }catch(e){}
+
+  // Inizializza
+  document.addEventListener('DOMContentLoaded', loadSaved);
+  // Se il DOM è già pronto
+  if(document.readyState==='interactive'||document.readyState==='complete'){ loadSaved(); }
+
+})();
 </script>
+
 
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
