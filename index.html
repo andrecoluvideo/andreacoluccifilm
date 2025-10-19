@@ -1432,9 +1432,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
 (function(){
   /* ===== CONFIG ===== */
   // URL del tuo deployment Apps Script (quello /exec)
-  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbyTnAeCcSRDNOCHGiDyLjq9hR3VxPP197mxEH3ok3emRszaHB81yCknedcAD8bK62nD_A/exec';
-  // Copia qui ESATTAMENTE il valore salvato in Proprietà Script -> REVIEWS_API_KEY
-  const API_KEY = 'acfilms_2025_secretKey_93Jv7';
+  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbzaU0eSn9qX1MuoqEYS4f8aciJ9e19rQ_fDWnxAl1jAjEaEsu-KIwFiYgbFu6d0wadClA/exec';
+const API_KEY = 'acfilms_2025_secretKey_93Jv7';
+
   // Timeout fetch (ms)
   const FETCH_TIMEOUT = 9000;
 
@@ -1533,17 +1533,17 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     return Array.isArray(j.items) ? j.items : [];
   }
   async function postRemote(rec){
-    if(!ENDPOINT_URL) return;
-    const r = await withTimeout(fetch(ENDPOINT_URL, {
-      method:'POST',
-      mode:'cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(Object.assign({key:API_KEY}, rec))
-    }), FETCH_TIMEOUT);
-    // anche se fallisce non blocchiamo l’UX
-    // ma proviamo a leggere la risposta per debug
-    try{ await r.json(); }catch(_){}
-  }
+  if(!ENDPOINT_URL) return;
+  const r = await withTimeout(fetch(ENDPOINT_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // ✅ cambio importante
+    body: JSON.stringify(Object.assign({ key: API_KEY }, rec))
+  }), FETCH_TIMEOUT);
+
+  try { await r.json(); } catch(_){}
+}
+
 
   /* ===== Apertura/chiusura modale (fix bottone) ===== */
   function openModal(){
