@@ -7,6 +7,8 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 <head>
   <meta charset="utf-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
@@ -1507,36 +1509,45 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX FUNZIONI, STESSA ESTETICA)
     <a class="btn" href="https://vimeo.com/andrecolu_video" target="_blank" rel="noopener">Vimeo</a>
   </div>
 </section>
-ok
+
 <style id="ios-nozoom">
-  /* iOS: impedisci auto-zoom assicurando font >=16px su TUTTI i controlli coinvolti */
-  #contatti input,
-  #contatti select,
-  #contatti textarea,
-  #contatti button,
-  #contatti .control,
-  #reviewModal .control,
-  #reviewModal input,
-  #reviewModal select,
-  #reviewModal textarea,
-  #reviewModal button{
-    font-size:16px !important;
-    line-height:1.35 !important;
-    min-height:44px !important;
-    -webkit-text-size-adjust:100% !important;
+  /* iOS only: se il browser supporta le proprietà WebKit mobili */
+  @supports (-webkit-touch-callout: none) {
+    /* TUTTI i controlli nella sezione Preventivo + modale recensioni */
+    #contatti input,
+    #contatti select,
+    #contatti textarea,
+    #contatti button,
+    #contatti .control,
+    #reviewModal .control,
+    #reviewModal input,
+    #reviewModal select,
+    #reviewModal textarea,
+    #reviewModal button {
+      font-size: 17px !important;   /* 17px è il valore "sicuro" su iOS */
+      line-height: 1.35 !important;
+      min-height: 44px !important;
+      -webkit-text-size-adjust: 100% !important;
+    }
+
+    /* importantissimo anche per le option */
+    #contatti select, #contatti option,
+    #reviewModal select, #reviewModal option {
+      font-size: 17px !important;
+    }
+
+    /* placeholder coerenti (alcuni Safari triggerano zoom se <16) */
+    #contatti ::placeholder,
+    #reviewModal ::placeholder {
+      font-size: 17px !important;
+      opacity: .8;
+    }
   }
-  /* anche le option del select su iOS */
-  #contatti select, #contatti option,
-  #reviewModal select, #reviewModal option{
-    font-size:16px !important;
-  }
-  /* placeholder coerenti (alcuni Safari triggerano zoom se è <16) */
-  #contatti ::placeholder,
-  #reviewModal ::placeholder{
-    font-size:16px !important;
-    opacity:.8;
-  }
+
+  /* Coerenza generale */
+  html, body { -webkit-text-size-adjust: 100%; }
 </style>
+
 
 
 <!-- ====== SCRIPT: Recensioni (upload+save+append) + Scroll CTA → #contatti (FIX) ====== -->
@@ -2067,6 +2078,34 @@ PART 5 / 5 — FOOTER • POLICY • UTILS FINALI
   });
 })();
 </script>
+  <!-- …altri script del tuo sito… -->
+
+  <script>
+  (function(){
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    if(!isiOS) return;
+
+    var vp = document.querySelector('meta[name="viewport"]');
+    if(!vp) return;
+
+    var base = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    function noZoom(){ vp.setAttribute('content', base + ', maximum-scale=1, user-scalable=no'); }
+    function yesZoom(){ vp.setAttribute('content', base); }
+
+    document.addEventListener('focusin', function(e){
+      if(e.target && e.target.closest && e.target.closest('#contatti')) noZoom();
+    }, {passive:true});
+
+    document.addEventListener('focusout', function(e){
+      if(e.target && e.target.closest && e.target.closest('#contatti')) yesZoom();
+    }, {passive:true});
+
+    document.addEventListener('click', function(e){
+      if(!document.activeElement || !document.activeElement.closest('#contatti')) yesZoom();
+    }, {passive:true});
+  })();
+  </script>
 
 </body>
 </html>
