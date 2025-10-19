@@ -6,7 +6,8 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+ <meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
@@ -40,6 +41,15 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .btn:hover{box-shadow:var(--ring)}
     .btn.fill{background:linear-gradient(135deg,var(--neon1),var(--neon2));border-color:transparent;color:#061016}
     .tag{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--glass)}
+/* iOS: blocca auto-zoom sui form e mantiene proporzioni */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea, button, .control {
+    font-size:17px !important;       /* >=16px per iOS */
+    line-height:1.35 !important;
+    min-height:44px !important;
+  }
+}
+html { -webkit-text-size-adjust:100%; }
 
     /* NAV (identico schema: brand + link + lingue) */
     .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke)}
