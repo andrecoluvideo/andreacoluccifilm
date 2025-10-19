@@ -6,7 +6,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
@@ -126,6 +126,27 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   .btn{ padding:12px 16px !important; }
 }
   </style>
+  <style>
+  /* iOS: evita zoom su focus (font >=16px) */
+  input, select, textarea {
+    font-size:16px !important;
+    min-height:44px;
+  }
+
+  /* iOS only (feature detect) */
+  @supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+      font-size:16px !important;
+    }
+    #quoteForm .control, #reviewForm .control {
+      font-size:16px !important;
+    }
+  }
+
+  /* Mantiene la dimensione del testo coerente su iOS */
+  html { -webkit-text-size-adjust:100%; }
+</style>
+
 </head>
 <body>
 
@@ -301,11 +322,12 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         }, {passive:false});
       });
       window.addEventListener('popstate', ()=>{
-        const lang = new URLSearchParams(location.search).get('lang') || 'it';
-        window.__i18n.apply(lang);
-      });
+  const lang = new URLSearchParams(location.search).get('lang') || 'it';
+  window.__i18n.apply(lang);
+});
+</script>   
+<script>
 
-     <script>
 /* ===== CTA universale → #contatti (smooth scroll) ===== */
 (function(){
   function toContacts(e){
