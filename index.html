@@ -318,6 +318,19 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
       });
     })();
   </script>
+  <!-- ===== CONFIG RECENSIONI (collega Apps Script + fallback GVIZ) ===== -->
+<script>
+window.__CONFIG = Object.assign(window.__CONFIG || {}, {
+  // === BACKEND principale (Apps Script) ===
+  REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
+  REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
+  REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
+
+  // === Fallback GVIZ diretto al foglio ===
+  REVIEWS_GVIZ:  'https://docs.google.com/spreadsheets/d/1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g/gviz/tq?tqx=out:json&gid=0'
+});
+</script>
+
 </head>
 <body>
 
