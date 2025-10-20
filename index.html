@@ -142,6 +142,12 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     }
     html { -webkit-text-size-adjust:100%; }
   </style>
+  <script>
+  window.__REVIEWS_CONFIG = {
+    endpoint: 'https://script.google.com/macros/s/DEPLOYMENT_ID/exec' // il tuo Web App URL
+  };
+</script>
+
 </head>
 <body>
 
@@ -1061,8 +1067,9 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 <!-- ==========================
 <!-- ==========================
 <!-- ==========================
+<!-- ==========================
 PART 4 / 5 — RECENSIONI • CONTATTI
-(look IDENTICO; fix: modal OK, camera/galleria, media live, loader AC_reviews)
+(look IDENTICO; modal ok, camera/galleria, media live, loader: AC_reviews.json → Sheets → GAS)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1073,49 +1080,32 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- 3 card statiche -->
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <!-- 3 card statiche (baseline 5,5,4) -->
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Giulia R. — Hotel Manager</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
+          <strong>Giulia R. — Hotel Manager</strong><span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”</p>
       </figcaption>
     </figure>
-
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Marco D. — Boat Charter</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
+          <strong>Marco D. — Boat Charter</strong><span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”</p>
       </figcaption>
     </figure>
-
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Sara & Luca — Wedding</strong>
-          <span class="stars" aria-label="4 su 5">★★★★☆</span>
+          <strong>Sara & Luca — Wedding</strong><span class="stars" aria-label="4 su 5">★★★★☆</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”</p>
       </figcaption>
     </figure>
   </div>
@@ -1125,8 +1115,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </div>
 
   <!-- Modal nuova recensione -->
-  <dialog id="reviewModal"
-          style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
+  <dialog id="reviewModal" style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
     <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
@@ -1138,12 +1127,10 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
           <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
         </div>
-
         <div class="field">
           <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
           <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
         </div>
-
         <div class="field">
           <label class="label" for="r_stars" data-i18n="reviews.rating">Valutazione</label>
           <select id="r_stars" class="control" required>
@@ -1154,14 +1141,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI
             <option value="1">★☆☆☆☆ — 1</option>
           </select>
         </div>
-
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
-          <!-- camera o galleria -->
+          <!-- fotocamera o galleria -->
           <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png" capture="environment">
           <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
-
         <div style="grid-column:1 / -1; display:flex; align-items:center; gap:10px">
           <div id="r_preview_wrap" style="width:54px;height:54px;border-radius:999px;overflow:hidden;border:1px solid var(--stroke);background:rgba(255,255,255,.04);display:grid;place-items:center">
             <img id="r_preview" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
@@ -1169,7 +1154,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           </div>
           <small class="soft" data-i18n="reviews.photoPreview">Anteprima miniatura</small>
         </div>
-
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
           <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
@@ -1185,26 +1169,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
   <!-- JSON-LD (aggregate rating) -->
   <script type="application/ld+json" id="reviewsJsonLd">
-  {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "Servizi Video — Andrea Colucci",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "36"
-    }
-  }
+  {"@context":"https://schema.org","@type":"Product","name":"Servizi Video — Andrea Colucci","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"36"}}
   </script>
 
   <style>
     .review .stars{letter-spacing:1px;color:var(--neon1)}
     dialog::backdrop{background:rgba(0,0,0,.6)}
     .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
-    .field .control{
-      width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
-      border-radius:10px;color:#fff;padding:10px 12px;outline:none
-    }
+    .field .control{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);border-radius:10px;color:#fff;padding:10px 12px;outline:none}
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
     @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
   </style>
@@ -1219,18 +1191,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 
   <div class="glass" style="border-radius:16px;padding:14px">
     <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div class="field">
-        <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
-        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
-      </div>
-      <div class="field">
-        <label class="label" for="q_email" data-i18n="contact.email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
-      </div>
-      <div class="field">
-        <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
-      </div>
+      <div class="field"><label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label><input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required></div>
+      <div class="field"><label class="label" for="q_email" data-i18n="contact.email">Email</label><input id="q_email" class="control" type="email" placeholder="nome@email.com" required></div>
+      <div class="field"><label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label><input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX"></div>
       <div class="field">
         <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
         <select id="q_service" class="control" required>
@@ -1243,11 +1206,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           <option data-i18n="contact.service.other">Altro</option>
         </select>
       </div>
-      <div class="field" style="grid-column:1 / -1">
-        <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
-        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
-      </div>
-
+      <div class="field" style="grid-column:1 / -1"><label class="label" for="q_message" data-i18n="contact.message">Messaggio</label><textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea></div>
       <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
         <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
         <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
@@ -1255,32 +1214,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </div>
 
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
+  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal -->
   <style id="ios-nozoom">
-    #contatti input,
-    #contatti select,
-    #contatti textarea,
-    #contatti button,
-    #contatti .control,
-    #reviewModal .control,
-    #reviewModal input,
-    #reviewModal select,
-    #reviewModal textarea,
-    #reviewModal button{
-      font-size:16px !important;
-      line-height:1.35 !important;
-      min-height:44px !important;
-      -webkit-text-size-adjust:100% !important;
+    #contatti input,#contatti select,#contatti textarea,#contatti button,#contatti .control,
+    #reviewModal .control,#reviewModal input,#reviewModal select,#reviewModal textarea,#reviewModal button{
+      font-size:16px !important; line-height:1.35 !important; min-height:44px !important; -webkit-text-size-adjust:100% !important;
     }
-    #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option{
-      font-size:16px !important;
-    }
-    #contatti ::placeholder,
-    #reviewModal ::placeholder{
-      font-size:16px !important;
-      opacity:.8;
-    }
+    #contatti select, #contatti option, #reviewModal select, #reviewModal option{ font-size:16px !important; }
+    #contatti ::placeholder, #reviewModal ::placeholder{ font-size:16px !important; opacity:.8; }
   </style>
 </section>
 
@@ -1289,60 +1230,37 @@ PART 4 / 5 — RECENSIONI • CONTATTI
 (function(){
   /* ====== CONTATTI: Email / WhatsApp ====== */
   var WA_NUMBER = '393910911719'; // solo cifre
-
-  function val(id){
-    var el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
-  }
-
+  function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
   function buildMessage(){
-    var name = val('q_name');
-    var email = val('q_email');
-    var phone = val('q_phone');
-    var servEl = document.getElementById('q_service');
-    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-    var msg = val('q_message');
-    return (
-      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
-      "Nome: " + (name || '-') + "\n" +
-      "Email: " + (email || '-') + "\n" +
-      "Telefono/WA: " + (phone || '-') + "\n" +
-      "Servizio: " + (service || '-') + "\n\n" +
-      (msg ? ("Messaggio:\n" + msg) : "")
-    );
+    var name=val('q_name'), email=val('q_email'), phone=val('q_phone');
+    var sel=document.getElementById('q_service'); var service=sel&&sel.value? sel.options[sel.selectedIndex].text : '';
+    var msg=val('q_message');
+    return "Richiesta preventivo dal sito Andrea Colucci Films\n\n"+
+           "Nome: "+(name||'-')+"\nEmail: "+(email||'-')+"\nTelefono/WA: "+(phone||'-')+"\n"+
+           "Servizio: "+(service||'-')+"\n\n"+(msg?("Messaggio:\n"+msg):"");
   }
+  var mailBtn=document.getElementById('sendMail');
+  if(mailBtn){ mailBtn.addEventListener('click',function(e){ e.preventDefault();
+    var body=encodeURIComponent(buildMessage());
+    var subject=encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+    location.href="mailto:andreacolucci@hotmail.it?subject="+subject+"&body="+body;
+  },{passive:false}); }
+  var waBtn=document.getElementById('sendWhatsApp');
+  if(waBtn){ waBtn.addEventListener('click',function(){ waBtn.href="https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(buildMessage()); }); }
 
-  var mailBtn = document.getElementById('sendMail');
-  if(mailBtn){
-    mailBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      var body = encodeURIComponent(buildMessage());
-      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-    }, {passive:false});
-  }
-
-  var waBtn = document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var txt = encodeURIComponent(buildMessage());
-      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-    });
-  }
-
-  /* ====== RECENSIONI: preview + salvataggio + media ====== */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
+  /* ====== RECENSIONI ====== */
+  const grid=document.getElementById('reviewsGrid');
+  const avgText=document.getElementById('avgRatingText');
+  const LD=document.getElementById('reviewsJsonLd');
+  const form=document.getElementById('reviewForm');
+  const dialog=document.getElementById('reviewModal');
+  const openBtn=document.getElementById('openReview');
+  const closeBtn=document.getElementById('closeReview');
+  const cancelBtn=document.getElementById('cancelReview');
+  const saveBtn=document.getElementById('saveReview');
+  const fileIn=document.getElementById('r_img');
+  const preview=document.getElementById('r_preview');
+  const previewPh=document.getElementById('r_preview_ph');
 
   function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
@@ -1373,8 +1291,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     const img=document.createElement('img');
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
-      (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
+    img.src=rec.img && /^data:image\//.test(rec.img) ? rec.img :
+           (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
     const cap=document.createElement('figcaption');
     const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
     const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
@@ -1386,21 +1304,19 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   }
 
   function setAverageFromLists(baseStars, extraList){
-    const all = (baseStars||[]).concat((extraList||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    const all=(baseStars||[]).concat((extraList||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
     if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    const avg=Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
     if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{
-        const obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
-      }catch(_){}
-    }
+    if(LD){ try{
+      const obj=JSON.parse(LD.textContent);
+      obj.aggregateRating.ratingValue=String(avg);
+      obj.aggregateRating.reviewCount=String(all.length);
+      LD.textContent=JSON.stringify(obj);
+    }catch(_){ } }
   }
 
-  // Modal open/close (compatibile anche se dialog non supportato)
+  // Modal open/close
   function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
   function closeModal(){
     try{ form && form.reset(); }catch(_){}
@@ -1411,63 +1327,55 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   openBtn && openBtn.addEventListener('click', openModal);
   closeBtn && closeBtn.addEventListener('click', closeModal);
   cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', (e)=>{
-    const rect = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+  dialog && dialog.addEventListener('keydown', e=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', e=>{
+    const r=dialog.getBoundingClientRect();
+    const inside=(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
     if(!inside) closeModal();
   });
 
-  // Preview immagine recensione
+  // Preview immagine
   fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none';
-      previewPh.style.display='block';
-      return;
-    }
-    toDataUrlThumb(f, function(err, data){
+    const f=this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){ preview.style.display='none'; previewPh.style.display='block'; return; }
+    toDataUrlThumb(f, function(err,data){
       if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data;
-      preview.style.display='block';
-      previewPh.style.display='none';
+      preview.src=data; preview.style.display='block'; previewPh.style.display='none';
     });
   });
 
   // Salvataggio recensione (frontend)
   function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    const name=getVal('r_name'), role=getVal('r_role'), text=getVal('r_text');
+    const stars=parseInt(document.getElementById('r_stars')?.value||'5',10);
+    const img64=(preview && preview.src && preview.style.display!=='none') ? preview.src : '';
     if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img:img64, ts:Date.now() };
   }
-
   function handleSave(e){
     if(e) e.preventDefault();
-    const rec = buildRecord();
-    if(!rec) return;
+    const rec=buildRecord(); if(!rec) return;
     appendReviewCard(rec);
     closeModal();
-    // aggiorna media considerando 3 statiche (5,5,4) + questa nuova
-    setAverageFromLists([5,5,4], [rec]);
+    setAverageFromLists([5,5,4],[rec]);
   }
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  /* ====== LOADER AC_reviews ======
-     Cerca finestre JS (window.AC_REVIEWS) o file JSON comuni. */
+  /* ====== LOADER: AC_reviews.json → window.AC_REVIEWS → Google Sheets → GAS ====== */
+  const SHEET_ID = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
+  const SHEET_GID = '0';
+  const REVIEWS_API_KEY = 'acfilms_2025_secretKey_93Jv7'; // dalle Proprietà script
+
   (async function loadExternalReviews(){
-    var extra = [];
-    // 1) Se esiste window.AC_REVIEWS (script .js)
-    if(Array.isArray(window.AC_REVIEWS)){
-      extra = window.AC_REVIEWS;
-    }else{
-      // 2) Altrimenti prova JSON (root o /data/)
-      var CANDIDATES = ['AC_reviews.json','/AC_reviews.json','/data/AC_reviews.json'];
-      for(const url of CANDIDATES){
+    let extra = [];
+
+    // 1) window.AC_REVIEWS
+    if(Array.isArray(window.AC_REVIEWS)){ extra = window.AC_REVIEWS; }
+
+    // 2) AC_reviews.json (root / data/)
+    if(!extra.length){
+      for(const url of ['AC_reviews.json','/AC_reviews.json','/data/AC_reviews.json']){
         try{
           const r = await fetch(url, {cache:'no-store'});
           if(r.ok){
@@ -1479,11 +1387,52 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       }
     }
 
-    if(extra && extra.length){
-      // normalizza campi e append
-      var normalized = [];
-      extra.forEach(function(r){
-        var rec = {
+    // 3) Google Sheets (GViz JSON) se pubblico in lettura
+    if(!extra.length && SHEET_ID){
+      try{
+        const gviz = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`, {cache:'no-store'});
+        if(gviz.ok){
+          const txt = await gviz.text();
+          // GViz risponde con "google.visualization.Query.setResponse({...})"
+          const json = JSON.parse(txt.replace(/^[^{]+/, '').replace(/;?$/,''));
+          const cols = json.table.cols.map(c => (c.label||c.id||'').toLowerCase());
+          const rows = json.table.rows || [];
+          extra = rows.map(r=>{
+            const cells = r.c || [];
+            const get = (label) => {
+              const idx = cols.indexOf(label.toLowerCase());
+              return idx>-1 && cells[idx] && cells[idx].v != null ? String(cells[idx].v) : '';
+            };
+            return {
+              name: get('name') || get('nome'),
+              role: get('role') || get('ruolo'),
+              stars: Number(get('stars') || get('voto') || 5),
+              text: get('text') || get('recensione'),
+              img: get('img') || get('photo') || get('foto')
+            };
+          }).filter(r=>r.name || r.text);
+        }
+      }catch(_){}
+    }
+
+    // 4) Apps Script Web App (opzionale) — definisci window.__REVIEWS_CONFIG.endpoint = 'https://script.google.com/macros/s/DEPLOYMENT_ID/exec'
+    if(!extra.length && window.__REVIEWS_CONFIG && window.__REVIEWS_CONFIG.endpoint){
+      try{
+        const url = new URL(window.__REVIEWS_CONFIG.endpoint);
+        url.searchParams.set('key', REVIEWS_API_KEY);
+        const r = await fetch(url.toString(), { headers: { 'X-API-Key': REVIEWS_API_KEY }});
+        if(r.ok){
+          const data = await r.json();
+          extra = Array.isArray(data) ? data : (Array.isArray(data.reviews) ? data.reviews : []);
+        }
+      }catch(_){}
+    }
+
+    // Render + media
+    if(extra.length){
+      const normalized = [];
+      extra.forEach(r=>{
+        const rec = {
           name:  r.name || r.nome || 'Cliente',
           role:  r.role || r.ruolo || '',
           stars: Math.max(1,Math.min(5, Number(r.stars ?? r.voto ?? 5))),
@@ -1493,16 +1442,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
         appendReviewCard(rec);
         normalized.push(rec);
       });
-      // aggiorna media con statiche (5,5,4) + tutto il file
       setAverageFromLists([5,5,4], normalized);
     }else{
-      // nessun file, mantieni media di default
       setAverageFromLists([5,5,4], []);
     }
   })();
 })();
 </script>
-<!-- ===== /ENDPART 4 ===== -->
+<!-- ===== end/PART 4 ===== -->
 
 
 <!-- ==========================
