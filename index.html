@@ -361,6 +361,91 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
   }
 })();
 </script>
+<!-- ========== REVIEWS: HOTFIX SOLO BACKEND (incolla prima di </body>) ========== -->
+<style>
+  /* stile semplice, non cambia il layout del sito */
+  .rev{padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin:12px 0;background:rgba(255,255,255,.02)}
+  .rev-hdr{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+  .rev-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;display:block}
+  .rev-meta{display:flex;flex-direction:column;line-height:1.1}
+  .rev-role{opacity:.7;font-size:.9em}
+  .rev-stars{font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;letter-spacing:.5px;margin:6px 0}
+  .rev-text{margin:8px 0 6px}
+  .rev-date{opacity:.6;font-size:.85em}
+</style>
+
+<script>
+(function(){
+  // 1) CONFIG — usa il tuo backend Apps Script (già attivo)
+  const API = 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
+  const KEY = 'acfilms_2025_secretKey_93Jv7';
+
+  // 2) Trova un contenitore dove stampare (sceglie automaticamente quello che trova)
+  const target =
+    document.querySelector('[data-reviews]') ||
+    document.getElementById('reviews-list') ||
+    document.querySelector('#recensioni .grid') ||
+    document.querySelector('#recensioni') ||
+    document.body;
+
+  target.insertAdjacentHTML('beforeend', '<div id="__reviews_loading">Carico le recensioni…</div>');
+
+  // 3) Legge SOLO dal backend e stampa
+  fetch(`${API}?action=read&key=${encodeURIComponent(KEY)}`)
+    .then(r => r.json())
+    .then(j => {
+      const loader = document.getElementById('__reviews_loading');
+      if (loader) loader.remove();
+
+      if (!j || !j.ok) {
+        target.insertAdjacentHTML('beforeend', `<p>Errore caricamento recensioni.</p>`);
+        console.error('Reviews error:', j);
+        return;
+      }
+      if (!Array.isArray(j.items) || !j.items.length) {
+        target.insertAdjacentHTML('beforeend', `<p>Nessuna recensione al momento.</p>`);
+        return;
+      }
+
+      const html = j.items.map(renderReview).join('');
+      // se hai già una lista esistente, la sostituisce; altrimenti la aggiunge
+      const box = document.getElementById('__reviews_box') || document.createElement('div');
+      box.id = '__reviews_box';
+      box.innerHTML = html;
+      target.appendChild(box);
+    })
+    .catch(err => {
+      const loader = document.getElementById('__reviews_loading');
+      if (loader) loader.remove();
+      target.insertAdjacentHTML('beforeend', `<p>Errore rete caricamento recensioni.</p>`);
+      console.error(err);
+    });
+
+  function renderReview(it){
+    const stars = '★★★★★'.slice(0, clamp(+it.stars||5,1,5)).padEnd(5,'☆');
+    const date  = it.ts ? new Date(Number(it.ts)).toLocaleDateString('it-IT') : '';
+    const img   = it.img ? `<img src="${safe(it.img)}" alt="${safe(it.name)}" class="rev-avatar">` : '';
+    const role  = it.role ? `<span class="rev-role">${safe(it.role)}</span>` : '';
+    return `
+      <article class="rev">
+        <div class="rev-hdr">
+          ${img}
+          <div class="rev-meta">
+            <strong>${safe(it.name)}</strong>
+            ${role}
+          </div>
+        </div>
+        <div class="rev-stars" aria-label="${clamp(+it.stars||5,1,5)}/5">${stars}</div>
+        <p class="rev-text">“${safe(it.text)}”</p>
+        <time class="rev-date">${date}</time>
+      </article>
+    `;
+  }
+  function safe(s){return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+  function clamp(n,min,max){return Math.max(min, Math.min(max, n));}
+})();
+</script>
+<!-- ========== /REVIEWS HOTFIX ========== -->
 
 
 </head>
