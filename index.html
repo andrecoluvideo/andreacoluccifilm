@@ -1224,7 +1224,8 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
 
 
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mobile)
+PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
+(Backend→CSV→GVIZ→Cache; carosello 6 desktop / 3 mobile; autohide topbar; salvataggio Apps Script)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1238,7 +1239,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
   <div class="reviews-wrap" style="position:relative">
     <button class="nav prev" id="reviewsPrev" aria-label="Precedenti" title="Precedenti">◀</button>
     <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px">
-      <div id="reviewsGrid" class="grid" style="display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+      <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
     </div>
     <button class="nav next" id="reviewsNext" aria-label="Successivi" title="Successivi">▶</button>
   </div>
@@ -1319,44 +1320,35 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
   </script>
 
   <style>
-  .review .stars{letter-spacing:1px;color:var(--neon1)}
-  dialog::backdrop{background:rgba(0,0,0,.6)}
-  .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
-  .field .control{
-    width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
-    border-radius:10px;color:#fff;padding:10px 12px;outline:none;font-size:17px;line-height:1.35;min-height:44px
-  }
-  .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
+    .review .stars{letter-spacing:1px;color:var(--neon1)}
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+    .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
+    .field .control{
+      width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
+      border-radius:10px;color:#fff;padding:10px 12px;outline:none;font-size:17px;line-height:1.35;min-height:44px
+    }
+    .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
 
-  /* Carosello */
-  .reviews-wrap .nav{
-    position:absolute;top:50%;transform:translateY(-50%);
-    width:36px;height:36px;border-radius:999px;border:1px solid var(--stroke);
-    background:rgba(255,255,255,.06);color:#fff;cursor:pointer;z-index:2
-  }
-  .reviews-wrap .nav:hover{background:rgba(255,255,255,.1)}
-  #reviewsPrev{left:-8px}
-  #reviewsNext{right:-8px}
+    /* Carosello */
+    .reviews-wrap .nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:36px;height:36px;border-radius:999px;border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06);color:#fff;cursor:pointer;z-index:2
+    }
+    .reviews-wrap .nav:hover{background:rgba(255,255,255,.1)}
+    #reviewsPrev{left:-8px}
+    #reviewsNext{right:-8px}
 
-  /* Griglia: desktop 3×2, mobile 1×3 */
-  #reviewsGrid{min-height: 280px}
-  @media (max-width:980px){
-  #reviewsGrid {
-    grid-template-columns: 1fr !important;
-    display: grid !important;
-  }
-  .reviews-wrap .nav {
-    top: auto;
-    bottom: -16px;
-    transform: none;
-  }
-  #reviewsPrev { left: 6px; }
-  #reviewsNext { right: 6px; }
-}
+    /* Griglia: desktop 3×2, mobile 1×3 */
+    #reviewsGrid{min-height: 280px}
+    @media (max-width:980px){
+      #recensioni .grid{grid-template-columns:1fr !important}
+      .reviews-wrap .nav{top:auto;bottom:-16px;transform:none}
+      #reviewsPrev{left:6px}
+      #reviewsNext{right:6px}
+    }
 
-
-  /* Anti-zoom iOS SOLO per recensioni modale */
-
+    /* Anti-zoom iOS SOLO per recensioni modale */
     #reviewModal .control{
       font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
       -webkit-text-size-adjust:100% !important;
@@ -1431,10 +1423,15 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
 (function(){
   /* ======= CONFIG ======= */
   var CFG = window.__CONFIG || {};
-  var AC_BACKEND_READ = CFG.REVIEWS_READ || ''; // es. endpoint Apps Script READ
+  var AC_BACKEND_READ = CFG.REVIEWS_READ || ''; // endpoint Apps Script READ, se disponibile
   var BACKEND_URL     = CFG.REVIEWS_WRITE || 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
   var BACKEND_KEY     = CFG.REVIEWS_KEY  || 'acfilms_2025_secretKey_93Jv7';
-  var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]); // opzionale: array CSV fallback
+  var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]); // opzionale: array URL CSV
+  // Fallback GVIZ (Google Sheet → JSON)
+  var SHEET_GVIZ = CFG.REVIEWS_GVIZ || (function(){
+    var id='1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g', gid='0';
+    return 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&gid='+gid;
+  })();
 
   /* ======= Utils ======= */
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
@@ -1446,7 +1443,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
     img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
-              (rec.img && rec.img.trim() ? rec.img.trim() :
+              (rec.img && (''+rec.img).trim() ? (''+rec.img).trim() :
               ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
     var cap=document.createElement('figcaption');
     var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
@@ -1458,8 +1455,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     el.appendChild(fig);
   }
   function updateAggregate(avgEl, jsonLdEl, arr){
-    if(!arr.length) return;
-    var avg = Math.round((arr.reduce((a,b)=>a+(Number(b.stars)||0),0)/arr.length)*10)/10;
+    if(!arr || !arr.length) return;
+    var avg = Math.round((arr.reduce(function(a,b){return a+(Number(b.stars)||0);},0)/arr.length)*10)/10;
     if(avgEl) avgEl.textContent = (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
                                    document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
                                    'Valutazione media '+avg+'/5');
@@ -1473,11 +1470,11 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     }
   }
   function fetchCSV(url){
-    return fetch(url, {cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); });
+    return fetch(url, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); });
   }
   function parseCSV(csv){
-    var lines = csv.split(/\r?\n/).filter(Boolean);
-    return lines.map(row=>{
+    var lines = csv.split(/\r?\n/).filter(function(x){return x.length;});
+    return lines.map(function(row){
       var out=[], cur='', inq=false;
       for(var i=0;i<row.length;i++){
         var ch=row[i];
@@ -1489,27 +1486,59 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
       return out;
     });
   }
+  // GVIZ
+  function fetchGVIZ(url){
+    return fetch(url, {cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      return r.text();
+    });
+  }
+  function parseGVIZ(text){
+    var s = text.indexOf('('), e = text.lastIndexOf(')');
+    var json = JSON.parse(text.slice(s+1, e));
+    var rows = (json.table && json.table.rows) || [];
+    var out = [];
+    for(var k=0;k<rows.length;k++){
+      var r = rows[k];
+      if(!r || !r.c) continue;
+      var o = {
+        ts:    r.c[0] && (r.c[0].v!=null ? r.c[0].v : r.c[0].f),
+        name:  r.c[1] && (r.c[1].v!=null ? r.c[1].v : r.c[1].f),
+        role:  r.c[2] && (r.c[2].v!=null ? r.c[2].v : r.c[2].f),
+        stars: r.c[3] && (r.c[3].v!=null ? r.c[3].v : r.c[3].f),
+        text:  r.c[4] && (r.c[4].v!=null ? r.c[4].v : r.c[4].f),
+        img:   r.c[5] && (r.c[5].v!=null ? r.c[5].v : r.c[5].f)
+      };
+      if(o.stars!=null) o.stars = Number(String(o.stars).replace(',','.')) || 5;
+      if(o.ts){ var d=new Date(o.ts); if(!isNaN(d)) o.ts = d.getTime(); }
+      if(typeof o.text === 'string') o.text = o.text.replace(/^“|”$/g,'');
+      out.push(o);
+    }
+    return out;
+  }
 
-  /* ======= Caricamento recensioni (Backend → CSV → Cache) ======= */
+  /* ======= Caricamento recensioni (Backend → CSV → GVIZ → Cache) ======= */
   var ALL = [];
   async function loadReviews(){
-    let loaded=[], used='';
+    var loaded=[], used='';
 
     // 1) Backend JSON
     if(AC_BACKEND_READ){
       try{
-        const r = await fetch(AC_BACKEND_READ, {cache:'no-store'});
+        var r = await fetch(AC_BACKEND_READ, {cache:'no-store'});
         if(r.ok){
-          const j = await r.json();
+          var j = await r.json();
           if(j && j.ok && Array.isArray(j.items) && j.items.length){
-            loaded = j.items.map(x => ({
-              ts: Number(x.ts)||Date.now(),
-              name: x.name||'',
-              role: x.role||'',
-              stars: Number(x.stars)||5,
-              text: (x.text||'').replace(/^“|”$/g,''),
-              img: x.img||''
-            }));
+            loaded = j.items.map(function(x){
+              return {
+                ts: Number(x.ts)||Date.now(),
+                name: x.name||'',
+                role: x.role||'',
+                stars: Number(x.stars)||5,
+                text: (x.text||'').replace(/^“|”$/g,''),
+                img: x.img||''
+              };
+            });
             used='backend';
           }
         }
@@ -1518,45 +1547,59 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
 
     // 2) CSV fallback
     if(!loaded.length && SHEET_URLS.length){
-      for(const u of SHEET_URLS){
+      for(var i=0;i<SHEET_URLS.length;i++){
+        var u = SHEET_URLS[i];
         try{
-          const csv = await fetchCSV(u);
-          const rows = parseCSV(csv);
+          var csv = await fetchCSV(u);
+          var rows = parseCSV(csv);
           if(!rows.length) continue;
-          const head = rows[0].map(s=>s.trim().toLowerCase());
-          const idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
-                         stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
-          rows.slice(1).forEach(r=>{
-            if(!r || !r.length) return;
+          var head = rows[0].map(function(s){return s.trim().toLowerCase();});
+          var idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
+                       stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
+          for(var j=1;j<rows.length;j++){
+            var r2 = rows[j]; if(!r2 || !r2.length) continue;
             loaded.push({
-              ts:   idx.ts>=0 ? Number(r[idx.ts]) : Date.now(),
-              name: idx.name>=0 ? r[idx.name] : '',
-              role: idx.role>=0 ? r[idx.role] : '',
-              stars: idx.stars>=0 ? parseInt(r[idx.stars]||'5',10) : 5,
-              text: idx.text>=0 ? r[idx.text] : '',
-              img:  idx.img>=0 ? r[idx.img] : ''
+              ts:   idx.ts>=0 ? Number(r2[idx.ts]) : Date.now(),
+              name: idx.name>=0 ? r2[idx.name] : '',
+              role: idx.role>=0 ? r2[idx.role] : '',
+              stars: idx.stars>=0 ? parseInt(r2[idx.stars]||'5',10) : 5,
+              text: idx.text>=0 ? r2[idx.text] : '',
+              img:  idx.img>=0 ? r2[idx.img] : ''
             });
-          });
+          }
           used='csv';
           break;
         }catch(_){}
       }
     }
 
+    // 2-bis) GVIZ fallback
+    if(!loaded.length && SHEET_GVIZ){
+      try{
+        var txt = await fetchGVIZ(SHEET_GVIZ);
+        var gItems = parseGVIZ(txt);
+        if(Array.isArray(gItems) && gItems.length){
+          loaded = gItems;
+          used = 'gviz';
+        }
+      }catch(_){}
+    }
+
     // 3) Cache locale
     if(!loaded.length){
       try{
-        const cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
-        if(Array.isArray(cache) && cache.length) loaded=cache, used='cache';
+        var cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
+        if(Array.isArray(cache) && cache.length) { loaded=cache; used='cache'; }
       }catch(_){}
     }else{
       try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
     }
 
     // Ordina per più recenti
-    loaded.sort((a,b)=>b.ts-a.ts);
+    loaded.sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
     ALL = loaded.slice();
     try{ console.info('[reviews] source:', used, 'count:', ALL.length); }catch(_){}
+
     renderPage(0, true);
     updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
   }
@@ -1564,7 +1607,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
   /* ======= Carosello paginato ======= */
   var cur = 0;
   function pageSize(){
-    return window.matchMedia('(max-width:980px)').matches ? 3 : 6;
+    return (window.matchMedia && window.matchMedia('(max-width:980px)').matches) ? 3 : 6;
   }
   function totalPages(){
     var p = pageSize();
@@ -1572,8 +1615,10 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
   }
   function renderPage(index, force){
     var max = totalPages();
-    if(!force && max>0) index = (index+max)%max;
+    if(max>0){ if(!force) index = (index+max)%max; }
+    else { index = 0; }
     cur = index;
+
     var grid = document.getElementById('reviewsGrid');
     if(!grid) return;
     grid.innerHTML='';
@@ -1582,29 +1627,25 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     var start = cur*ps, end = Math.min(start+ps, ALL.length);
     var slice = ALL.slice(start, end);
 
-    // se non ci sono ancora dati, mostra placeholder (3 card)
-    if(!slice.length){
+    // placeholder solo se non c'è nessun dato reale
+    if(!slice.length && !ALL.length){
       slice = [
-        {name:'Cliente', role:'', stars:5, text:'Video emozionale perfetto per la homepage.', img:'/media/client-1.jpg'},
-        {name:'Boat Charter', role:'', stars:5, text:'Riprese drone incredibili, zero stress sul set.', img:'/media/client-2.jpg'},
-        {name:'Wedding', role:'', stars:4, text:'Trailer per Instagram che ha fatto il botto.', img:'/media/client-3.jpg'}
+        {name:'Giulia R.', role:'Hotel Manager', stars:5, text:'Video emozionale perfetto per la homepage.', img:'/media/client-1.jpg'},
+        {name:'Marco D.', role:'Boat Charter',  stars:5, text:'Riprese drone incredibili, zero stress sul set.', img:'/media/client-2.jpg'},
+        {name:'Sara & Luca', role:'Wedding',    stars:4, text:'Trailer per Instagram che ha fatto il botto.', img:'/media/client-3.jpg'}
       ];
     }
-    slice.forEach(r=>appendCardTo(grid,r));
+    for(var i=0;i<slice.length;i++) appendCardTo(grid, slice[i]);
 
     // griglia: desktop 3×2; mobile 1×3
-    if(ps===6){
-      grid.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
-    }else{
-      grid.style.gridTemplateColumns='1fr';
-    }
+    grid.style.gridTemplateColumns = (ps===6 ? 'repeat(3,minmax(0,1fr))' : '1fr');
   }
 
   // Controlli
   var prev = document.getElementById('reviewsPrev');
   var next = document.getElementById('reviewsNext');
-  prev && prev.addEventListener('click', function(){ renderPage(cur-1); });
-  next && next.addEventListener('click', function(){ renderPage(cur+1); });
+  if(prev) prev.addEventListener('click', function(){ renderPage(cur-1); });
+  if(next) next.addEventListener('click', function(){ renderPage(cur+1); });
 
   // Recompute su resize (debounce)
   var rzTO=null, lastPS=pageSize();
@@ -1617,7 +1658,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
   }, {passive:true});
 
   /* ======= Modale Recensioni (preview + save) ======= */
-  var grid     = document.getElementById('reviewsGrid');
   var avgText  = document.getElementById('avgRatingText');
   var LD       = document.getElementById('reviewsJsonLd');
   var form     = document.getElementById('reviewForm');
@@ -1647,44 +1687,60 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
       fr.readAsDataURL(file);
     }catch(e){ cb(e); }
   }
-  fileIn && fileIn.addEventListener('change', function(){
+  if(fileIn) fileIn.addEventListener('change', function(){
     var f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none'; previewPh.style.display='block'; return;
+    if(!f || !f.type || f.type.indexOf('image/')!==0){
+      if(preview) preview.style.display='none';
+      if(previewPh) previewPh.style.display='block';
+      return;
     }
     toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
+      if(err){ if(preview) preview.style.display='none'; if(previewPh) previewPh.style.display='block'; return; }
+      if(preview){ preview.src = data; preview.style.display='block'; }
+      if(previewPh) previewPh.style.display='none';
     });
   });
+
   function buildRecord(){
-    var name = (document.getElementById('r_name')||{}).value || '';
-    var role = (document.getElementById('r_role')||{}).value || '';
-    var stars= parseInt((document.getElementById('r_stars')||{}).value||'5',10);
-    var text = (document.getElementById('r_text')||{}).value || '';
+    var nameEl=document.getElementById('r_name');
+    var roleEl=document.getElementById('r_role');
+    var starEl=document.getElementById('r_stars');
+    var textEl=document.getElementById('r_text');
+    var name = nameEl ? (nameEl.value||'') : '';
+    var role = roleEl ? (roleEl.value||'') : '';
+    var stars= starEl ? parseInt(starEl.value||'5',10) : 5;
+    var text = textEl ? (textEl.value||'') : '';
     var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
     if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+    return { name:name, role:role, stars:Math.max(1,Math.min(5,stars||5)), text:text, img:img64, ts: Date.now() };
   }
   function resetModal(){
-    try{ form && form.reset(); }catch(_){}
+    try{ if(form) form.reset(); }catch(_){}
     if(preview) preview.style.display='none';
     if(previewPh) previewPh.style.display='block';
   }
   function closeModal(){
     resetModal();
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+    if(dialog){
+      if(dialog.open) dialog.close(); else dialog.removeAttribute('open');
+    }
   }
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', function(e){
-    var r = dialog.getBoundingClientRect();
-    var inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
-    if(!inside) closeModal();
-  });
+  function openModal(){
+    if(dialog){
+      if(dialog.showModal) dialog.showModal(); else dialog.setAttribute('open','open');
+    }
+  }
+  if(openBtn)  openBtn.addEventListener('click', openModal);
+  if(closeBtn) closeBtn.addEventListener('click', closeModal);
+  if(cancelBtn)cancelBtn.addEventListener('click', closeModal);
+  if(dialog){
+    dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+    dialog.addEventListener('click', function(e){
+      var r = dialog.getBoundingClientRect();
+      var inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+      if(!inside) closeModal();
+    });
+  }
   async function saveToBackend(rec){
     try{
       var resp = await fetch(BACKEND_URL, {
@@ -1692,36 +1748,40 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ key: BACKEND_KEY, name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img })
       });
-      if(!resp.ok){ console.warn('[reviews] backend HTTP', resp.status); }
-      else {
-        var j = await resp.json().catch(()=>({}));
-        if(j && j.ok !== true) console.warn('[reviews] backend reply', j);
+      if(!resp.ok){
+        try{ console.warn('[reviews] backend HTTP', resp.status); }catch(_){}
+      }else{
+        var j = await resp.json().catch(function(){return {};});
+        if(!j || j.ok !== true) try{ console.warn('[reviews] backend reply', j); }catch(_){}
       }
-    }catch(err){ console.warn('[reviews] backend error', err); }
+    }catch(err){ try{ console.warn('[reviews] backend error', err); }catch(_){} }
   }
   function handleSave(e){
-    if(e) e.preventDefault();
+    if(e && e.preventDefault) e.preventDefault();
     var rec = buildRecord();
     if(!rec) return;
-    // aggiungi ai dati, rerender pagina corrente dalla testa
+    // add on top, re-render pagina 0
     ALL.unshift(rec);
     updateAggregate(avgText, LD, ALL);
     renderPage(0, true);
     closeModal();
     saveToBackend(rec);
+    try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(ALL)); }catch(_){}
   }
-  form && form.addEventListener('submit', handleSave, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
+  if(form) form.addEventListener('submit', handleSave);
+  if(saveBtn) saveBtn.addEventListener('click', handleSave);
 
   /* ======= Contatti: Email + WhatsApp ======= */
   function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
   function buildPayload(){
+    var sEl=document.getElementById('q_service');
+    var service = (sEl && sEl.value) ? sEl.options[sEl.selectedIndex].text : '';
     return {
       pack:   (window.__LAST_PACK || ''),
       name:   val('q_name'),
       email:  val('q_email'),
       phone:  val('q_phone'),
-      service:(function(){ var el=document.getElementById('q_service'); return el&&el.value? el.options[el.selectedIndex].text : ''; })(),
+      service:service,
       message:val('q_message')
     };
   }
@@ -1744,7 +1804,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
       var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
       var body    = encodeURIComponent(buildMailBody(p));
       location.href = "mailto:" + ( (window.__CONFIG&&window.__CONFIG.EMAIL) || "andreacolucci@hotmail.it") + "?subject="+subject+"&body="+body;
-    }, {passive:false});
+    });
   }
   var waBtn = document.getElementById('sendWhatsApp');
   if(waBtn){
@@ -1763,7 +1823,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     if(!topbar) return;
     var lastY=window.scrollY, ticking=false;
     function onScroll(){
-      if(!window.matchMedia('(max-width:980px)').matches){ topbar.classList.remove('hide'); return; }
+      if(!(window.matchMedia && window.matchMedia('(max-width:980px)').matches)){
+        topbar.classList.remove('hide'); return;
+      }
       var y=window.scrollY;
       if(Math.abs(y-lastY) < 8) return;
       if(y>lastY && y>60){ topbar.classList.add('hide'); } else { topbar.classList.remove('hide'); }
@@ -1772,13 +1834,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
     window.addEventListener('scroll', function(){
       if(!ticking){ window.requestAnimationFrame(onScroll); ticking=true; }
     }, {passive:true});
-    // stile hide (se non c'è già)
     var style=document.createElement('style');
     style.textContent='#topbar.hide{transform:translateY(-100%);transition:transform .24s ease}#topbar{transition:transform .24s ease}';
     document.head.appendChild(style);
   })();
 
-  // start
+  // Avvio
   loadReviews();
 })();
 </script>
@@ -1895,8 +1956,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mo
 })();
 </script>
 <!-- FINE PARTE 4 / 5 -->
-
-
 
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (fix)
