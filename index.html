@@ -1212,80 +1212,50 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
 
 
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
-- Reviews: Backend JSON → GVIZ JSON → CSV → Cache
-- Contatti: campi verticali (Nome, Email, Servizio, Telefono, Messaggio)
-- Email / WhatsApp dinamici da window.__CONFIG
+PART 4 / 5 — RECENSIONI • CONTATTI (carosello paginato + auto-hide header mobile)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
 <section id="recensioni" class="container" style="padding:28px 0 6px">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-    <h2 class="headline h2" style="margin:0">Cosa dicono di me</h2>
-    <span class="soft" id="avgRatingText" style="white-space:nowrap">Valutazione media 4.9/5</span>
+    <h2 class="headline h2" style="margin:0" data-i18n="reviews.title">Cosa dicono di me</h2>
+    <span class="soft" id="avgRatingText" style="white-space:nowrap" data-i18n="reviews.subtitle">Valutazione media 4.9/5</span>
   </header>
 
-  <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- 3 card seed -->
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Giulia R. — Hotel Manager</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">“Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”</p>
-      </figcaption>
-    </figure>
-
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Marco D. — Boat Charter</strong>
-          <span class="stars" aria-label="5 su 5">★★★★★</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">“Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”</p>
-      </figcaption>
-    </figure>
-
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
-      <figcaption>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Sara & Luca — Wedding</strong>
-          <span class="stars" aria-label="4 su 5">★★★★☆</span>
-        </div>
-        <p class="soft" style="margin:6px 0 0">“Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”</p>
-      </figcaption>
-    </figure>
+  <!-- VIEWPORT + CONTROLS -->
+  <div class="reviews-wrap" style="position:relative">
+    <button class="nav prev" id="reviewsPrev" aria-label="Precedenti" title="Precedenti">◀</button>
+    <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px">
+      <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+    </div>
+    <button class="nav next" id="reviewsNext" aria-label="Successivi" title="Successivi">▶</button>
   </div>
 
-  <div style="display:flex;justify-content:center;margin-top:12px">
-    <button class="btn" id="openReview">Lascia una recensione</button>
+  <div class="review-cta" style="display:flex;justify-content:center;margin-top:12px">
+    <button class="btn" id="openReview" data-i18n="reviews.cta">Lascia una recensione</button>
   </div>
 
   <!-- Modal nuova recensione -->
   <dialog id="reviewModal" style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
     <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <h3 class="headline h3" style="margin:0">La tua esperienza</h3>
+        <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
         <button type="button" class="btn" id="closeReview" aria-label="Chiudi">×</button>
       </header>
 
       <div class="grid" style="gap:10px;grid-template-columns:1fr">
         <div class="field">
-          <label class="label" for="r_name">Nome</label>
+          <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
           <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
         </div>
 
         <div class="field">
-          <label class="label" for="r_role">Ruolo</label>
+          <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
           <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
         </div>
 
         <div class="field">
-          <label class="label" for="r_stars">Valutazione</label>
+          <label class="label" for="r_stars" data-i18n="reviews.rating">Valutazione</label>
           <select id="r_stars" class="control" required>
             <option value="5">★★★★★ — 5</option>
             <option value="4">★★★★☆ — 4</option>
@@ -1296,9 +1266,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
         </div>
 
         <div class="field">
-          <label class="label" for="r_img">Foto (opzionale)</label>
+          <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
           <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
-          <small class="soft">PNG/JPG, verrà adattata in miniatura</small>
+          <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px">
@@ -1306,18 +1276,18 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
             <img id="r_preview" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
             <span id="r_preview_ph" class="soft" style="font-size:12px">—</span>
           </div>
-          <small class="soft">Anteprima miniatura</small>
+          <small class="soft" data-i18n="reviews.photoPreview">Anteprima miniatura</small>
         </div>
 
         <div class="field">
-          <label class="label" for="r_text">Recensione</label>
+          <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
           <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
         </div>
       </div>
 
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button class="btn" type="button" id="cancelReview">Annulla</button>
-        <button class="btn fill" id="saveReview" type="button">Pubblica</button>
+        <button class="btn" type="button" id="cancelReview" data-i18n="common.cancel">Annulla</button>
+        <button class="btn fill" id="saveReview" type="button" data-i18n="reviews.save">Pubblica</button>
       </div>
     </form>
   </dialog>
@@ -1328,7 +1298,11 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "Servizi Video — Andrea Colucci",
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "36" }
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "36"
+    }
   }
   </script>
 
@@ -1341,128 +1315,109 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
       border-radius:10px;color:#fff;padding:10px 12px;outline:none;font-size:17px;line-height:1.35;min-height:44px
     }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
-    @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
+
+    /* Carosello */
+    .reviews-wrap .nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:36px;height:36px;border-radius:999px;border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06);color:#fff;cursor:pointer;z-index:2
+    }
+    .reviews-wrap .nav:hover{background:rgba(255,255,255,.1)}
+    #reviewsPrev{left:-8px}
+    #reviewsNext{right:-8px}
+
+    /* Griglia: desktop 3×2, mobile 1×3 */
+    #reviewsGrid{min-height: 280px}
+    @media (max-width:980px){
+      #recensioni .grid{grid-template-columns:1fr !important}
+      .reviews-wrap .nav{top:auto;bottom:-16px;transform:none}
+      #reviewsPrev{left:6px}
+      #reviewsNext{right:6px}
+    }
+
+    /* Anti-zoom iOS SOLO per recensioni modale */
+    #reviewModal .control{
+      font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
+      -webkit-text-size-adjust:100% !important;
+    }
+    #reviewModal select, #reviewModal option{ font-size:17px !important; }
+    #reviewModal ::placeholder{ font-size:17px !important; opacity:.85; }
   </style>
 </section>
 
 <!-- ====== CONTATTI (preventivo) ====== -->
 <section id="contatti" class="container" style="padding:22px 0 6px">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-    <h2 class="headline h2" style="margin:0">Richiedi un preventivo</h2>
-    <span class="soft">Brief gratuito • risposta in giornata</span>
+    <h2 class="headline h2" style="margin:0" data-i18n="contact.title">Richiedi un preventivo</h2>
+    <span class="soft" data-i18n="contact.subtitle">Brief gratuito • risposta in giornata</span>
   </header>
 
   <div class="glass" style="border-radius:16px;padding:14px">
     <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:1fr">
       <div class="field">
-        <label class="label" for="q_name">Nome e Cognome</label>
+        <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
         <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
       </div>
 
       <div class="field">
-        <label class="label" for="q_email">Email</label>
+        <label class="label" for="q_email" data-i18n="contact.email">Email</label>
         <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
       </div>
 
       <div class="field">
-        <label class="label" for="q_service">Servizio</label>
+        <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
         <select id="q_service" class="control" required>
-          <option value="" disabled selected>Seleziona…</option>
-          <option>Commerciali</option>
-          <option>Wedding</option>
-          <option>Music Video</option>
-          <option>Real Estate</option>
-          <option>Barche / Charter</option>
-          <option>Altro</option>
+          <option value="" disabled selected data-i18n="contact.service.select">Seleziona…</option>
+          <option data-i18n="contact.service.commerciali">Commerciali</option>
+          <option data-i18n="contact.service.wedding">Wedding</option>
+          <option data-i18n="contact.service.music">Music Video</option>
+          <option data-i18n="contact.service.realestate">Real Estate</option>
+          <option data-i18n="contact.service.boat">Barche / Charter</option>
+          <option data-i18n="contact.service.other">Altro</option>
         </select>
       </div>
 
       <div class="field">
-        <label class="label" for="q_phone">Telefono / WhatsApp</label>
+        <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
         <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
       </div>
 
       <div class="field">
-        <label class="label" for="q_message">Messaggio</label>
+        <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
         <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
       </div>
 
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
-        <button type="button" class="btn" id="sendMail">Invia via Email</button>
-        <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener">Invia su WhatsApp</a>
+        <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
+        <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
       </div>
     </form>
   </div>
 
-  <!-- Anti-zoom iOS solo per form -->
+  <!-- Anti-zoom iOS SOLO per #contatti -->
   <style>
-    #contatti .control, #reviewModal .control{
+    #contatti .control{
       font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
       -webkit-text-size-adjust:100% !important;
     }
-    #contatti select, #contatti option, #reviewModal select, #reviewModal option{ font-size:17px !important; }
-    #contatti ::placeholder, #reviewModal ::placeholder{ font-size:17px !important; opacity:.85; }
+    #contatti select, #contatti option{ font-size:17px !important; }
+    #contatti ::placeholder{ font-size:17px !important; opacity:.85; }
   </style>
 </section>
 
-<!-- ===== SCRIPT: Reviews loader + Contatti + Backend ===== -->
+<!-- ===== SCRIPT: Reviews loader + Carosello + Contatti + Salvataggio ===== -->
 <script>
 (function(){
-  /* === CONFIG === */
+  /* ======= CONFIG ======= */
   var CFG = window.__CONFIG || {};
-  var BACKEND_URL    = CFG.REVIEWS_WRITE || 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
-  var BACKEND_KEY    = CFG.REVIEWS_KEY   || 'acfilms_2025_secretKey_93Jv7';
-  var AC_BACKEND_READ= CFG.REVIEWS_READ  || (BACKEND_URL + '?fn=read&key=' + encodeURIComponent(BACKEND_KEY));
+  var AC_BACKEND_READ = CFG.REVIEWS_READ || ''; // es. endpoint Apps Script READ
+  var BACKEND_URL     = CFG.REVIEWS_WRITE || 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
+  var BACKEND_KEY     = CFG.REVIEWS_KEY  || 'acfilms_2025_secretKey_93Jv7';
+  var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]); // opzionale: array CSV fallback
 
-  var SHEET_GVIZ = CFG.REVIEWS_SRC || (function(){
-    var id='1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g', gid='0';
-    return 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&gid='+gid;
-  })();
-
-  var SHEET_URLS = CFG.REVIEWS_CSVS || []; // opzionale
-
-  /* === CSV & GVIZ === */
-  async function fetchCSV(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error(r.status); return r.text(); }
-  function parseCSV(text){
-    var rows=[], cur=[''], i=0, q=false;
-    for(let p=0;p<text.length;p++){
-      const c=text[p];
-      if(q){
-        if(c==='"' && text[p+1]==='"'){ cur[i]+='"'; p++; }
-        else if(c==='"'){ q=false; }
-        else cur[i]+=c;
-      }else{
-        if(c===','){ cur[++i]=''; }
-        else if(c==='\n' || c==='\r'){ rows.push(cur); cur=['']; i=0; if(c==='\r' && text[p+1]==='\n') p++; }
-        else if(c==='"'){ q=true; }
-        else cur[i]=(cur[i]||'')+c;
-      }
-    }
-    if(cur.join('')!=='') rows.push(cur);
-    return rows;
-  }
-  function parseGVIZ(txt, map){
-    var a=txt.indexOf('('), b=txt.lastIndexOf(')');
-    var json=JSON.parse(txt.slice(a+1,b));
-    var rows=(json.table&&json.table.rows)||[];
-    var out=[], MAP=map||['ts','name','role','stars','text','img'];
-    rows.forEach(function(r){
-      if(!r||!r.c) return;
-      var o={};
-      for(var i=0;i<MAP.length;i++){
-        var cell=r.c[i]&&(r.c[i].v!=null?r.c[i].v:r.c[i].f);
-        o[MAP[i]] = cell==null ? '' : cell;
-      }
-      var t=Number(o.ts); if(isNaN(t)) t=Date.parse(o.ts); o.ts=isNaN(t)?Date.now():t;
-      o.stars = Number(String(o.stars).replace(',','.')) || 5;
-      out.push(o);
-    });
-    return out;
-  }
-
-  /* === UI helpers === */
+  /* ======= Utils ======= */
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-  function appendReviewCard(rec, grid){
+  function appendCardTo(el, rec){
     var fig=document.createElement('figure');
     fig.className='glass review';
     fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
@@ -1476,85 +1431,89 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
     var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
     var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
     var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+String(rec.text||'').replace(/^“|”$/g,'')+'”';
+    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
     top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
     fig.appendChild(img); fig.appendChild(cap);
-    grid.appendChild(fig);
+    el.appendChild(fig);
   }
-  function updateAggregate(avgEl, jsonLdEl, baseStars, extra){
-    var arr=(baseStars||[]).concat((extra||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+  function updateAggregate(avgEl, jsonLdEl, arr){
     if(!arr.length) return;
-    var avg=Math.round((arr.reduce((a,b)=>a+b,0)/arr.length)*10)/10;
-    if(avgEl) avgEl.textContent='Valutazione media '+avg+'/5';
+    var avg = Math.round((arr.reduce((a,b)=>a+(Number(b.stars)||0),0)/arr.length)*10)/10;
+    if(avgEl) avgEl.textContent = (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
+                                   document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
+                                   'Valutazione media '+avg+'/5');
     if(jsonLdEl){
       try{
-        var obj=JSON.parse(jsonLdEl.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(arr.length);
-        jsonLdEl.textContent=JSON.stringify(obj);
+        var obj = JSON.parse(jsonLdEl.textContent);
+        obj.aggregateRating.ratingValue = String(avg);
+        obj.aggregateRating.reviewCount = String(arr.length);
+        jsonLdEl.textContent = JSON.stringify(obj);
       }catch(_){}
     }
   }
+  function fetchCSV(url){
+    return fetch(url, {cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); });
+  }
+  function parseCSV(csv){
+    var lines = csv.split(/\r?\n/).filter(Boolean);
+    return lines.map(row=>{
+      var out=[], cur='', inq=false;
+      for(var i=0;i<row.length;i++){
+        var ch=row[i];
+        if(ch=='"'){ if(inq && row[i+1]=='"'){cur+='"'; i++;} else inq=!inq; }
+        else if(ch==',' && !inq){ out.push(cur); cur=''; }
+        else cur+=ch;
+      }
+      out.push(cur);
+      return out;
+    });
+  }
 
-  /* === Loader recensioni === */
+  /* ======= Caricamento recensioni (Backend → CSV → Cache) ======= */
+  var ALL = [];
   async function loadReviews(){
-    var grid=document.getElementById('reviewsGrid');
-    var avgEl=document.getElementById('avgRatingText');
-    var ld=document.getElementById('reviewsJsonLd');
-    if(!grid) return;
-
-    let loaded=[]; let used='';
+    let loaded=[], used='';
 
     // 1) Backend JSON
-    try{
-      const r=await fetch(AC_BACKEND_READ,{cache:'no-store'});
-      if(r.ok){
-        const j=await r.json();
-        if(j && j.ok && Array.isArray(j.items) && j.items.length){
-          loaded=j.items.map(x=>({
-            ts:Number(x.ts)||Date.now(),
-            name:x.name||'',
-            role:x.role||'',
-            stars:Number(x.stars)||5,
-            text:(x.text||'').replace(/^“|”$/g,''),
-            img:x.img||''
-          }));
-          used='backend';
-        }
-      }
-    }catch(_){}
-
-    // 2) GVIZ JSON
-    if(!loaded.length){
+    if(AC_BACKEND_READ){
       try{
-        const r=await fetch(SHEET_GVIZ,{cache:'no-store'});
+        const r = await fetch(AC_BACKEND_READ, {cache:'no-store'});
         if(r.ok){
-          const t=await r.text();
-          const a=parseGVIZ(t);
-          if(a.length){ loaded=a; used='gviz'; }
+          const j = await r.json();
+          if(j && j.ok && Array.isArray(j.items) && j.items.length){
+            loaded = j.items.map(x => ({
+              ts: Number(x.ts)||Date.now(),
+              name: x.name||'',
+              role: x.role||'',
+              stars: Number(x.stars)||5,
+              text: (x.text||'').replace(/^“|”$/g,''),
+              img: x.img||''
+            }));
+            used='backend';
+          }
         }
       }catch(_){}
     }
 
-    // 3) CSV fallback
+    // 2) CSV fallback
     if(!loaded.length && SHEET_URLS.length){
       for(const u of SHEET_URLS){
         try{
-          const csv=await fetchCSV(u);
-          const rows=parseCSV(csv);
+          const csv = await fetchCSV(u);
+          const rows = parseCSV(csv);
           if(!rows.length) continue;
-          const head=rows[0].map(s=>s.trim().toLowerCase());
-          const idx={ ts:head.indexOf('ts'), name:head.indexOf('name'), role:head.indexOf('role'),
-                      stars:head.indexOf('stars'), text:head.indexOf('text'), img:head.indexOf('img') };
+          const head = rows[0].map(s=>s.trim().toLowerCase());
+          const idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
+                         stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
           rows.slice(1).forEach(r=>{
-            if(!r||!r.length) return;
+            if(!r || !r.length) return;
             loaded.push({
-              ts:idx.ts>=0 ? Number(r[idx.ts])||Date.now() : Date.now(),
-              name:idx.name>=0 ? r[idx.name] : '',
-              role:idx.role>=0 ? r[idx.role] : '',
-              stars:idx.stars>=0 ? parseInt(r[idx.stars]||'5',10) : 5,
-              text:idx.text>=0 ? r[idx.text] : '',
-              img:idx.img>=0 ? r[idx.img] : ''
+              ts:   idx.ts>=0 ? Number(r[idx.ts]) : Date.now(),
+              name: idx.name>=0 ? r[idx.name] : '',
+              role: idx.role>=0 ? r[idx.role] : '',
+              stars: idx.stars>=0 ? parseInt(r[idx.stars]||'5',10) : 5,
+              text: idx.text>=0 ? r[idx.text] : '',
+              img:  idx.img>=0 ? r[idx.img] : ''
             });
           });
           used='csv';
@@ -1563,89 +1522,92 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
       }
     }
 
-    // 4) Cache locale
+    // 3) Cache locale
     if(!loaded.length){
       try{
-        const cache=JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
-        if(Array.isArray(cache) && cache.length){ loaded=cache; used='cache'; }
+        const cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
+        if(Array.isArray(cache) && cache.length) loaded=cache, used='cache';
       }catch(_){}
     }else{
       try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
     }
 
-    // Render + aggregate
-    loaded.sort((a,b)=>Number(b.ts)-Number(a.ts));
-    loaded.forEach(r=>appendReviewCard(r,grid));
-    updateAggregate(avgEl, ld, [5,5,4], loaded.concat(window.__REVIEWS_NEW||[]));
-    try{ console.info('[reviews] source:', used, 'count:', loaded.length); }catch(_){}
+    // Ordina per più recenti
+    loaded.sort((a,b)=>b.ts-a.ts);
+    ALL = loaded.slice();
+    try{ console.info('[reviews] source:', used, 'count:', ALL.length); }catch(_){}
+    renderPage(0, true);
+    updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
   }
 
-  /* === Contatti: Email + WhatsApp === */
-  function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
-  function buildPayload(){
-    return {
-      pack:(window.__LAST_PACK||''),
-      name:val('q_name'),
-      email:val('q_email'),
-      phone:val('q_phone'),
-      service:(function(){ var el=document.getElementById('q_service'); return el&&el.value? el.options[el.selectedIndex].text : ''; })(),
-      message:val('q_message')
-    };
+  /* ======= Carosello paginato ======= */
+  var cur = 0;
+  function pageSize(){
+    return window.matchMedia('(max-width:980px)').matches ? 3 : 6;
   }
-  function buildMailBody(p){
-    return "Richiesta preventivo dal sito Andrea Colucci Films\n\n"
-      +(p.pack?("Pacchetto: "+p.pack+"\n\n"):"")
-      +"Nome: "+(p.name||'-')+"\n"
-      +"Email: "+(p.email||'-')+"\n"
-      +"Telefono/WA: "+(p.phone||'-')+"\n"
-      +"Servizio: "+(p.service||'-')+"\n\n"
-      +(p.message?("Messaggio:\n"+p.message):"");
+  function totalPages(){
+    var p = pageSize();
+    return Math.max(1, Math.ceil(ALL.length / p));
+  }
+  function renderPage(index, force){
+    var max = totalPages();
+    if(!force && max>0) index = (index+max)%max;
+    cur = index;
+    var grid = document.getElementById('reviewsGrid');
+    if(!grid) return;
+    grid.innerHTML='';
+
+    var ps = pageSize();
+    var start = cur*ps, end = Math.min(start+ps, ALL.length);
+    var slice = ALL.slice(start, end);
+
+    // se non ci sono ancora dati, mostra placeholder (3 card)
+    if(!slice.length){
+      slice = [
+        {name:'Cliente', role:'', stars:5, text:'Video emozionale perfetto per la homepage.', img:'/media/client-1.jpg'},
+        {name:'Boat Charter', role:'', stars:5, text:'Riprese drone incredibili, zero stress sul set.', img:'/media/client-2.jpg'},
+        {name:'Wedding', role:'', stars:4, text:'Trailer per Instagram che ha fatto il botto.', img:'/media/client-3.jpg'}
+      ];
+    }
+    slice.forEach(r=>appendCardTo(grid,r));
+
+    // griglia: desktop 3×2; mobile 1×3
+    if(ps===6){
+      grid.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
+    }else{
+      grid.style.gridTemplateColumns='1fr';
+    }
   }
 
-  var mailBtn=document.getElementById('sendMail');
-  if(mailBtn){
-    mailBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      var p=buildPayload();
-      var subject=encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      var body=encodeURIComponent(buildMailBody(p));
-      location.href="mailto:"+((window.__CONFIG&&window.__CONFIG.EMAIL)||"andreacolucci@hotmail.it")+"?subject="+subject+"&body="+body;
-    }, {passive:false});
-  }
+  // Controlli
+  var prev = document.getElementById('reviewsPrev');
+  var next = document.getElementById('reviewsNext');
+  prev && prev.addEventListener('click', function(){ renderPage(cur-1); });
+  next && next.addEventListener('click', function(){ renderPage(cur+1); });
 
-  var waBtn=document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var p=buildPayload();
-      var cfg=window.__CONFIG||{};
-      var wa=(cfg.WA_NUMBER||'393910911719').replace(/[^\d]/g,'');
-      var text=encodeURIComponent(cfg.leadText ? cfg.leadText(p) : "Ciao Andrea! Ti scrivo dal sito 🙌");
-      waBtn.href="https://wa.me/"+wa+"?text="+text;
-    });
-  }
+  // Recompute su resize (debounce)
+  var rzTO=null, lastPS=pageSize();
+  window.addEventListener('resize', function(){
+    clearTimeout(rzTO);
+    rzTO=setTimeout(function(){
+      var nowPS=pageSize();
+      if(nowPS!==lastPS){ lastPS=nowPS; renderPage(0, true); }
+    }, 120);
+  }, {passive:true});
 
-  // Quick floating WA (se presente)
-  var quickWA=document.getElementById('quickWA');
-  if(quickWA){
-    var cfg=window.__CONFIG||{};
-    var n=(cfg.WA_NUMBER||'393910911719').replace(/[^\d]/g,'');
-    quickWA.href="https://wa.me/"+n+"?text="+encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-  }
-
-  /* === Modale Recensioni (preview + save) === */
-  var grid=document.getElementById('reviewsGrid');
-  var avgText=document.getElementById('avgRatingText');
-  var LD=document.getElementById('reviewsJsonLd');
-  var form=document.getElementById('reviewForm');
-  var dialog=document.getElementById('reviewModal');
-  var openBtn=document.getElementById('openReview');
-  var closeBtn=document.getElementById('closeReview');
-  var cancelBtn=document.getElementById('cancelReview');
-  var saveBtn=document.getElementById('saveReview');
-  var fileIn=document.getElementById('r_img');
-  var preview=document.getElementById('r_preview');
-  var previewPh=document.getElementById('r_preview_ph');
-  window.__REVIEWS_NEW = window.__REVIEWS_NEW || [];
+  /* ======= Modale Recensioni (preview + save) ======= */
+  var grid     = document.getElementById('reviewsGrid');
+  var avgText  = document.getElementById('avgRatingText');
+  var LD       = document.getElementById('reviewsJsonLd');
+  var form     = document.getElementById('reviewForm');
+  var dialog   = document.getElementById('reviewModal');
+  var openBtn  = document.getElementById('openReview');
+  var closeBtn = document.getElementById('closeReview');
+  var cancelBtn= document.getElementById('cancelReview');
+  var saveBtn  = document.getElementById('saveReview');
+  var fileIn   = document.getElementById('r_img');
+  var preview  = document.getElementById('r_preview');
+  var previewPh= document.getElementById('r_preview_ph');
 
   function toDataUrlThumb(file, cb){
     try{
@@ -1665,72 +1627,254 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX COMPLETO)
     }catch(e){ cb(e); }
   }
   fileIn && fileIn.addEventListener('change', function(){
-    var f=this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){ preview.style.display='none'; previewPh.style.display='block'; return; }
-    toDataUrlThumb(f, function(err,data){
+    var f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
+      preview.style.display='none'; previewPh.style.display='block'; return;
+    }
+    toDataUrlThumb(f, function(err, data){
       if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src=data; preview.style.display='block'; previewPh.style.display='none';
+      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
     });
   });
-
   function buildRecord(){
-    var name=(document.getElementById('r_name')||{}).value||'';
-    var role=(document.getElementById('r_role')||{}).value||'';
-    var stars=parseInt((document.getElementById('r_stars')||{}).value||'5',10);
-    var text=(document.getElementById('r_text')||{}).value||'';
-    var img64=(preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    var name = (document.getElementById('r_name')||{}).value || '';
+    var role = (document.getElementById('r_role')||{}).value || '';
+    var stars= parseInt((document.getElementById('r_stars')||{}).value||'5',10);
+    var text = (document.getElementById('r_text')||{}).value || '';
+    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
     if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img:img64, ts:Date.now() };
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
   }
-
-  function resetModal(){ try{ form && form.reset(); }catch(_){}
-    if(preview) preview.style.display='none'; if(previewPh) previewPh.style.display='block'; }
-  function closeModal(){ resetModal(); if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open'); }
+  function resetModal(){
+    try{ form && form.reset(); }catch(_){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+  }
+  function closeModal(){
+    resetModal();
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
   function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
   openBtn && openBtn.addEventListener('click', openModal);
   closeBtn && closeBtn.addEventListener('click', closeModal);
   cancelBtn && cancelBtn.addEventListener('click', closeModal);
   dialog && dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
   dialog && dialog.addEventListener('click', function(e){
-    var r=dialog.getBoundingClientRect();
-    var inside=(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+    var r = dialog.getBoundingClientRect();
+    var inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
     if(!inside) closeModal();
   });
-
   async function saveToBackend(rec){
     try{
-      const resp = await fetch(BACKEND_URL,{
+      var resp = await fetch(BACKEND_URL, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ key:BACKEND_KEY, ts:rec.ts, name:rec.name, role:rec.role, stars:rec.stars, text:rec.text, img:rec.img })
+        body: JSON.stringify({ key: BACKEND_KEY, name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img })
       });
-      if(!resp.ok) console.warn('[reviews] backend HTTP', resp.status);
-      else{
-        const j=await resp.json().catch(()=>({}));
-        if(!(j && j.ok===true)) console.warn('[reviews] backend reply', j);
+      if(!resp.ok){ console.warn('[reviews] backend HTTP', resp.status); }
+      else {
+        var j = await resp.json().catch(()=>({}));
+        if(j && j.ok !== true) console.warn('[reviews] backend reply', j);
       }
     }catch(err){ console.warn('[reviews] backend error', err); }
   }
-
   function handleSave(e){
     if(e) e.preventDefault();
-    var rec=buildRecord();
+    var rec = buildRecord();
     if(!rec) return;
-    appendReviewCard(rec, grid);
-    window.__REVIEWS_NEW.push(rec);
-    updateAggregate(avgText, LD, [5,5,4], (window.__REVIEWS_NEW||[]));
+    // aggiungi ai dati, rerender pagina corrente dalla testa
+    ALL.unshift(rec);
+    updateAggregate(avgText, LD, ALL);
+    renderPage(0, true);
     closeModal();
     saveToBackend(rec);
   }
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  // Avvio
+  /* ======= Contatti: Email + WhatsApp ======= */
+  function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
+  function buildPayload(){
+    return {
+      pack:   (window.__LAST_PACK || ''),
+      name:   val('q_name'),
+      email:  val('q_email'),
+      phone:  val('q_phone'),
+      service:(function(){ var el=document.getElementById('q_service'); return el&&el.value? el.options[el.selectedIndex].text : ''; })(),
+      message:val('q_message')
+    };
+  }
+  function buildMailBody(p){
+    return (
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      (p.pack ? ("Pacchetto: " + p.pack + "\n\n") : "") +
+      "Nome: " + (p.name || '-') + "\n" +
+      "Email: " + (p.email || '-') + "\n" +
+      "Telefono/WA: " + (p.phone || '-') + "\n" +
+      "Servizio: " + (p.service || '-') + "\n\n" +
+      (p.message ? ("Messaggio:\n" + p.message) : "")
+    );
+  }
+  var mailBtn = document.getElementById('sendMail');
+  if(mailBtn){
+    mailBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      var p = buildPayload();
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      var body    = encodeURIComponent(buildMailBody(p));
+      location.href = "mailto:" + ( (window.__CONFIG&&window.__CONFIG.EMAIL) || "andreacolucci@hotmail.it") + "?subject="+subject+"&body="+body;
+    }, {passive:false});
+  }
+  var waBtn = document.getElementById('sendWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      var p = buildPayload();
+      var cfg = window.__CONFIG || {};
+      var waNumber = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+      var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌'));
+      waBtn.href = "https://wa.me/" + waNumber + "?text=" + text;
+    });
+  }
+
+  /* ======= Header mobile auto-hide (target: #topbar) ======= */
+  (function(){
+    var topbar = document.getElementById('topbar');
+    if(!topbar) return;
+    var lastY=window.scrollY, ticking=false;
+    function onScroll(){
+      if(!window.matchMedia('(max-width:980px)').matches){ topbar.classList.remove('hide'); return; }
+      var y=window.scrollY;
+      if(Math.abs(y-lastY) < 8) return;
+      if(y>lastY && y>60){ topbar.classList.add('hide'); } else { topbar.classList.remove('hide'); }
+      lastY=y; ticking=false;
+    }
+    window.addEventListener('scroll', function(){
+      if(!ticking){ window.requestAnimationFrame(onScroll); ticking=true; }
+    }, {passive:true});
+    // stile hide (se non c'è già)
+    var style=document.createElement('style');
+    style.textContent='#topbar.hide{transform:translateY(-100%);transition:transform .24s ease}#topbar{transition:transform .24s ease}';
+    document.head.appendChild(style);
+  })();
+
+  // start
   loadReviews();
 })();
 </script>
 
+<!-- ===== i18n EXTEND (Reviews + Contatti) ===== -->
+<script>
+(function(){
+  function extend(extra){
+    window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+    var D = window.__i18n.__dict = window.__i18n.__dict || {};
+    Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+    var lang = document.documentElement.lang || 'it';
+    if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
+  }
+
+  extend({
+    it:{
+      "reviews.title":"Cosa dicono di me",
+      "reviews.subtitle":"Valutazione media 4.9/5",
+      "reviews.cta":"Lascia una recensione",
+      "reviews.newTitle":"La tua esperienza",
+      "reviews.name":"Nome",
+      "reviews.role":"Ruolo",
+      "reviews.rating":"Valutazione",
+      "reviews.photo":"Foto (opzionale)",
+      "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
+      "reviews.photoPreview":"Anteprima miniatura",
+      "reviews.text":"Recensione",
+      "reviews.save":"Pubblica",
+      "common.cancel":"Annulla",
+
+      "contact.title":"Richiedi un preventivo",
+      "contact.subtitle":"Brief gratuito • risposta in giornata",
+      "contact.name":"Nome e Cognome",
+      "contact.email":"Email",
+      "contact.phone":"Telefono / WhatsApp",
+      "contact.service":"Servizio",
+      "contact.service.select":"Seleziona…",
+      "contact.service.commerciali":"Commerciali",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Barche / Charter",
+      "contact.service.other":"Altro",
+      "contact.message":"Messaggio",
+      "contact.sendEmail":"Invia via Email",
+      "contact.sendWA":"Invia su WhatsApp"
+    },
+    en:{
+      "reviews.title":"What clients say",
+      "reviews.subtitle":"Average rating 4.9/5",
+      "reviews.cta":"Leave a review",
+      "reviews.newTitle":"Your experience",
+      "reviews.name":"Name",
+      "reviews.role":"Role",
+      "reviews.rating":"Rating",
+      "reviews.photo":"Photo (optional)",
+      "reviews.photoHint":"PNG/JPG, will be cropped as a thumbnail",
+      "reviews.photoPreview":"Thumbnail preview",
+      "reviews.text":"Review",
+      "reviews.save":"Publish",
+      "common.cancel":"Cancel",
+
+      "contact.title":"Request a quote",
+      "contact.subtitle":"Free brief • same-day reply",
+      "contact.name":"Full name",
+      "contact.email":"Email",
+      "contact.phone":"Phone / WhatsApp",
+      "contact.service":"Service",
+      "contact.service.select":"Select…",
+      "contact.service.commerciali":"Commercial",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Boats / Charter",
+      "contact.service.other":"Other",
+      "contact.message":"Message",
+      "contact.sendEmail":"Send via Email",
+      "contact.sendWA":"Send on WhatsApp"
+    },
+    es:{
+      "reviews.title":"Qué dicen de mí",
+      "reviews.subtitle":"Valoración media 4.9/5",
+      "reviews.cta":"Deja una reseña",
+      "reviews.newTitle":"Tu experiencia",
+      "reviews.name":"Nombre",
+      "reviews.role":"Cargo",
+      "reviews.rating":"Valoración",
+      "reviews.photo":"Foto (opcional)",
+      "reviews.photoHint":"PNG/JPG, se adaptará a miniatura",
+      "reviews.photoPreview":"Vista previa miniatura",
+      "reviews.text":"Reseña",
+      "reviews.save":"Publicar",
+      "common.cancel":"Cancelar",
+
+      "contact.title":"Pide un presupuesto",
+      "contact.subtitle":"Brief gratuito • respuesta en el día",
+      "contact.name":"Nombre y Apellidos",
+      "contact.email":"Email",
+      "contact.phone":"Teléfono / WhatsApp",
+      "contact.service":"Servicio",
+      "contact.service.select":"Seleccionar…",
+      "contact.service.commerciali":"Comercial",
+      "contact.service.wedding":"Boda",
+      "contact.service.music":"Vídeo musical",
+      "contact.service.realestate":"Inmobiliario",
+      "contact.service.boat":"Barcos / Charter",
+      "contact.service.other":"Otro",
+      "contact.message":"Mensaje",
+      "contact.sendEmail":"Enviar por Email",
+      "contact.sendWA":"Enviar por WhatsApp"
+    }
+  });
+})();
+</script>
 <!-- FINE PARTE 4 / 5 -->
+
 
 
 <!-- ==========================
