@@ -467,7 +467,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
 
 
 <!-- ==========================
-PART 2 / 5 — SERVIZI • REEL (refatto)
+PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
 (look IDENTICO; grid stabile; CTA → #contatti; Vimeo pausa/play su visibilità & viewport)
 ========================== -->
 
@@ -483,7 +483,6 @@ PART 2 / 5 — SERVIZI • REEL (refatto)
     <a href="#contatti" class="btn" data-i18n="services.cta">Richiedi preventivo</a>
   </header>
 
-  <!-- 3 colonne -->
   <div class="grid grid-3" style="gap:14px">
     <!-- Brand/Commercial -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
@@ -658,19 +657,16 @@ PART 2 / 5 — SERVIZI • REEL (refatto)
 <!-- ====== SCRIPT: Vimeo pausa/riavvio + CTA quote → #contatti ====== -->
 <script>
   (function(){
-    // PostMessage helper per tutti i frame Reel
     function postAll(method){
       document.querySelectorAll('#reel iframe').forEach(function(fr){
         try{ fr.contentWindow && fr.contentWindow.postMessage({method: method}, '*'); }catch(e){}
       });
     }
 
-    // Pausa/Play su visibilità pagina
     document.addEventListener('visibilitychange', function(){
       postAll(document.hidden ? 'pause' : 'play');
     });
 
-    // Pausa i video fuori viewport
     var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
     if('IntersectionObserver' in window && frames.length){
       var io = new IntersectionObserver(function(entries){
@@ -684,7 +680,6 @@ PART 2 / 5 — SERVIZI • REEL (refatto)
       frames.forEach(function(fr){ io.observe(fr); });
     }
 
-    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll, senza cambiare URL)
     document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
       a.addEventListener('click', function(e){
         var t = document.querySelector('#contatti'); if(!t) return;
@@ -714,7 +709,7 @@ PART 2 / 5 — SERVIZI • REEL (refatto)
         "services.brand.title":"Brand & Commercial",
         "services.brand.desc":"Spot per aziende, hotel e location; script, riprese multi-camera, color grading e consegne ottimizzate per social/ADV.",
         "services.wedding.title":"Wedding Film",
-        "services.wedding.desc":"Stile cinematografico, audio curato e storytelling emotivo. Trailer + film lungo, opzione drone dove consentito.",
+        "services.wedding.desc":"Stile cinematografico, audio curato e storytelling emotivo. Trailer + film lungo, drone dove consentito.",
         "services.travel.title":"Travel & Real Estate",
         "services.travel.desc":"Contenuti per turismo, barche, proprietà: riprese aeree, motion dinamico, consegne verticali (Reels/Shorts).",
         "services.music.title":"Music Video",
