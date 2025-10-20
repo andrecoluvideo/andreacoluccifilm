@@ -1224,6 +1224,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
 
 
 <!-- ==========================
+<!-- ==========================
 PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
 (Backend→CSV→GVIZ→Cache; carosello 6 desktop / 3 mobile; autohide topbar; salvataggio Apps Script)
 ========================== -->
@@ -1239,7 +1240,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
   <div class="reviews-wrap" style="position:relative">
     <button class="nav prev" id="reviewsPrev" aria-label="Precedenti" title="Precedenti">◀</button>
     <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px">
-      <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+      <div id="reviewsGrid" class="grid" style="display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
     </div>
     <button class="nav next" id="reviewsNext" aria-label="Successivi" title="Successivi">▶</button>
   </div>
@@ -1339,10 +1340,10 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
     #reviewsPrev{left:-8px}
     #reviewsNext{right:-8px}
 
-    /* Griglia: desktop 3×2, mobile 1×3 */
+    /* Griglia: desktop 3×2, mobile 1×3 — mirata SOLO al grid delle recensioni */
     #reviewsGrid{min-height: 280px}
     @media (max-width:980px){
-      #recensioni .grid{grid-template-columns:1fr !important}
+      #reviewsGrid{grid-template-columns:1fr !important}
       .reviews-wrap .nav{top:auto;bottom:-16px;transform:none}
       #reviewsPrev{left:6px}
       #reviewsNext{right:6px}
@@ -1427,7 +1428,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
   var BACKEND_URL     = CFG.REVIEWS_WRITE || 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
   var BACKEND_KEY     = CFG.REVIEWS_KEY  || 'acfilms_2025_secretKey_93Jv7';
   var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]); // opzionale: array URL CSV
-  // Fallback GVIZ (Google Sheet → JSON)
+  // Fallback GVIZ (Google Sheet → JSON) — ID e GID sono i tuoi
   var SHEET_GVIZ = CFG.REVIEWS_GVIZ || (function(){
     var id='1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g', gid='0';
     return 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&gid='+gid;
@@ -1956,6 +1957,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo)
 })();
 </script>
 <!-- FINE PARTE 4 / 5 -->
+
 
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (fix)
