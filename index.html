@@ -1,19 +1,20 @@
 <!-- ==========================
 PART 1 / 5 — NAV • HERO • METRICHE • i18n base
-(look IDENTICO; fix funzionali: meta viewport pulito, anti-zoom iOS centralizzato e valido)
+(look IDENTICO; fix funzionali: viewport pulito, anti-zoom iOS centralizzato, bridge recensioni GVIZ)
 ========================== -->
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ Viewport “base” (niente maximum-scale qui; verrà gestito dallo script in fondo) -->
+  <!-- ✅ Viewport “base” (senza maximum-scale fisso: lo gestisce ZoomGuard su focus) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
+
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
 
-  <!-- Performance: preconnect ai font (nessun impatto visivo) -->
+  <!-- Performance: preconnect ai font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
@@ -47,7 +48,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     /* NAV */
     .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke); transition: transform .25s ease; will-change: transform;}
     @media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
-    /* Mobile: riduci pulsante "Richiedi preventivo" nella navbar */
     @media (max-width:700px){
       .nav .btn[data-i18n="nav.quote"]{
         font-size: 13px !important;
@@ -83,65 +83,268 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .metric{padding:12px 14px;text-align:center}
 
-    /* Responsive invariato */
+    /* Responsive */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
     @media (max-width:700px){
       .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))}
     }
 
-    /* Utility grid globale */
+    /* Utility grid */
     .grid{display:grid}
-
-    /* ===== MOBILE-ONLY STACKING (desktop invariato) ===== */
-    @media (max-width: 700px){
-      section.container{ padding: 26px 0 !important; }
-      .container{ padding-left:14px; padding-right:14px; }
-
-      .hero-grid{ grid-template-columns: 1fr !important; gap: 18px !important; }
-
-      #servizi .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-      #servizi article.glass{ padding:16px !important; }
-
-      #reel .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-      .ratio.slim{ padding-top: 56% !important; }
-
-      #pacchetti-videoprofessionali .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-      #pacchetti-videoprofessionali .pack-card img{ height: 160px !important; }
-
-      #bio .bio-wrap{ grid-template-columns: 1fr !important; }
-      #bio .bio-media{ min-height: 220px !important; }
-
-      #recensioni #reviewsGrid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-
-      #contatti form.grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-
-      #policy .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-      #footer .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-
-      .btn{ padding:12px 16px !important; }
-    }
   </style>
 
-  <!-- ✅ iOS anti-zoom consolidato e valido (font reali ≥17px su #contatti e modali) -->
-  <style id="ios-nozoom">
-    @supports (-webkit-touch-callout: none) {
-      #contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control,
-      #reviewModal .control, #reviewModal input, #reviewModal select, #reviewModal textarea, #reviewModal button {
-        font-size:17px !important;
-        line-height:1.35 !important;
-        min-height:44px !important;
-        -webkit-text-size-adjust:100% !important;
+  <!-- ✅ Config globale (contatti, sorgenti recensioni) -->
+  <script>
+    window.__CONFIG = {
+      EMAIL: 'andreacolucci@hotmail.it',
+      WA_NUMBER: '393910911719',
+      // Testo precompilato personalizzato per email/WA
+      leadText: function(p){
+        const packLine = p && p.pack ? ("Pacchetto di interesse: " + p.pack + "\n") : "";
+        return (
+          "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+          packLine +
+          "Nome: " + (p?.name || '-') + "\n" +
+          "Email: " + (p?.email || '-') + "\n" +
+          "Telefono/WA: " + (p?.phone || '-') + "\n" +
+          "Servizio: " + (p?.service || '-') + "\n\n" +
+          (p?.message ? ("Messaggio:\n" + p.message) : "Messaggio:\nVorrei un preventivo e una call veloce per allineamento. Tempistiche: entro 2 settimane. Luogo: da definire.\n") +
+          "\n— Inviato dal sito"
+        );
+      },
+      // Fonte recensioni (GVIZ JSON da Google Sheets — ID/ GID dal tuo link)
+      REVIEWS_SRC: (function(){
+        var id  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
+        var gid = '0';
+        return 'https://docs.google.com/spreadsheets/d/' + id + '/gviz/tq?tqx=out:json&gid=' + gid;
+      })(),
+      // mappatura colonne nel tuo Sheet
+      REVIEWS_MAP: ['ts','name','role','stars','text','img']
+    };
+  </script>
+
+  <!-- ✅ iOS anti-zoom CENTRALIZZATO (ZoomGuard) -->
+  <script>
+  (function(){
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    if(!isiOS){ window.__ZoomGuard = {enable:function(){}, disable:function(){}, watch:function(){}}; return; }
+
+    var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    function getVP(){
+      var vp = document.querySelector('meta[name="viewport"]');
+      if(!vp){
+        vp = document.createElement('meta');
+        vp.name = 'viewport'; vp.content = VP_BASE;
+        document.head.appendChild(vp);
+      } else {
+        // rimuovi eventuali duplicati
+        var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
+        for (var i=1;i<metas.length;i++){ metas[i].remove(); }
+        vp.setAttribute('content', VP_BASE);
       }
-      #contatti select, #contatti option,
-      #reviewModal select, #reviewModal option {
-        font-size:17px !important;
-      }
-      #contatti ::placeholder, #reviewModal ::placeholder {
-        font-size:17px !important; opacity:.8;
-      }
+      return vp;
     }
-    html { -webkit-text-size-adjust:100%; }
-  </style>
+    function setContent(c){ getVP().setAttribute('content', c); }
+    function noZoom(){ setContent(VP_BASE + ', maximum-scale=1, user-scalable=no'); }
+    function yesZoom(){ setContent(VP_BASE); }
+
+    function ensure17px(el){
+      try{
+        var fs = parseFloat(getComputedStyle(el).fontSize)||0;
+        if(fs < 17){
+          el.style.fontSize   = '17px';
+          el.style.lineHeight = '1.35';
+          el.style.minHeight  = '44px';
+        }
+      }catch(_){}
+    }
+
+    function attachTo(container){
+      if(!container) return;
+      var sel = 'input, select, textarea, button, .control';
+      container.querySelectorAll(sel).forEach(function(el){
+        ensure17px(el);
+        el.addEventListener('focus', function(){ noZoom(); ensure17px(el); }, {passive:true});
+        el.addEventListener('blur', function(){ yesZoom(); }, {passive:true});
+      });
+    }
+
+    // Osserva quando compaiono #contatti o #reviewModal
+    var watchedIds = new Set(['contatti','reviewModal']);
+    var mo = new MutationObserver(function(){
+      watchedIds.forEach(function(id){
+        var n = document.getElementById(id);
+        if(n && !n.__zgBound){
+          n.__zgBound = true;
+          attachTo(n);
+        }
+      });
+    });
+    mo.observe(document.documentElement, {childList:true, subtree:true});
+
+    // Fallback: focusin globale
+    document.addEventListener('focusin', function(e){
+      var t = e.target;
+      var inForm = t && t.closest && (t.closest('#contatti') || t.closest('#reviewModal'));
+      if(inForm){ noZoom(); ensure17px(t); } else { yesZoom(); }
+    }, {passive:true});
+    window.addEventListener('gesturestart', yesZoom, {passive:true});
+
+    window.__ZoomGuard = { enable:noZoom, disable:yesZoom, watch:attachTo };
+  })();
+  </script>
+
+  <!-- ✅ Loader recensioni da Google Sheets (GVIZ) → window.__reviewsStore + evento "ac:reviews-ready" -->
+  <script>
+  (function(){
+    var CFG = window.__CONFIG || {};
+    var SRC = CFG.REVIEWS_SRC;
+    var MAP = (CFG.REVIEWS_MAP || []).slice(); // ['ts','name','role','stars','text','img']
+
+    function parseGVIZ(text){
+      // GVIZ avvolge un JSON in: google.visualization.Query.setResponse({...});
+      var start = text.indexOf('(');
+      var end   = text.lastIndexOf(')');
+      if(start === -1 || end === -1) throw new Error('GVIZ format unexpected');
+      var json  = JSON.parse(text.slice(start+1, end));
+      var table = json.table;
+      var rows  = (table.rows||[]);
+      var out   = [];
+      rows.forEach(function(r){
+        if(!r || !r.c) return;
+        var obj = {};
+        for(var i=0;i<MAP.length;i++){
+          var cell = r.c[i] && (r.c[i].v != null ? r.c[i].v : r.c[i].f);
+          obj[MAP[i]] = cell == null ? '' : cell;
+        }
+        // normalizza
+        if(obj.stars != null){ obj.stars = Number(String(obj.stars).replace(',','.')) || 5; }
+        if(obj.ts){ var d = new Date(obj.ts); if(!isNaN(d)) obj.ts = d.toISOString(); }
+        out.push(obj);
+      });
+      return out;
+    }
+
+    function fetchReviews(url){
+      return fetch(url, {cache:'no-store'})
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+        .then(parseGVIZ);
+    }
+
+    // store globale
+    var store = {
+      data: [],
+      ready: null,
+      error: null,
+      set: function(arr){ this.data = Array.isArray(arr) ? arr : []; this.error = null; },
+      fail: function(err){ this.error = err || new Error('Unknown'); }
+    };
+    window.__reviewsStore = store;
+
+    // bootstrap
+    store.ready = fetchReviews(SRC).then(function(list){
+      store.set(list);
+      // notifica alle altre parti
+      var ev = new CustomEvent('ac:reviews-ready', { detail:{ count:list.length } });
+      window.dispatchEvent(ev);
+      return list;
+    }).catch(function(err){
+      store.fail(err);
+      // fallire “hard” non blocca il resto del sito; Parte 4 può leggere store.error
+      console.error('[ac.reviews] load error:', err);
+      return [];
+    });
+  })();
+  </script>
+
+  <!-- ✅ i18n BASE + switch lingua senza scroll -->
+  <script>
+    (function(){
+      window.__i18n = window.__i18n || { __dict:{}, apply:null };
+
+      const base = {
+        it:{
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
+          "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
+          "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.reviews":"Recensioni","nav.quote":"Richiedi preventivo",
+          "hero.badge":"Chiavari · Riviera di Levante",
+          "hero.title":"Video che parlano, immagini che restano",
+          "hero.subtitle":"Spot commerciali, wedding e brand/travel con look cinematografico e performance social. Drone 4K certificato. Disponibile in Liguria e ovunque serva.",
+          "cta.watch":"Guarda il Reel","cta.quote":"Richiedi preventivo",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Storyteller visivo",
+          "bio.previewText":"300+ progetti tra spot, videoclip e branded content. 1.2M+ visualizzazioni su YT e IG. Ritmo, atmosfera e narrativa che rimane.",
+          "bio.previewCta":"Scopri i servizi",
+          "stats.projects":"Progetti realizzati","stats.views":"Visualizzazioni totali","stats.drone":"Certificato","stats.camera":"Log / Pro codec"
+        },
+        en:{
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
+          "meta.description":"Filmmaker for brands, weddings and travel. Cinematic look and social performance. Chiavari & Riviera di Levante.",
+          "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.reviews":"Reviews","nav.quote":"Get a quote",
+          "hero.badge":"Chiavari · Riviera di Levante",
+          "hero.title":"Videos that speak, images that stay",
+          "hero.subtitle":"Commercials, wedding and brand/travel with a cinematic look and social performance. Certified 4K drone. Available in Liguria and wherever needed.",
+          "cta.watch":"Watch the Reel","cta.quote":"Request a quote",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Visual storyteller",
+          "bio.previewText":"300+ projects across ads, music and branded content. 1.2M+ views on YT & IG. Rhythm, atmosphere and lasting narrative.",
+          "bio.previewCta":"See services",
+          "stats.projects":"Projects","stats.views":"Total views","stats.drone":"Certified","stats.camera":"Log / Pro codec"
+        },
+        es:{
+          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
+          "meta.description":"Filmmaker para marcas, bodas y travel. Look cinematográfico y rendimiento social. Chiavari y la Riviera de Levante.",
+          "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.reviews":"Reseñas","nav.quote":"Pide presupuesto",
+          "hero.badge":"Chiavari · Riviera de Levante",
+          "hero.title":"Vídeos que hablan, imágenes que perduran",
+          "hero.subtitle":"Comerciales, bodas y brand/travel con look cinematográfico y rendimiento social. Dron 4K certificado. Disponible en Liguria y donde haga falta.",
+          "cta.watch":"Ver el Reel","cta.quote":"Pedir presupuesto",
+          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Narrador visual",
+          "bio.previewText":"300+ proyectos entre spots, videoclips y branded content. 1.2M+ visualizaciones en YT e IG. Ritmo, atmósfera y narrativa que permanece.",
+          "bio.previewCta":"Ver servicios",
+          "stats.projects":"Proyectos","stats.views":"Visualizaciones totales","stats.drone":"Certificado","stats.camera":"Log / Códec Pro"
+        }
+      };
+
+      // Applica traduzioni
+      window.__i18n.apply = function(lang){
+        const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict?.[lang]||{});
+        document.querySelectorAll('[data-i18n]').forEach(el=>{
+          const k = el.getAttribute('data-i18n'); const t = dict[k];
+          if(!t) return;
+          if(el.tagName==='META'){ el.setAttribute('content', t); }
+          else el.textContent = t;
+        });
+        document.title = dict['meta.title'] || document.title;
+        document.documentElement.lang = lang;
+        document.querySelectorAll('.lang [data-lang]').forEach(a=>{
+          a.classList.toggle('active', a.getAttribute('data-lang')===lang);
+        });
+      };
+
+      // Init lingua da URL o localStorage (mantiene lo scroll)
+      const urlLang = new URLSearchParams(location.search).get('lang');
+      const saved   = localStorage.getItem('ac_lang');
+      const start   = urlLang || saved || document.documentElement.lang || 'it';
+      window.__i18n.apply(start);
+
+      // Switch lingua senza refresh/scroll
+      document.addEventListener('click', (e)=>{
+        const a = e.target.closest('.lang [data-lang]'); if(!a) return;
+        e.preventDefault();
+        const lang=a.getAttribute('data-lang')||'it';
+        if(lang === (document.documentElement.lang||'it')) return;
+        localStorage.setItem('ac_lang', lang);
+        const url=new URL(location.href); url.searchParams.set('lang', lang);
+        history.pushState({lang},'',url.toString());
+        window.__i18n.apply(lang);
+      }, {passive:false});
+
+      window.addEventListener('popstate', ()=>{
+        const lang = new URLSearchParams(location.search).get('lang') || 'it';
+        window.__i18n.apply(lang);
+      });
+    })();
+  </script>
 </head>
 <body>
 
@@ -233,112 +436,28 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   <!-- (Segnaposto #contatti per ancoraggio CTA) -->
   <section id="contatti-anchor" style="padding:1px 0"></section>
 
-  <!-- ====== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ====== -->
-  <script>
-    (function(){
-      // Dizionari base (le Parti 2→5 potranno estendere con window.__i18n.__dict)
-      window.__i18n = window.__i18n || { __dict:{}, apply:null };
-
-      const base = {
-        it:{
-          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
-          "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
-          "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.reviews":"Recensioni","nav.quote":"Richiedi preventivo",
-          "hero.badge":"Chiavari · Riviera di Levante",
-          "hero.title":"Video che parlano, immagini che restano",
-          "hero.subtitle":"Spot commerciali, wedding e brand/travel con look cinematografico e performance social. Drone 4K certificato. Disponibile in Liguria e ovunque serva.",
-          "cta.watch":"Guarda il Reel","cta.quote":"Richiedi preventivo",
-          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Storyteller visivo",
-          "bio.previewText":"300+ progetti tra spot, videoclip e branded content. 1.2M+ visualizzazioni su YT e IG. Ritmo, atmosfera e narrativa che rimane.",
-          "bio.previewCta":"Scopri i servizi",
-          "stats.projects":"Progetti realizzati","stats.views":"Visualizzazioni totali","stats.drone":"Certificato","stats.camera":"Log / Pro codec"
-        },
-        en:{
-          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
-          "meta.description":"Filmmaker for brands, weddings and travel. Cinematic look and social performance. Chiavari & Riviera di Levante.",
-          "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.reviews":"Reviews","nav.quote":"Get a quote",
-          "hero.badge":"Chiavari · Riviera di Levante",
-          "hero.title":"Videos that speak, images that stay",
-          "hero.subtitle":"Commercials, wedding and brand/travel with a cinematic look and social performance. Certified 4K drone. Available in Liguria and wherever needed.",
-          "cta.watch":"Watch the Reel","cta.quote":"Request a quote",
-          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Visual storyteller",
-          "bio.previewText":"300+ projects across ads, music and branded content. 1.2M+ views on YT & IG. Rhythm, atmosphere and lasting narrative.",
-          "bio.previewCta":"See services",
-          "stats.projects":"Projects","stats.views":"Total views","stats.drone":"Certified","stats.camera":"Log / Pro codec"
-        },
-        es:{
-          "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
-          "meta.description":"Filmmaker para marcas, bodas y travel. Look cinematográfico y rendimiento social. Chiavari y la Riviera de Levante.",
-          "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.reviews":"Reseñas","nav.quote":"Pide presupuesto",
-          "hero.badge":"Chiavari · Riviera de Levante",
-          "hero.title":"Vídeos que hablan, imágenes que perduran",
-          "hero.subtitle":"Comerciales, bodas y brand/travel con look cinematográfico y rendimiento social. Dron 4K certificado. Disponible en Liguria y donde haga falta.",
-          "cta.watch":"Ver el Reel","cta.quote":"Pedir presupuesto",
-          "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Narrador visual",
-          "bio.previewText":"300+ proyectos entre spots, videoclips y branded content. 1.2M+ visualizaciones en YT e IG. Ritmo, atmósfera y narrativa que permanece.",
-          "bio.previewCta":"Ver servicios",
-          "stats.projects":"Proyectos","stats.views":"Visualizaciones totales","stats.drone":"Certificado","stats.camera":"Log / Códec Pro"
-        }
-      };
-
-      // Applica traduzioni (senza toccare layout/markup)
-      window.__i18n.apply = function(lang){
-        const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict?.[lang]||{});
-        document.querySelectorAll('[data-i18n]').forEach(el=>{
-          const k = el.getAttribute('data-i18n'); const t = dict[k];
-          if(!t) return;
-          if(el.tagName==='META'){ el.setAttribute('content', t); }
-          else el.textContent = t;
-        });
-        document.title = dict['meta.title'] || document.title;
-        document.documentElement.lang = lang;
-        document.querySelectorAll('.lang [data-lang]').forEach(a=>{
-          a.classList.toggle('active', a.getAttribute('data-lang')===lang);
-        });
-      };
-
-      // Init lingua da URL o localStorage (mantiene lo scroll)
-      const urlLang = new URLSearchParams(location.search).get('lang');
-      const saved   = localStorage.getItem('ac_lang');
-      const start   = urlLang || saved || document.documentElement.lang || 'it';
-      window.__i18n.apply(start);
-
-      // Switch lingua senza refresh/scroll (preserva posizione)
-      document.querySelectorAll('.lang [data-lang]').forEach(a=>{
-        a.addEventListener('click', (e)=>{
-          e.preventDefault();
-          const lang=a.getAttribute('data-lang')||'it';
-          if(lang === (document.documentElement.lang||'it')) return;
-          localStorage.setItem('ac_lang', lang);
-          const url=new URL(location.href); url.searchParams.set('lang', lang);
-          history.pushState({lang},'',url.toString());
-          window.__i18n.apply(lang);
-        }, {passive:false});
-      });
-      window.addEventListener('popstate', ()=>{
-        const lang = new URLSearchParams(location.search).get('lang') || 'it';
-        window.__i18n.apply(lang);
-      });
-    })();
-  </script>
-
-  <!-- ===== CTA universale → #contatti (smooth scroll) ===== -->
+  <!-- ===== i18n: switch lingua senza scroll + CTA universale → #contatti ===== -->
   <script>
     (function(){
       function toContacts(e){
         var t = document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault();
+        e && e.preventDefault && e.preventDefault();
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
       }
-      // Cattura TUTTI i click su link che devono portare ai contatti
+
+      // Reindirizza CTA "preventivo" ovunque compaia (testo localizzato)
       document.addEventListener('click', function(e){
         var a = e.target.closest('a'); if(!a) return;
-        if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
-        var txt = (a.textContent || '').trim().toLowerCase();
-        if(['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos'].includes(txt)){
+        var href = a.getAttribute('href')||'';
+        if(href === '#contatti'){
+          toContacts(e); return;
+        }
+        var txt = (a.textContent||'').trim().toLowerCase();
+        var dict = ['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos','preventivo'];
+        if(dict.includes(txt)){
           a.setAttribute('href','#contatti');
-          return toContacts(e);
+          toContacts(e);
         }
       }, {passive:false});
     })();
@@ -591,7 +710,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
       frames.forEach(function(fr){ io.observe(fr); });
     }
 
-    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll)
+    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll, senza cambiare URL)
     document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
       a.addEventListener('click', function(e){
         var t = document.querySelector('#contatti'); if(!t) return;
@@ -690,10 +809,10 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 <!-- FINE PARTE 2 / 5 -->
 <!-- ==========================
 PART 3 / 5 — PACCHETTI • CTA • BIO
-(look IDENTICO; fix funzionali: no-404 pack → scroll #contatti + prefill messaggio, WhatsApp con pack selezionato, 3a foto bio solo mobile)
+(look IDENTICO; fix funzionali: prefill pack → #contatti, WhatsApp con pack selezionato, prezzi +IVA, 3a foto bio solo mobile)
 ========================== -->
 
-<!-- ====== PACCHETTI VIDEO COMMERCIALI (unica sezione) ====== -->
+<!-- ====== PACCHETTI VIDEO COMMERCIALI ====== -->
 <section id="pacchetti-videoprofessionali" class="container"
          style="padding:28px 0 12px;
                 background-image:
@@ -716,7 +835,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <div style="position:absolute;left:12px;right:12px;bottom:10px">
           <h3 class="headline h3" style="margin:0 0 4px" data-i18n="packs.basic.title">Basic</h3>
           <p class="soft" style="margin:0 0 8px" data-i18n="packs.basic.desc">Video breve (&lt;1 min), riprese e montaggio base.</p>
-          <div class="price" data-i18n="packs.basic.price">€399</div>
+          <div class="price"><span data-i18n="packs.basic.price">€399</span> <small class="soft" data-i18n="packs.vat">+ IVA</small></div>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
@@ -725,7 +844,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <li>Color base</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
@@ -739,9 +858,9 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
           <div>
             <h3 class="headline h3" style="margin:0 0 4px" data-i18n="packs.standard.title">Standard</h3>
             <p class="soft" style="margin:0 0 8px" data-i18n="packs.standard.desc">Promo (&lt;3 min), montaggio avanzato e color grading.</p>
-            <div class="price" data-i18n="packs.standard.price">€599</div>
+            <div class="price"><span data-i18n="packs.standard.price">€599</span> <small class="soft" data-i18n="packs.vat">+ IVA</small></div>
           </div>
-          <span class="tag" aria-label="Consigliato">Consigliato</span>
+          <span class="tag" aria-label="Consigliato" data-i18n="packs.recommended">Consigliato</span>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
@@ -750,7 +869,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <li>Color grading + sound design</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn fill">Seleziona</a>
+        <a href="#contatti" class="btn fill" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
@@ -763,7 +882,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <div style="position:absolute;left:12px;right:12px;bottom:10px">
           <h3 class="headline h3" style="margin:0 0 4px" data-i18n="packs.premium.title">Premium</h3>
           <p class="soft" style="margin:0 0 8px" data-i18n="packs.premium.desc">Cinematografico (&gt;3 min), storytelling + drone.</p>
-          <div class="price" data-i18n="packs.premium.price">€999</div>
+          <div class="price"><span data-i18n="packs.premium.price">€999</span> <small class="soft" data-i18n="packs.vat">+ IVA</small></div>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
@@ -772,7 +891,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <li>Consegne verticali continuo</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
   </div>
@@ -788,7 +907,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <div style="position:absolute;left:12px;right:12px;bottom:10px">
           <h3 class="headline h3" style="margin:0 0 4px" data-i18n="packs.elite.title">Elite Project</h3>
           <p class="soft" style="margin:0 0 8px" data-i18n="packs.elite.desc">Produzione multi-giorno, multi-location, regia.</p>
-          <div class="price" data-i18n="packs.elite.price">€1.999</div>
+          <div class="price"><span data-i18n="packs.elite.price">€1.999</span> <small class="soft" data-i18n="packs.vat">+ IVA</small></div>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
@@ -797,7 +916,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <li>Consegne multi-piattaforma</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
@@ -810,7 +929,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <div style="position:absolute;left:12px;right:12px;bottom:10px">
           <h3 class="headline h3" style="margin:0 0 4px" data-i18n="packs.fullstory.title">Full Storytelling</h3>
           <p class="soft" style="margin:0 0 8px" data-i18n="packs.fullstory.desc">Piano completo: main video + short form continuativa.</p>
-          <div class="price" data-i18n="packs.fullstory.price">€3.500</div>
+          <div class="price"><span data-i18n="packs.fullstory.price">€3.500</span> <small class="soft" data-i18n="packs.vat">+ IVA</small></div>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
@@ -819,7 +938,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         <li>Reportistica risultati</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
   </div>
@@ -837,45 +956,75 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 </section>
 
 <script>
-  // Click su card/CTA → scroll a #contatti + prefill del pacchetto (no 404)
+  // Click su card/CTA → scroll a #contatti + prefill del pacchetto (+ WA)
   (function(){
-    function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
     var lastPack = null;
 
-    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"], #pacchetti-videoprofessionali .pack-card').forEach(function(el){
-      el.addEventListener('click', function(e){
-        var card = el.closest('.pack-card'); if(!card) return;
+    function smoothToContacts(){
+      var t=document.querySelector('#contatti'); if(!t) return;
+      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+    }
+
+    function prefill(pack){
+      lastPack = pack || lastPack;
+      var qmsg = document.getElementById('q_message');
+      if(qmsg){
+        var add = 'Pacchetto di interesse: ' + (lastPack || '');
+        var current = (qmsg.value||'').trim();
+        if(!current.includes(add)){
+          qmsg.value = current ? (current + '\n' + add) : add;
+        }
+      }
+      // Aggiorna WhatsApp CTA se presente
+      var wa = document.getElementById('ctaWhatsApp');
+      var cfg = window.__CONFIG || {};
+      var waNumber = (cfg.WA_NUMBER || '').replace(/[^\d]/g,'');
+      if(wa && waNumber){
+        var p = {
+          pack: lastPack || '',
+          name: (document.getElementById('q_name')||{}).value || '',
+          email: (document.getElementById('q_email')||{}).value || '',
+          phone: (document.getElementById('q_phone')||{}).value || '',
+          service: (function(){
+            var el=document.getElementById('q_service');
+            return el && el.value ? el.options[el.selectedIndex].text : '';
+          })(),
+          message: (document.getElementById('q_message')||{}).value || ''
+        };
+        var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : ''));
+        wa.href = 'https://wa.me/'+waNumber+'?text='+text;
+      }
+    }
+
+    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        var card = a.closest('.pack-card'); if(!card) return;
         var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
-        lastPack = pack;
-
-        // Prefill nel form se presente
-        var qmsg = document.getElementById('q_message');
-        if(qmsg){
-          var base = getVal('q_message');
-          var add = 'Pacchetto di interesse: ' + pack;
-          if(!base.includes(add)){ qmsg.value = (base ? (base+'\n') : '') + add; }
-        }
-
-        // Scroll a #contatti
-        var t=document.querySelector('#contatti');
-        if(t){ e.preventDefault(); 
-          var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-        }
+        e.preventDefault();
+        prefill(pack);
+        smoothToContacts();
       }, {passive:false});
     });
 
-    // CTA WhatsApp in questa parte → include pack selezionato
-    var wa = document.getElementById('ctaWhatsApp');
-    var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? (''+WA_NUMBER).replace(/[^\d]/g,'') : '393910911719';
-    if(wa){
-      function updateWA(){
-        var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
-        if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
-        wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
-      }
-      updateWA();
-      wa.addEventListener('click', updateWA);
+    // Permetti anche click sull'intera card
+    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card').forEach(function(card){
+      card.addEventListener('click', function(e){
+        var isLink = e.target.closest('a');
+        if(isLink) return; // già gestito sopra
+        var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+        e.preventDefault && e.preventDefault();
+        prefill(pack);
+        smoothToContacts();
+      }, {passive:false});
+    });
+
+    // Aggiorna il bottone WA della CTA quando cliccato (anche senza pack)
+    var waBtn = document.getElementById('ctaWhatsApp');
+    if(waBtn){
+      waBtn.addEventListener('click', function(){
+        prefill(lastPack||'');
+      });
     }
   })();
 </script>
@@ -963,18 +1112,26 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       it:{
         "packs.title":"Pacchetti Video Commerciali",
         "packs.cta":"Richiedi preventivo",
+        "packs.select":"Seleziona",
+        "packs.vat":"+ IVA",
+        "packs.recommended":"Consigliato",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Video breve (<1 min), riprese e montaggio base.",
         "packs.basic.price":"€399",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), montaggio avanzato e color grading.",
         "packs.standard.price":"€599",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematografico (>3 min), storytelling + drone.",
         "packs.premium.price":"€999",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Produzione multi-giorno, multi-location, regia.",
         "packs.elite.price":"€1.999",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Piano completo: main video + short form continuativa.",
         "packs.fullstory.price":"€3.500",
@@ -994,18 +1151,26 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       en:{
         "packs.title":"Commercial Video Packages",
         "packs.cta":"Get a quote",
+        "packs.select":"Select",
+        "packs.vat":"+ VAT",
+        "packs.recommended":"Recommended",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Short video (<1 min), basic shoot and edit.",
         "packs.basic.price":"€399",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), advanced editing and color grading.",
         "packs.standard.price":"€599",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematic (>3 min), storytelling + drone.",
         "packs.premium.price":"€999",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Multi-day, multi-location production, direction.",
         "packs.elite.price":"€1,999",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Complete plan: main video + ongoing short-form.",
         "packs.fullstory.price":"€3,500",
@@ -1025,18 +1190,26 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       es:{
         "packs.title":"Paquetes de vídeo comercial",
         "packs.cta":"Pide presupuesto",
+        "packs.select":"Seleccionar",
+        "packs.vat":"+ IVA",
+        "packs.recommended":"Recomendado",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Vídeo corto (<1 min), rodaje y edición básica.",
         "packs.basic.price":"€399",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), edición avanzada y color.",
         "packs.standard.price":"€599",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematográfico (>3 min), storytelling + dron.",
         "packs.premium.price":"€999",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Producción multi–día, multi–localización, dirección.",
         "packs.elite.price":"€1.999",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Plan completo: vídeo principal + short–form continuo.",
         "packs.fullstory.price":"€3.500",
@@ -1059,7 +1232,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 <!-- FINE PARTE 3 / 5 -->
 <!-- ==========================
 PART 4 / 5 — RECENSIONI • CONTATTI
-(look IDENTICO; fix funzionali: iOS anti-zoom SOLO per #contatti e #reviewModal, smooth scroll, mail/WA builder)
+(Reviews: Google Sheet live + fallback • Modale nuova recensione • Contatti: Email/WhatsApp, anti-zoom iOS solo qui)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1070,49 +1243,37 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- 3 card statiche -->
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <!-- 3 card statiche seed (visibili subito; poi si aggiungono quelle del foglio) -->
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <strong>Giulia R. — Hotel Manager</strong>
           <span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”</p>
       </figcaption>
     </figure>
 
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <strong>Marco D. — Boat Charter</strong>
           <span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”</p>
       </figcaption>
     </figure>
 
-    <figure class="glass review"
-            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy"
-           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <strong>Sara & Luca — Wedding</strong>
           <span class="stars" aria-label="4 su 5">★★★★☆</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">
-          “Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”
-        </p>
+        <p class="soft" style="margin:6px 0 0">“Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”</p>
       </figcaption>
     </figure>
   </div>
@@ -1122,8 +1283,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </div>
 
   <!-- Modal nuova recensione -->
-  <dialog id="reviewModal"
-          style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
+  <dialog id="reviewModal" style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
     <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
@@ -1199,7 +1359,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
     .field .control{
       width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
-      border-radius:10px;color:#fff;padding:10px 12px;outline:none
+      border-radius:10px;color:#fff;padding:10px 12px;outline:none;font-size:17px;line-height:1.35;min-height:44px
     }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
     @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
@@ -1251,570 +1411,460 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </div>
 
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
-  <style id="ios-nozoom">
-    #contatti input,
-    #contatti select,
-    #contatti textarea,
-    #contatti button,
+  <!-- Anti-zoom iOS SOLO per #contatti -->
+  <style>
     #contatti .control,
-    #reviewModal .control,
-    #reviewModal input,
-    #reviewModal select,
-    #reviewModal textarea,
-    #reviewModal button{
-      font-size:16px !important;
-      line-height:1.35 !important;
-      min-height:44px !important;
+    #reviewModal .control{
+      font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
       -webkit-text-size-adjust:100% !important;
     }
     #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option{
-      font-size:16px !important;
-    }
-    #contatti ::placeholder,
-    #reviewModal ::placeholder{
-      font-size:16px !important;
-      opacity:.8;
-    }
+    #reviewModal select, #reviewModal option{ font-size:17px !important; }
+    #contatti ::placeholder, #reviewModal ::placeholder{ font-size:17px !important; opacity:.85; }
   </style>
 </section>
 
-<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
+<!-- ===== SCRIPT: Reviews loader + Contatti (Email/WA) + iOS Anti-Zoom cooperativo ===== -->
 <script>
 (function(){
-  /* ====== CONTATTI: Email / WhatsApp ====== */
-  var WA_NUMBER = '393910911719'; // solo cifre
+  /* ========== CONFIG (Sheet + WA + testo lead) ========== */
+  var SHEET_ID  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
+  var SHEET_GID = '0';
+  var SHEET_URLS = [
+    'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/export?format=csv&gid='+SHEET_GID,
+    'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid='+SHEET_GID
+  ];
 
-  function val(id){
-    var el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
+  // WhatsApp: numero senza spazi/simboli (usa quello ufficiale del sito)
+  var WA_NUMBER = '393910911719';
+
+  // Testo precompilato (personalizzato) per Email/WhatsApp
+  function buildLeadText(p){
+    var lines = [
+      'Ciao Andrea! 👋',
+      'Ti scrivo dal sito. Vorrei un preventivo. 📽️',
+      p.pack ? ('Pacchetto: ' + p.pack) : null,
+      '— Dati —',
+      'Nome: ' + (p.name || '-'),
+      'Email: ' + (p.email || '-'),
+      'Telefono/WA: ' + (p.phone || '-'),
+      'Servizio: ' + (p.service || '-'),
+      p.message ? ('Messaggio:\n' + p.message) : null
+    ].filter(Boolean);
+    return lines.join('\n');
   }
 
-  function buildMessage(){
-    var name = val('q_name');
-    var email = val('q_email');
-    var phone = val('q_phone');
-    var servEl = document.getElementById('q_service');
-    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-    var msg = val('q_message');
-    return (
-      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
-      "Nome: " + (name || '-') + "\n" +
-      "Email: " + (email || '-') + "\n" +
-      "Telefono/WA: " + (phone || '-') + "\n" +
-      "Servizio: " + (service || '-') + "\n\n" +
-      (msg ? ("Messaggio:\n" + msg) : "")
-    );
-  }
+  // Espone in window per riuso da altre parti
+  window.__CONFIG = window.__CONFIG || {};
+  window.__CONFIG.WA_NUMBER = WA_NUMBER;
+  window.__CONFIG.leadText  = buildLeadText;
 
-  var mailBtn = document.getElementById('sendMail');
-  if(mailBtn){
-    mailBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      var body = encodeURIComponent(buildMessage());
-      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-    }, {passive:false});
-  }
-
-  var waBtn = document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var txt = encodeURIComponent(buildMessage());
-      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-    });
-  }
-
-  var quickWA = document.getElementById('quickWA');
-  if(quickWA){
-    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-  }
-
-  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
-
-  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  /* ========== REVIEWS: utilità ========== */
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-  function toDataUrlThumb(file, cb){
-    try{
-      const fr=new FileReader();
-      fr.onload=function(){
-        const img=new Image();
-        img.onload=function(){
-          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
-          c.width=size; c.height=size;
-          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
-          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-          cb(null, c.toDataURL('image/jpeg', .85));
-        };
-        img.src=fr.result;
-      };
-      fr.readAsDataURL(file);
-    }catch(e){ cb(e); }
-  }
-  function appendReviewCard(rec){
-    if(!grid || !rec) return;
-    const fig=document.createElement('figure');
+  function appendReviewCard(rec, grid){
+    var fig=document.createElement('figure');
     fig.className='glass review';
     fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    const img=document.createElement('img');
+    var img=document.createElement('img');
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
     img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
-      ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    const cap=document.createElement('figcaption');
-    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+              (rec.img && rec.img.trim() ? rec.img.trim() :
+              ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
+    var cap=document.createElement('figcaption');
+    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
     top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
     fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
+    grid.appendChild(fig);
   }
-  function updateAverage(baseStars, extras){
-    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
-    if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
+
+  function updateAggregate(avgEl, jsonLdEl, baseStars, extraRecs){
+    var arr = (baseStars||[]).concat((extraRecs||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    if(!arr.length) return;
+    var avg = Math.round((arr.reduce((a,b)=>a+b,0)/arr.length)*10)/10;
+    if(avgEl) avgEl.textContent = (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
+                                   document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
+                                   'Valutazione media '+avg+'/5');
+    if(jsonLdEl){
       try{
-        const obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
+        var obj = JSON.parse(jsonLdEl.textContent);
+        obj.aggregateRating.ratingValue = String(avg);
+        obj.aggregateRating.reviewCount = String(arr.length);
+        jsonLdEl.textContent = JSON.stringify(obj);
       }catch(_){}
     }
   }
 
-  // Modal open/close
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  function closeModal(){
-    try{ form && form.reset(); }catch(_){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-  }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', (e)=>{
-    const rect = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-    if(!inside) closeModal();
-  });
-
-  // Preview immagine recensione
-  fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none';
-      previewPh.style.display='block';
-      return;
-    }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data;
-      preview.style.display='block';
-      previewPh.style.display='none';
-    });
-  });
-
-  // Salvataggio recensione (solo frontend — identico look)
-  function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-    if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
-  }
-  function handleSave(e){
-    if(e) e.preventDefault();
-    const rec = buildRecord();
-    if(!rec) return;
-    appendReviewCard(rec);
-    closeModal();
-    // media (finte 3 base: 5,5,4)
-    updateAverage([5,5,4], [rec]);
-  }
-  form && form.addEventListener('submit', handleSave, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
-
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
-  <style id="ios-nozoom">
-    #contatti input,
-    #contatti select,
-    #contatti textarea,
-    #contatti button,
-    #contatti .control,
-    #reviewModal .control,
-    #reviewModal input,
-    #reviewModal select,
-    #reviewModal textarea,
-    #reviewModal button{
-      font-size:16px !important;
-      line-height:1.35 !important;
-      min-height:44px !important;
-      -webkit-text-size-adjust:100% !important;
-    }
-    #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option{
-      font-size:16px !important;
-    }
-    #contatti ::placeholder,
-    #reviewModal ::placeholder{
-      font-size:16px !important;
-      opacity:.8;
-    }
-  </style>
-</section>
-
-<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
-<script>
-(function(){
-  /* ====== CONTATTI: Email / WhatsApp ====== */
-  var WA_NUMBER = '393910911719'; // solo cifre
-
-  function val(id){
-    var el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
-  }
-
-  function buildMessage(){
-    var name = val('q_name');
-    var email = val('q_email');
-    var phone = val('q_phone');
-    var servEl = document.getElementById('q_service');
-    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-    var msg = val('q_message');
-    return (
-      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
-      "Nome: " + (name || '-') + "\n" +
-      "Email: " + (email || '-') + "\n" +
-      "Telefono/WA: " + (phone || '-') + "\n" +
-      "Servizio: " + (service || '-') + "\n\n" +
-      (msg ? ("Messaggio:\n" + msg) : "")
-    );
-  }
-
-  var mailBtn = document.getElementById('sendMail');
-  if(mailBtn){
-    mailBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      var body = encodeURIComponent(buildMessage());
-      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-    }, {passive:false});
-  }
-
-  var waBtn = document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var txt = encodeURIComponent(buildMessage());
-      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-    });
-  }
-
-  var quickWA = document.getElementById('quickWA');
-  if(quickWA){
-    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-  }
-
-  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
-
-  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-  function toDataUrlThumb(file, cb){
-    try{
-      const fr=new FileReader();
-      fr.onload=function(){
-        const img=new Image();
-        img.onload=function(){
-          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
-          c.width=size; c.height=size;
-          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
-          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-          cb(null, c.toDataURL('image/jpeg', .85));
-        };
-        img.src=fr.result;
-      };
-      fr.readAsDataURL(file);
-    }catch(e){ cb(e); }
-  }
-  function appendReviewCard(rec){
-    if(!grid || !rec) return;
-    const fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    const img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
-      ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    const cap=document.createElement('figcaption');
-    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
-  }
-  function updateAverage(baseStars, extras){
-    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
-    if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{
-        const obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
-      }catch(_){}
-    }
-  }
-
-  // Modal open/close
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  function closeModal(){
-    try{ form && form.reset(); }catch(_){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-  }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', (e)=>{
-    const rect = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-    if(!inside) closeModal();
-  });
-
-  // Preview immagine recensione
-  fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none';
-      previewPh.style.display='block';
-      return;
-    }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data;
-      preview.style.display='block';
-      previewPh.style.display='none';
-    });
-  });
-
-  // Salvataggio recensione (solo frontend — identico look)
-  function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-    if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
-  }
-  function handleSave(e){
-    if(e) e.preventDefault();
-    const rec = buildRecord();
-    if(!rec) return;
-    appendReviewCard(rec);
-    closeModal();
-    // media (finte 3 base: 5,5,4)
-    updateAverage([5,5,4], [rec]);
-  }
-  form && form.addEventListener('submit', handleSave, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
-
-  /* ====== iOS anti-zoom: cooperazione con Parte 1 ======
-     Non tocchiamo il meta viewport qui (già normalizzato in Parte 1).
-     Garantiamo però font >=16 su controlli (#ios-nozoom stylesheet) e,
-     se Safari provasse comunque a zoomare, Parte 1 intercetta focus e forza no-zoom. */
-})();
-</script>
-<!-- ===== HOTFIX iOS anti-zoom per #contatti (pre-focus) ===== -->
-<script>
-(function(){
-  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  if(!isiOS) return;
-
-  // 1) Assicura un solo meta viewport "base"
-  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
-  (function normalize(){
-    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
-    if(!metas.length){
-      var m = document.createElement('meta');
-      m.name = 'viewport'; m.content = VP_BASE;
-      document.head.appendChild(m);
-    } else {
-      for(var i=1;i<metas.length;i++) metas[i].remove();
-      metas[0].setAttribute('content', VP_BASE);
-    }
-  })();
-  var vp = document.querySelector('meta[name="viewport"]');
-  function noZoom(){
-    if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no');
-  }
-  function yesZoom(){
-    if(vp) vp.setAttribute('content', VP_BASE);
-  }
-  function ensure17px(el){
-    try{
-      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
-      if(fs < 17){
-        el.style.fontSize   = '17px';
-        el.style.lineHeight = '1.35';
-        el.style.minHeight  = '44px';
+  // CSV parser robusto (virgolette/delimitatori)
+  function parseCSV(text){
+    var rows=[], cur=[], i=0, c, q=false, val='';
+    while(i<text.length){
+      c=text[i++];
+      if(q){
+        if(c==='"' && text[i]==='"'){ val+='"'; i++; }
+        else if(c==='"'){ q=false; }
+        else{ val+=c; }
+      }else{
+        if(c==='"' ){ q=true; }
+        else if(c===','){ cur.push(val); val=''; }
+        else if(c==='\n' || c==='\r'){
+          if(val!=='' || cur.length){ cur.push(val); rows.push(cur); cur=[]; val=''; }
+          if(c==='\r' && text[i]==='\n') i++;
+        }else{ val+=c; }
       }
-    }catch(_){}
-  }
-  function isFormCtrl(el){
-    return el && el.closest && el.closest('#contatti') &&
-           /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+    }
+    if(val!=='' || cur.length) cur.push(val), rows.push(cur);
+    return rows;
   }
 
-  // 2) PRIMA del focus: blocca zoom (touchstart/pointerdown in CAPTURE)
-  var opts = {capture:true, passive:true};
-  document.addEventListener('touchstart', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, opts);
-  document.addEventListener('pointerdown', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, opts);
+  async function fetchCSV(url){
+    var r = await fetch(url, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var t = await r.text();
+    return t;
+  }
 
-  // 3) Durante l’uso: mantieni noZoom; al blur ripristina
-  document.addEventListener('focusin', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, {passive:true});
-  document.addEventListener('blur', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ setTimeout(yesZoom, 50); }
-  }, true);
+  async function loadReviews(){
+    var grid = document.getElementById('reviewsGrid');
+    var avgEl= document.getElementById('avgRatingText');
+    var ld   = document.getElementById('reviewsJsonLd');
+    if(!grid) return;
 
-  // 4) Failsafe: se il focus esce dal form, riabilita zoom
-  document.addEventListener('focusin', function(e){
-    if(!(e.target && e.target.closest('#contatti'))) yesZoom();
-  }, {passive:true});
+    var loaded = [];
+    var tried  = [];
+    for(var u of SHEET_URLS){
+      try{
+        tried.push(u);
+        var csv = await fetchCSV(u);
+        var rows = parseCSV(csv);
+        if(!rows.length) continue;
 
-  // 5) Ulteriore failsafe: se l’utente fa una gesture, consenti zoom
-  window.addEventListener('gesturestart', yesZoom, {passive:true});
+        // Prima riga: header atteso -> ts,name,role,stars,text,img
+        var head = rows[0].map(s=>s.trim().toLowerCase());
+        var idx  = {
+          ts: head.indexOf('ts'),
+          name: head.indexOf('name'),
+          role: head.indexOf('role'),
+          stars: head.indexOf('stars'),
+          text: head.indexOf('text'),
+          img: head.indexOf('img')
+        };
+        rows.slice(1).forEach(function(r){
+          if(!r || !r.length) return;
+          var rec = {
+            ts:   idx.ts>=0 ? r[idx.ts] : '',
+            name: idx.name>=0 ? r[idx.name] : '',
+            role: idx.role>=0 ? r[idx.role] : '',
+            stars: idx.stars>=0 ? parseInt(r[idx.stars]||'5',10) : 5,
+            text: idx.text>=0 ? r[idx.text] : '',
+            img:  idx.img>=0 ? r[idx.img] : ''
+          };
+          if(rec.name || rec.text) loaded.push(rec);
+        });
+        break; // se uno va bene, stop
+      }catch(e){ /* prova il prossimo */ }
+    }
+
+    // Fallback: prova da cache locale (se abbiamo salvato in passato)
+    if(!loaded.length){
+      try{
+        var cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
+        if(Array.isArray(cache) && cache.length) loaded = cache;
+      }catch(_){}
+    }else{
+      // salva cache
+      try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
+    }
+
+    // Appendi tutte le carregate (dopo i 3 seed)
+    loaded.forEach(function(r){ appendReviewCard(r, grid); });
+
+    // Aggiorna media (seed: 5,5,4)
+    updateAggregate(avgEl, ld, [5,5,4], loaded.concat(__REVIEWS_NEW));
+
+    // fine
+  }
+
+  /* ========== CONTATTI: Email + WhatsApp ========== */
+  function val(id){ var el = document.getElementById(id); return el ? (el.value||'').trim() : ''; }
+  function buildPayload(){
+    return {
+      pack:   (window.__LAST_PACK || ''),
+      name:   val('q_name'),
+      email:  val('q_email'),
+      phone:  val('q_phone'),
+      service:(function(){ var el=document.getElementById('q_service'); return el&&el.value? el.options[el.selectedIndex].text : ''; })(),
+      message:val('q_message')
+    };
+  }
+  function buildMailBody(p){
+    return (
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      (p.pack ? ("Pacchetto: " + p.pack + "\n\n") : "") +
+      "Nome: " + (p.name || '-') + "\n" +
+      "Email: " + (p.email || '-') + "\n" +
+      "Telefono/WA: " + (p.phone || '-') + "\n" +
+      "Servizio: " + (p.service || '-') + "\n\n" +
+      (p.message ? ("Messaggio:\n" + p.message) : "")
+    );
+  }
+
+  var mailBtn = document.getElementById('sendMail');
+  if(mailBtn){
+    mailBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      var p = buildPayload();
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      var body    = encodeURIComponent(buildMailBody(p));
+      location.href = "mailto:andreacolucci@hotmail.it?subject="+subject+"&body="+body;
+    }, {passive:false});
+  }
+
+  var waBtn = document.getElementById('sendWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      var p = buildPayload();
+      var text = encodeURIComponent(buildLeadText(p));
+      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + text;
+    });
+  }
+
+  // Esporta quickWA se presente altrove
+  var quickWA = document.getElementById('quickWA');
+  if(quickWA){
+    var text = encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
+    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + text;
+  }
+
+  /* ========== MODALE RECENSIONI: preview + salvataggio (frontend) ========== */
+  var grid     = document.getElementById('reviewsGrid');
+  var avgText  = document.getElementById('avgRatingText');
+  var LD       = document.getElementById('reviewsJsonLd');
+  var form     = document.getElementById('reviewForm');
+  var dialog   = document.getElementById('reviewModal');
+  var openBtn  = document.getElementById('openReview');
+  var closeBtn = document.getElementById('closeReview');
+  var cancelBtn= document.getElementById('cancelReview');
+  var saveBtn  = document.getElementById('saveReview');
+  var fileIn   = document.getElementById('r_img');
+  var preview  = document.getElementById('r_preview');
+  var previewPh= document.getElementById('r_preview_ph');
+  window.__REVIEWS_NEW = window.__REVIEWS_NEW || [];
+
+  function toDataUrlThumb(file, cb){
+    try{
+      var fr=new FileReader();
+      fr.onload=function(){
+        var img=new Image();
+        img.onload=function(){
+          var size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          c.width=size; c.height=size;
+          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          cb(null, c.toDataURL('image/jpeg', .85));
+        };
+        img.src=fr.result;
+      };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(e); }
+  }
+
+  fileIn && fileIn.addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
+      preview.style.display='none'; previewPh.style.display='block'; return;
+    }
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
+    });
+  });
+
+  function buildRecord(){
+    var name = (document.getElementById('r_name')||{}).value || '';
+    var role = (document.getElementById('r_role')||{}).value || '';
+    var stars= parseInt((document.getElementById('r_stars')||{}).value||'5',10);
+    var text = (document.getElementById('r_text')||{}).value || '';
+    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return null;
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+  }
+
+  function resetModal(){
+    try{ form && form.reset(); }catch(_){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+  }
+
+  function closeModal(){
+    resetModal();
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', function(e){
+    var r = dialog.getBoundingClientRect();
+    var inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+    if(!inside) closeModal();
+  });
+
+  function handleSave(e){
+    if(e) e.preventDefault();
+    var rec = buildRecord();
+    if(!rec) return;
+    // aggiorna UI
+    appendReviewCard(rec, grid);
+    window.__REVIEWS_NEW.push(rec);
+    updateAggregate(avgText, LD, [5,5,4], __REVIEWS_NEW);
+    closeModal();
+  }
+  form && form.addEventListener('submit', handleSave, {passive:false});
+  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
+
+  /* ========== iOS anti-zoom SOLO su #contatti (cooperativo con Parte 1) ========== */
+  (function(){
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    if(!isiOS) return;
+    var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    var vp = document.querySelector('meta[name="viewport"]');
+    function ensureVP(){ if(!vp){ vp=document.createElement('meta'); vp.name='viewport'; vp.content=VP_BASE; document.head.appendChild(vp); } }
+    function noZoom(){ ensureVP(); vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
+    function yesZoom(){ ensureVP(); vp.setAttribute('content', VP_BASE); }
+    function isCtrl(el){ return el && el.closest && el.closest('#contatti') && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(el.tagName); }
+    document.addEventListener('focusin', function(e){ if(isCtrl(e.target)){ noZoom(); } }, {passive:true});
+    document.addEventListener('blur', function(e){ if(isCtrl(e.target)){ setTimeout(yesZoom,60); } }, true);
+    window.addEventListener('gesturestart', yesZoom, {passive:true});
+  })();
+
+  // Carica le recensioni dal Foglio
+  loadReviews();
 })();
 </script>
-<!-- ===== /HOTFIX ===== -->
 
+<!-- ===== i18n EXTEND (Reviews + Contatti) ===== -->
+<script>
+(function(){
+  function extend(extra){
+    window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+    var D = window.__i18n.__dict = window.__i18n.__dict || {};
+    Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+    var lang = document.documentElement.lang || 'it';
+    if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
+  }
+
+  extend({
+    it:{
+      "reviews.title":"Cosa dicono di me",
+      "reviews.subtitle":"Valutazione media 4.9/5",
+      "reviews.cta":"Lascia una recensione",
+      "reviews.newTitle":"La tua esperienza",
+      "reviews.name":"Nome",
+      "reviews.role":"Ruolo",
+      "reviews.rating":"Valutazione",
+      "reviews.photo":"Foto (opzionale)",
+      "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
+      "reviews.photoPreview":"Anteprima miniatura",
+      "reviews.text":"Recensione",
+      "reviews.save":"Pubblica",
+      "common.cancel":"Annulla",
+
+      "contact.title":"Richiedi un preventivo",
+      "contact.subtitle":"Brief gratuito • risposta in giornata",
+      "contact.name":"Nome e Cognome",
+      "contact.email":"Email",
+      "contact.phone":"Telefono / WhatsApp",
+      "contact.service":"Servizio",
+      "contact.service.select":"Seleziona…",
+      "contact.service.commerciali":"Commerciali",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Barche / Charter",
+      "contact.service.other":"Altro",
+      "contact.message":"Messaggio",
+      "contact.sendEmail":"Invia via Email",
+      "contact.sendWA":"Invia su WhatsApp"
+    },
+    en:{
+      "reviews.title":"What clients say",
+      "reviews.subtitle":"Average rating 4.9/5",
+      "reviews.cta":"Leave a review",
+      "reviews.newTitle":"Your experience",
+      "reviews.name":"Name",
+      "reviews.role":"Role",
+      "reviews.rating":"Rating",
+      "reviews.photo":"Photo (optional)",
+      "reviews.photoHint":"PNG/JPG, will be cropped as a thumbnail",
+      "reviews.photoPreview":"Thumbnail preview",
+      "reviews.text":"Review",
+      "reviews.save":"Publish",
+      "common.cancel":"Cancel",
+
+      "contact.title":"Request a quote",
+      "contact.subtitle":"Free brief • same-day reply",
+      "contact.name":"Full name",
+      "contact.email":"Email",
+      "contact.phone":"Phone / WhatsApp",
+      "contact.service":"Service",
+      "contact.service.select":"Select…",
+      "contact.service.commerciali":"Commercial",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Boats / Charter",
+      "contact.service.other":"Other",
+      "contact.message":"Message",
+      "contact.sendEmail":"Send via Email",
+      "contact.sendWA":"Send on WhatsApp"
+    },
+    es:{
+      "reviews.title":"Qué dicen de mí",
+      "reviews.subtitle":"Valoración media 4.9/5",
+      "reviews.cta":"Deja una reseña",
+      "reviews.newTitle":"Tu experiencia",
+      "reviews.name":"Nombre",
+      "reviews.role":"Cargo",
+      "reviews.rating":"Valoración",
+      "reviews.photo":"Foto (opcional)",
+      "reviews.photoHint":"PNG/JPG, se adaptará a miniatura",
+      "reviews.photoPreview":"Vista previa miniatura",
+      "reviews.text":"Reseña",
+      "reviews.save":"Publicar",
+      "common.cancel":"Cancelar",
+
+      "contact.title":"Pide un presupuesto",
+      "contact.subtitle":"Brief gratuito • respuesta en el día",
+      "contact.name":"Nombre y Apellidos",
+      "contact.email":"Email",
+      "contact.phone":"Teléfono / WhatsApp",
+      "contact.service":"Servicio",
+      "contact.service.select":"Seleccionar…",
+      "contact.service.commerciali":"Comercial",
+      "contact.service.wedding":"Boda",
+      "contact.service.music":"Vídeo musical",
+      "contact.service.realestate":"Inmobiliario",
+      "contact.service.boat":"Barcos / Charter",
+      "contact.service.other":"Otro",
+      "contact.message":"Mensaje",
+      "contact.sendEmail":"Enviar por Email",
+      "contact.sendWA":"Enviar por WhatsApp"
+    }
+  });
+})();
+</script>
+<!-- FINE PARTE 4 / 5 -->
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
-(look IDENTICO; fix funzionali: nessun meta viewport duplicato; iOS no-zoom lasciato a Parte 1/4)
+(look identico; nessun meta viewport duplicato; WA dinamico da __CONFIG; i18n esteso)
 ========================== -->
-<!-- ===== HOTFIX iOS anti-zoom SOLO per #contatti (drop-in) ===== -->
-<style id="ios-nozoom-hotfix">
-  /* assicura che anche le OPTION siano >=16px */
-  #contatti select, #contatti option { font-size:16px !important; }
-  /* placeholder coerente (alcuni Safari fanno trigger se <16) */
-  #contatti ::placeholder { font-size:16px !important; opacity:.85; }
-</style>
-<script>
-(function(){
-  // Rileva iOS (anche iPad Safari “desktop”)
-  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  if(!isiOS) return;
-
-  // 1) Normalizza/recupera il meta viewport (niente duplicati, niente maximum-scale fisso)
-  (function normalizeViewport(){
-    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
-    var base = 'width=device-width, initial-scale=1, viewport-fit=cover';
-    if(!metas.length){
-      var m = document.createElement('meta');
-      m.name = 'viewport';
-      m.content = base;
-      document.head.appendChild(m);
-    }else{
-      // tieni il primo, rimuovi gli altri
-      for(var i=1;i<metas.length;i++){ metas[i].parentNode.removeChild(metas[i]); }
-      metas[0].setAttribute('content', base);
-    }
-  })();
-
-  var vp = document.querySelector('meta[name="viewport"]');
-  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
-  function noZoom(){ if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
-  function yesZoom(){ if(vp) vp.setAttribute('content', VP_BASE); }
-
-  // 2) Forza inline >=17px solo se il computed è <17 (vincendo su qualsiasi !important esterno)
-  function ensure17px(el){
-    try{
-      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
-      if(fs < 17){
-        el.style.fontSize   = '17px';
-        el.style.lineHeight = '1.35';
-        el.style.minHeight  = '44px';
-      }
-    }catch(_){}
-  }
-
-  // 3) Applica alle control del form Preventivo
-  function bindControls(){
-    var controls = document.querySelectorAll('#contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control');
-    controls.forEach(function(el){
-      // prima verifica: porta a 17px se qualcuno lo ha ridotto in cascata
-      ensure17px(el);
-      // al focus: blocca lo zoom
-      el.addEventListener('focus', function(){ noZoom(); ensure17px(el); }, {passive:true});
-      // al blur: ripristina
-      el.addEventListener('blur', function(){ yesZoom(); }, {passive:true});
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bindControls, {once:true});
-  }else{
-    bindControls();
-  }
-
-  // 4) failsafe: se il focus esce dal form, riabilita lo zoom utente
-  document.addEventListener('focusin', function(e){
-    var t = e.target;
-    if(!(t && t.closest && t.closest('#contatti'))) yesZoom();
-  }, {passive:true});
-})();
-</script>
-<!-- ===== /HOTFIX iOS anti-zoom ===== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
 <footer id="footer" class="container" style="padding:24px 0 18px">
@@ -1921,25 +1971,33 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 
 <!-- ====== SCRIPT utility footer/policy/i18n ====== -->
 <script>
+(function(){
   // Back-to-top (rispetta prefers-reduced-motion)
-  (function(){
-    var btn = document.getElementById('toTop');
-    if(!btn) return;
+  var btn = document.getElementById('toTop');
+  if(btn){
     btn.addEventListener('click', function(e){
       e.preventDefault();
       var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       window.scrollTo({ top:0, behavior: prefersReduced ? 'auto' : 'smooth' });
     }, {passive:false});
-  })();
+  }
 
-  // WhatsApp nel footer (riusa WA_NUMBER se definito altrove)
+  // WhatsApp nel footer (riusa __CONFIG.WA_NUMBER + leadText se disponibili)
   (function(){
     var wa = document.getElementById('footerWA');
-    var number = (typeof WA_NUMBER !== 'undefined' && WA_NUMBER) ? (''+WA_NUMBER).replace(/[^\d]/g,'') : '393910911719';
-    if(wa){
-      var text = encodeURIComponent('Ciao Andrea! Ti scrivo dal sito 🙌');
-      wa.href = 'https://wa.me/' + number + '?text=' + text;
-    }
+    if(!wa) return;
+    var cfg = window.__CONFIG || {};
+    var number = (cfg.WA_NUMBER || '').replace(/[^\d]/g,'') || '393910911719';
+    var p = {
+      pack: (window.__LAST_PACK || ''),
+      name: (document.getElementById('q_name')||{}).value || '',
+      email:(document.getElementById('q_email')||{}).value || '',
+      phone:(document.getElementById('q_phone')||{}).value || '',
+      service:(function(){ var el=document.getElementById('q_service'); return el && el.value ? el.options[el.selectedIndex].text : ''; })(),
+      message:(document.getElementById('q_message')||{}).value || ''
+    };
+    var text = encodeURIComponent(cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌');
+    wa.href = 'https://wa.me/' + number + '?text=' + text;
   })();
 
   // Apri details corretti se atterro da link del footer (Privacy/Cookie/Termini)
@@ -1957,7 +2015,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
     setTimeout(openFromHash, 0);
   })();
 
-  // i18n EXTEND per Footer/Policy
+  // i18n EXTEND per Footer/Policy (coerente con Parti 1–4)
   (function(){
     window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
     function extend(extra){
@@ -2047,5 +2105,6 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
       }
     });
   })();
+})();
 </script>
-
+<!-- FINE PARTE 5 / 5 -->
