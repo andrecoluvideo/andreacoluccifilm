@@ -1142,8 +1142,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
         </div>
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
-          <!-- fotocamera o galleria -->
-          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png" capture="environment">
+          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
           <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
         <div style="grid-column:1 / -1; display:flex; align-items:center; gap:10px">
@@ -1166,9 +1165,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </dialog>
 
-  <!-- JSON-LD (aggregate rating) -->
+  <!-- JSON-LD (aggregate rating; aggiornato dinamicamente) -->
   <script type="application/ld+json" id="reviewsJsonLd">
-  {"@context":"https://schema.org","@type":"Product","name":"Servizi Video — Andrea Colucci","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"36"}}
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Servizi Video — Andrea Colucci",
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "36" }
+  }
   </script>
 
   <style>
@@ -1181,38 +1185,163 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </style>
 </section>
 
-<!-- ====== CONTATTI (preventivo) ====== -->
-<section id="contatti" class="container" style="padding:22px 0 6px">
-  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-    <h2 class="headline h2" style="margin:0" data-i18n="contact.title">Richiedi un preventivo</h2>
-    <span class="soft" data-i18n="contact.subtitle">Brief gratuito • risposta in giornata</span>
-  </header>
+<!-- ====== BACKEND RECENSIONI (AC_Reviews_Backend — Google Apps Script) ====== -->
+<script>
+(() => {
+  /* CONFIG CLIENT */
+  const GAS_WEBAPP_URL = https://script.google.com/home/projects/1ooBCgS1_QTaApn8X-0rh5myZbU_Zom0UCGLfmmo1q9m6zwECsio8gfaJ/edit; // 
+  const GAS_API_KEY    = acfilms_2025_secretKey_93Jv7; // Script Properties: REVIEWS_API_KEY
+  const SEED_STARS = [5,5,4]; // 3 card statiche iniziali
 
-  <div class="glass" style="border-radius:16px;padding:14px">
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div class="field"><label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label><input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required></div>
-      <div class="field"><label class="label" for="q_email" data-i18n="contact.email">Email</label><input id="q_email" class="control" type="email" placeholder="nome@email.com" required></div>
-      <div class="field"><label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label><input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX"></div>
-      <div class="field">
-        <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
-        <select id="q_service" class="control" required>
-          <option value="" disabled selected data-i18n="contact.service.select">Seleziona…</option>
-          <option data-i18n="contact.service.commerciali">Commerciali</option>
-          <option data-i18n="contact.service.wedding">Wedding</option>
-          <option data-i18n="contact.service.music">Music Video</option>
-          <option data-i18n="contact.service.realestate">Real Estate</option>
-          <option data-i18n="contact.service.boat">Barche / Charter</option>
-          <option data-i18n="contact.service.other">Altro</option>
-        </select>
-      </div>
-      <div class="field" style="grid-column:1 / -1"><label class="label" for="q_message" data-i18n="contact.message">Messaggio</label><textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea></div>
-      <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
-        <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
-        <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
-      </div>
-    </form>
-  </div>
+  /* DOM refs */
+  const grid     = document.getElementById('reviewsGrid');
+  const avgText  = document.getElementById('avgRatingText');
+  const LD       = document.getElementById('reviewsJsonLd');
+  const form     = document.getElementById('reviewForm');
+  const dialog   = document.getElementById('reviewModal');
+  const openBtn  = document.getElementById('openReview');
+  const closeBtn = document.getElementById('closeReview');
+  const cancelBtn= document.getElementById('cancelReview');
+  const saveBtn  = document.getElementById('saveReview');
+  const fileIn   = document.getElementById('r_img');
+  const preview  = document.getElementById('r_preview');
+  const previewPh= document.getElementById('r_preview_ph');
 
+  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+  function appendReviewCard(rec, {prepend=true}={}){
+    if(!grid || !rec) return;
+    const fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+
+    const img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img
+      : (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
+
+    const cap=document.createElement('figcaption');
+    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    prepend ? grid.insertBefore(fig, grid.firstChild) : grid.appendChild(fig);
+  }
+  function updateAverage(extraStars){
+    const all = SEED_STARS.concat((extraStars||[]).map(n=>Number(n)||0)).filter(Boolean);
+    if(!all.length) return;
+    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
+      try{ const obj=JSON.parse(LD.textContent); obj.aggregateRating.ratingValue=String(avg); obj.aggregateRating.reviewCount=String(all.length); LD.textContent=JSON.stringify(obj); }catch(_){}
+    }
+  }
+  function getVal(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+
+  /* Preview img -> dataURL 120x120 */
+  function toDataUrlThumb(file){
+    return new Promise((resolve,reject)=>{
+      const fr=new FileReader();
+      fr.onload=()=>{ const img=new Image(); img.onload=()=>{ try{
+        const s=120,c=document.createElement('canvas'),ctx=c.getContext('2d'); c.width=s;c.height=s;
+        const crop=Math.min(img.width,img.height), sx=(img.width-crop)/2, sy=(img.height-crop)/2;
+        ctx.drawImage(img, sx, sy, crop, crop, 0, 0, s, s); resolve(c.toDataURL('image/jpeg', .85));
+      }catch(e){reject(e)} }; img.onerror=()=>reject(new Error('img error')); img.src=fr.result; };
+      fr.onerror=()=>reject(new Error('reader error')); fr.readAsDataURL(file);
+    });
+  }
+
+  /* LOAD (GET) */
+  async function loadReviews(){
+    if(!GAS_WEBAPP_URL || !/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL)){ updateAverage([]); return; }
+    try{
+      const url = GAS_WEBAPP_URL + (GAS_WEBAPP_URL.includes('?')?'&':'?') + 'key=' + encodeURIComponent(GAS_API_KEY);
+      const res = await fetch(url, { method:'GET', credentials:'omit' });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json(); // {ok:true, items:[...]}
+      if(!data || !data.ok || !Array.isArray(data.items)){ updateAverage([]); return; }
+      const stars = [];
+      data.items.forEach(it=>{
+        const rec = {
+          name: it.name || '',
+          role: it.role || '',
+          stars: Math.max(1,Math.min(5, Number(it.stars)||5)),
+          text: it.text || '',
+          img: it.img || ''
+        };
+        appendReviewCard(rec, {prepend:false});
+        stars.push(rec.stars);
+      });
+      updateAverage(stars);
+    }catch(_){ updateAverage([]); }
+  }
+
+  /* SAVE (POST) */
+  async function buildRecord(){
+    const name = getVal('r_name');
+    const role = getVal('r_role');
+    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    const text = getVal('r_text');
+    if(!name || !text) return null;
+    let img64 = '';
+    const f = fileIn?.files && fileIn.files[0];
+    if(f && f.type && f.type.startsWith('image/')){ try{ img64=await toDataUrlThumb(f);}catch(_){} }
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64 };
+  }
+
+  async function submitReview(e){
+    if(e) e.preventDefault();
+    const rec = await buildRecord(); if(!rec) return;
+
+    // append ottimistico + media
+    appendReviewCard(rec);
+    updateAverage([rec.stars]);
+
+    // POST al backend con key
+    if(GAS_WEBAPP_URL && GAS_API_KEY){
+      try{
+        await fetch(GAS_WEBAPP_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ key:GAS_API_KEY, ...rec }),
+          credentials:'omit'
+        });
+      }catch(_){}
+    }
+    closeModal();
+  }
+
+  /* Modal + preview bindings */
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
+  function closeModal(){ try{ form && form.reset(); }catch(_){}
+    if(preview){ preview.style.display='none'; } if(previewPh){ previewPh.style.display='block'; }
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', e=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', e=>{
+    const r = dialog.getBoundingClientRect();
+    const inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+    if(!inside) closeModal();
+  });
+  fileIn && fileIn.addEventListener('change', async function(){
+    const f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){ preview.style.display='none'; previewPh.style.display='block'; return; }
+    try{ const d=await toDataUrlThumb(f); preview.src=d; preview.style.display='block'; previewPh.style.display='none'; }
+    catch(_){ preview.style.display='none'; previewPh.style.display='block'; }
+  });
+  form && form.addEventListener('submit', submitReview, {passive:false});
+  saveBtn && saveBtn.addEventListener('click', submitReview, {passive:false});
+
+  // Init
+  loadReviews();
+})();
+</script>
   <!-- iOS anti-zoom SOLO per #contatti + #reviewModal -->
   <style id="ios-nozoom">
     #contatti input,#contatti select,#contatti textarea,#contatti button,#contatti .control,
