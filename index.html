@@ -1,12 +1,10 @@
 <!-- ==========================
-PART 1 / 5 — NAV • HERO • METRICHE • i18n base
-(look IDENTICO; fix funzionali: viewport pulito, anti-zoom iOS centralizzato, bridge recensioni GVIZ, ordine nav SOLO mobile, CTA che va a capo)
+PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
 ========================== -->
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ Viewport “base” (senza maximum-scale fisso: lo gestisce ZoomGuard su focus) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
 
@@ -14,12 +12,11 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
 
-  <!-- Performance: preconnect ai font -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 
-  <!-- ===== CSS principale (look invariato) ===== -->
   <style>
     :root{
       --bg:#0b0f14; --fg:#f5f8ff; --muted:#b7c3d1;
@@ -29,7 +26,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
       --ring:0 0 0 2px rgba(46,231,255,.18), 0 10px 30px rgba(255,63,156,.18);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--fg);font-family:'Manrope',system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{margin:0;background:var(--bg);color:var(--fg);font-family:'Manrope',system-ui,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
     img{max-width:100%;display:block}
     a{color:var(--neon1);text-decoration:none}
     a:hover{filter:brightness(1.08)}
@@ -40,119 +37,115 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .h3{font-size: clamp(20px,2vw,26px)}
     .soft{color:var(--muted)}
     .glass{background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);backdrop-filter:blur(8px);box-shadow:var(--shadow)}
-    .btn{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 18px;border:1px solid var(--stroke);background:var(--glass);backdrop-filter:blur(8px);color:var(--fg);transition:.25s;box-shadow:none}
+    .btn{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:10px 14px;border:1px solid var(--stroke);background:var(--glass);backdrop-filter:blur(8px);color:var(--fg);transition:.25s;box-shadow:none;white-space:nowrap}
     .btn:hover{box-shadow:var(--ring)}
     .btn.fill{background:linear-gradient(135deg,var(--neon1),var(--neon2));border-color:transparent;color:#061016}
     .tag{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--glass)}
+    .grid{display:grid}
 
-    /* NAV */
-    .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke); transition: transform .25s ease; will-change: transform;}
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800;min-width:0;flex:0 0 auto}
-    .brand .logo{width:28px;height:28px}
-    .brand .soft{white-space:nowrap}
+    /* ===== NAV compatta + scroller orizzontale ===== */
+    .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.86), rgba(11,15,20,.72));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke);transition:transform .22s ease}
+    .nav-inner{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;padding:8px 12px}
+    .brand{display:flex;align-items:center;gap:8px;min-width:0}
+    .brand .logo{width:24px;height:24px}
+    .brand b{font-weight:800;font-size:15px}
+    .brand .soft{font-size:13px;white-space:nowrap;opacity:.9}
 
-    .nav-links{display:flex;gap:16px;align-items:center;flex-wrap:wrap;max-width:100%;flex:1 1 auto;min-width:0}
-    .nav-links a{white-space:nowrap}
-    .nav-links .btn{margin-left:auto;flex:0 0 auto}
-
-    /* Mobile: ordine SOLO mobile + CTA si sposta su riga nuova se manca spazio */
-    @media (max-width:700px){
-      .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); }
-
-      /* Ordine link: Servizi (1) • Pacchetti (2) • Recensioni (3) • Reel (4) • CTA (5) • Lingue (6) */
-      .nav .nav-links [data-i18n="nav.services"]{ order:1; }
-      .nav .nav-links [data-i18n="nav.packs"]{ order:2; }
-      .nav .nav-links [data-i18n="nav.reviews"]{ order:3; }
-      .nav .nav-links [data-i18n="nav.reel"]{ order:4; }
-      .nav .btn[data-i18n="nav.quote"]{ order:5; }
-      .nav .lang{ order:6; }
-
-      .nav .btn[data-i18n="nav.quote"]{
-        font-size: 13px !important;
-        padding: 6px 12px !important;
-        border-radius: 20px !important;
-        line-height: 1.1;
-        transform: scale(.98);
-        flex-basis:min(48%,230px); /* forza il wrap senza coprire il brand */
-      }
+    /* rail: scorre in orizzontale su mobile */
+    .nav-rail{min-width:0}
+    .nav-scroller{
+      display:flex;align-items:center;gap:14px;overflow-x:auto;white-space:nowrap;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 2px;
+      mask-image: linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
     }
+    .nav-scroller::-webkit-scrollbar{display:none}
+    .nav-link{display:inline-block;padding:6px 2px;font-size:14px;color:var(--fg);opacity:.95}
+    .nav-link:hover{opacity:1}
 
-    .lang{display:flex;gap:8px;margin-left:8px}
-    .lang a{padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff}
+    .lang{display:inline-flex;gap:6px;margin-left:4px}
+    .lang a{padding:5px 8px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff;font-size:12px}
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
 
-    /* HERO */
+    /* CTA: inline su desktop; su mobile va sotto la rail, senza coprire il brand */
+    .nav-cta{justify-self:end}
+    .nav-cta .btn{font-size:14px;padding:8px 12px}
+
+    @media (max-width:760px){
+      .container{padding:0 14px}
+      .nav-inner{grid-template-columns:1fr;gap:6px;padding:6px 10px}
+      .nav-rail{order:2}
+      .nav-cta{order:3;justify-self:start}
+      .nav .btn[data-i18n="nav.quote"]{padding:8px 12px;border-radius:18px}
+      .nav.nav--hidden{transform: translateY(calc(-100% - 2px))}
+      .brand b{font-size:14px}
+      .brand .soft{font-size:12px}
+    }
+
+    /* ===== HERO ===== */
     .hero{position:relative;overflow:hidden;background:#0b0f14}
     .hero-media{position:absolute;inset:0;z-index:0;pointer-events:none;
-      background:
-        linear-gradient(to bottom, rgba(7,10,14,.48), rgba(7,10,14,.66)),
-        url('/media/hero.webp.jpg') center/cover no-repeat;}
-    .hero-inner{position:relative;z-index:1;padding:42px 0}
-    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}
-    .hero-card{padding:22px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--stroke);backdrop-filter:blur(8px)}
-    .hero-bio{padding:22px;border-radius:18px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.03)}
-    .hero-bio .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-    .hero-bio img{width:68px;height:68px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke)}
+      background:linear-gradient(to bottom, rgba(7,10,14,.48), rgba(7,10,14,.66)), url('/media/hero.webp.jpg') center/cover no-repeat;}
+    .hero-inner{position:relative;z-index:1;padding:34px 0}
+    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center}
+    .hero-card{padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--stroke);backdrop-filter:blur(8px)}
+    .hero-bio{padding:18px;border-radius:18px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.03)}
+    .hero-bio .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .hero-bio img{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke)}
 
-    /* METRICHE */
-    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .metric{padding:12px 14px;text-align:center}
-
-    /* Responsive */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
     @media (max-width:700px){ .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))} }
 
-    /* Utility grid */
-    .grid{display:grid}
+    /* ===== METRICHE: nessun overflow, testi che vanno a capo ===== */
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .metric{padding:12px 12px;text-align:center;word-break:break-word}
+    .metric .headline{font-size:clamp(18px,3.6vw,22px)}
+    .metric small{display:block;margin-top:4px;line-height:1.25;font-size:clamp(11px,2.9vw,13px)}
+
+    @media (max-width:920px){ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:520px){ .metrics{grid-template-columns:1fr} }
+
+    /* Utility */
+    .nowrap{white-space:nowrap}
   </style>
 
-  <!-- ✅ Config globale (contatti, sorgenti recensioni) -->
+  <!-- ===== Config globale (contatti, sorgenti recensioni) ===== -->
   <script>
     window.__CONFIG = {
       EMAIL: 'andreacolucci@hotmail.it',
       WA_NUMBER: '393910911719',
-      // Testo precompilato personalizzato per email/WA
       leadText: function(p){
-        const packLine = p && p.pack ? ("Pacchetto di interesse: " + p.pack + "\\n") : "";
+        const packLine = p && p.pack ? ("Pacchetto di interesse: " + p.pack + "\n") : "";
         return (
-          "Richiesta preventivo dal sito Andrea Colucci Films\\n\\n" +
+          "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
           packLine +
-          "Nome: " + (p?.name || '-') + "\\n" +
-          "Email: " + (p?.email || '-') + "\\n" +
-          "Telefono/WA: " + (p?.phone || '-') + "\\n" +
-          "Servizio: " + (p?.service || '-') + "\\n\\n" +
-          (p?.message ? ("Messaggio:\\n" + p.message) : "Messaggio:\\nVorrei un preventivo e una call veloce per allineamento. Tempistiche: entro 2 settimane. Luogo: da definire.\\n") +
-          "\\n— Inviato dal sito"
+          "Nome: " + (p?.name || '-') + "\n" +
+          "Email: " + (p?.email || '-') + "\n" +
+          "Telefono/WA: " + (p?.phone || '-') + "\n" +
+          "Servizio: " + (p?.service || '-') + "\n\n" +
+          (p?.message ? ("Messaggio:\n" + p.message) : "Messaggio:\nVorrei un preventivo e una call veloce per allineamento. Tempistiche: entro 2 settimane. Luogo: da definire.\n") +
+          "\n— Inviato dal sito"
         );
       },
-      // Fonte recensioni (GVIZ JSON da Google Sheets — ID/ GID dal tuo link)
       REVIEWS_SRC: (function(){
         var id  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
         var gid = '0';
         return 'https://docs.google.com/spreadsheets/d/' + id + '/gviz/tq?tqx=out:json&gid=' + gid;
       })(),
-      // mappatura colonne nel tuo Sheet
       REVIEWS_MAP: ['ts','name','role','stars','text','img']
     };
   </script>
 
-  <!-- ✅ iOS anti-zoom CENTRALIZZATO (ZoomGuard) -->
+  <!-- ===== iOS anti-zoom CENTRALIZZATO (ZoomGuard) ===== -->
   <script>
   (function(){
-    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) || (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
     if(!isiOS){ window.__ZoomGuard = {enable:function(){}, disable:function(){}, watch:function(){}}; return; }
 
     var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
     function getVP(){
       var vp = document.querySelector('meta[name="viewport"]');
-      if(!vp){
-        vp = document.createElement('meta');
-        vp.name = 'viewport'; vp.content = VP_BASE;
-        document.head.appendChild(vp);
-      } else {
-        // rimuovi eventuali duplicati
+      if(!vp){ vp = document.createElement('meta'); vp.name='viewport'; vp.content=VP_BASE; document.head.appendChild(vp); }
+      else {
         var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
         for (var i=1;i<metas.length;i++){ metas[i].remove(); }
         vp.setAttribute('content', VP_BASE);
@@ -167,13 +160,10 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
       try{
         var fs = parseFloat(getComputedStyle(el).fontSize)||0;
         if(fs < 17){
-          el.style.fontSize   = '17px';
-          el.style.lineHeight = '1.35';
-          el.style.minHeight  = '44px';
+          el.style.fontSize='17px'; el.style.lineHeight='1.35'; el.style.minHeight='44px';
         }
-      }catch(_){ }
+      }catch(_){}
     }
-
     function attachTo(container){
       if(!container) return;
       var sel = 'input, select, textarea, button, .control';
@@ -183,8 +173,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         el.addEventListener('blur', function(){ yesZoom(); }, {passive:true});
       });
     }
-
-    // Osserva quando compaiono #contatti o #reviewModal
     var watchedIds = new Set(['contatti','reviewModal']);
     var mo = new MutationObserver(function(){
       watchedIds.forEach(function(id){
@@ -194,10 +182,8 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     });
     mo.observe(document.documentElement, {childList:true, subtree:true});
 
-    // Fallback: focusin globale
     document.addEventListener('focusin', function(e){
-      var t = e.target;
-      var inForm = t && t.closest && (t.closest('#contatti') || t.closest('#reviewModal'));
+      var t = e.target; var inForm = t && t.closest && (t.closest('#contatti') || t.closest('#reviewModal'));
       if(inForm){ noZoom(); ensure17px(t); } else { yesZoom(); }
     }, {passive:true});
     window.addEventListener('gesturestart', yesZoom, {passive:true});
@@ -206,22 +192,18 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
   })();
   </script>
 
-  <!-- ✅ Loader recensioni da Google Sheets (GVIZ) → window.__reviewsStore + evento "ac:reviews-ready" -->
+  <!-- ===== Loader recensioni (GVIZ) → window.__reviewsStore + evento ===== -->
   <script>
   (function(){
     var CFG = window.__CONFIG || {};
     var SRC = CFG.REVIEWS_SRC;
-    var MAP = (CFG.REVIEWS_MAP || []).slice(); // ['ts','name','role','stars','text','img']
+    var MAP = (CFG.REVIEWS_MAP || []).slice();
 
     function parseGVIZ(text){
-      // GVIZ avvolge un JSON in: google.visualization.Query.setResponse({...});
-      var start = text.indexOf('(');
-      var end   = text.lastIndexOf(')');
+      var start = text.indexOf('('), end = text.lastIndexOf(')');
       if(start === -1 || end === -1) throw new Error('GVIZ format unexpected');
-      var json  = JSON.parse(text.slice(start+1, end));
-      var table = json.table;
-      var rows  = (table.rows||[]);
-      var out   = [];
+      var json = JSON.parse(text.slice(start+1, end));
+      var table = json.table, rows = (table.rows||[]), out=[];
       rows.forEach(function(r){
         if(!r || !r.c) return;
         var obj = {};
@@ -229,7 +211,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
           var cell = r.c[i] && (r.c[i].v != null ? r.c[i].v : r.c[i].f);
           obj[MAP[i]] = cell == null ? '' : cell;
         }
-        // normalizza
         if(obj.stars != null){ obj.stars = Number(String(obj.stars).replace(',','.')) || 5; }
         if(obj.ts){ var d = new Date(obj.ts); if(!isNaN(d)) obj.ts = d.toISOString(); }
         out.push(obj);
@@ -243,37 +224,21 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         .then(parseGVIZ);
     }
 
-    // store globale
-    var store = {
-      data: [],
-      ready: null,
-      error: null,
-      set: function(arr){ this.data = Array.isArray(arr) ? arr : []; this.error = null; },
-      fail: function(err){ this.error = err || new Error('Unknown'); }
-    };
+    var store = { data:[], ready:null, error:null, set:function(a){this.data=Array.isArray(a)?a:[];this.error=null;}, fail:function(e){this.error=e||new Error('Unknown');} };
     window.__reviewsStore = store;
 
-    // bootstrap
     store.ready = fetchReviews(SRC).then(function(list){
       store.set(list);
-      // notifica alle altre parti
-      var ev = new CustomEvent('ac:reviews-ready', { detail:{ count:list.length } });
-      window.dispatchEvent(ev);
+      window.dispatchEvent(new CustomEvent('ac:reviews-ready', { detail:{ count:list.length } }));
       return list;
-    }).catch(function(err){
-      store.fail(err);
-      // fallire “hard” non blocca il resto del sito; Parte 4 può leggere store.error
-      console.error('[ac.reviews] load error:', err);
-      return [];
-    });
+    }).catch(function(err){ store.fail(err); console.error('[ac.reviews] load error:', err); return []; });
   })();
   </script>
 
-  <!-- ✅ i18n BASE + switch lingua senza scroll -->
+  <!-- ===== i18n BASE ===== -->
   <script>
     (function(){
       window.__i18n = window.__i18n || { __dict:{}, apply:null };
-
       const base = {
         it:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
@@ -316,7 +281,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         }
       };
 
-      // Applica traduzioni
       window.__i18n.apply = function(lang){
         const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict?.[lang]||{});
         document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -332,13 +296,11 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         });
       };
 
-      // Init lingua da URL o localStorage (mantiene lo scroll)
       const urlLang = new URLSearchParams(location.search).get('lang');
       const saved   = localStorage.getItem('ac_lang');
       const start   = urlLang || saved || document.documentElement.lang || 'it';
       window.__i18n.apply(start);
 
-      // Switch lingua senza refresh/scroll
       document.addEventListener('click', (e)=>{
         const a = e.target.closest('.lang [data-lang]'); if(!a) return;
         e.preventDefault();
@@ -359,37 +321,44 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
 </head>
 <body>
 
-  <!-- ====== NAV ====== -->
+  <!-- ===== NAV compatta con scroller orizzontale ===== -->
   <nav class="nav" aria-label="Main">
     <div class="nav-inner container">
       <a href="#top" class="brand" aria-label="Homepage">
-        <img class="logo" src="/media/logo-mark.svg" alt="Logo Andrea Colucci" width="28" height="28">
-        <b>Andrea Colucci</b><span class="soft">/ Filmmaker</span>
+        <img class="logo" src="/media/logo-mark.svg" alt="Logo Andrea Colucci" width="24" height="24">
+        <div style="display:flex;gap:6px;align-items:baseline;min-width:0">
+          <b>Andrea Colucci</b><span class="soft">/ Filmmaker</span>
+        </div>
       </a>
 
-      <div class="nav-links">
-        <a href="#reel" data-i18n="nav.reel">Reel</a>
-        <a href="#servizi" data-i18n="nav.services">Servizi</a>
-        <a href="#pacchetti-videoprofessionali" data-i18n="nav.packs">Pacchetti</a>
-        <a href="#recensioni" data-i18n="nav.reviews">Recensioni</a>
-        <a href="#contatti" class="btn" data-i18n="nav.quote">Richiedi preventivo</a>
-
-        <!-- Lingue (pushState, senza reload/scroll) -->
-        <div class="lang" aria-label="Lingua">
-          <a href="?lang=it" data-lang="it" class="active">IT</a>
-          <a href="?lang=en" data-lang="en">EN</a>
-          <a href="?lang=es" data-lang="es">ES</a>
+      <div class="nav-rail">
+        <div class="nav-scroller">
+          <!-- Ordine richiesto: Servizi, Pacchetti, Recensioni, Reel -->
+          <a class="nav-link" href="#servizi" data-i18n="nav.services">Servizi</a>
+          <a class="nav-link" href="#pacchetti-videoprofessionali" data-i18n="nav.packs">Pacchetti</a>
+          <a class="nav-link" href="#recensioni" data-i18n="nav.reviews">Recensioni</a>
+          <a class="nav-link" href="#reel" data-i18n="nav.reel">Reel</a>
+          <!-- Lingue dentro lo scroller, sempre visibili e leggibili -->
+          <span class="lang" aria-label="Lingua">
+            <a href="?lang=it" data-lang="it" class="active">IT</a>
+            <a href="?lang=en" data-lang="en">EN</a>
+            <a href="?lang=es" data-lang="es">ES</a>
+          </span>
         </div>
+      </div>
+
+      <!-- CTA: su desktop resta qui; su mobile va sotto lo scroller (riga 3) -->
+      <div class="nav-cta">
+        <a href="#contatti" class="btn" data-i18n="nav.quote">Richiedi preventivo</a>
       </div>
     </div>
   </nav>
 
-  <!-- ====== HERO ====== -->
+  <!-- ===== HERO ===== -->
   <header class="hero" id="top">
     <div class="hero-media" aria-hidden="true"></div>
     <div class="hero-inner container">
       <div class="hero-grid">
-        <!-- Colonna testo/CTA -->
         <section class="hero-card">
           <span class="tag headline" data-i18n="hero.badge">Chiavari · Riviera di Levante</span>
           <h1 class="headline h1" data-i18n="hero.title">Video che parlano, immagini che restano</h1>
@@ -397,13 +366,12 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
             Spot commerciali, wedding e brand/travel con look cinematografico e performance social.
             Drone 4K certificato. Disponibile in Liguria e ovunque serva.
           </p>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
             <a href="#reel" class="btn fill" data-i18n="cta.watch">Guarda il Reel</a>
             <a href="#contatti" class="btn" data-i18n="cta.quote">Richiedi preventivo</a>
           </div>
         </section>
 
-        <!-- Colonna bio-preview -->
         <aside class="hero-bio glass">
           <div class="row">
             <img src="/media/about-2.jpg" alt="Andrea Colucci e team" />
@@ -412,7 +380,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
               <small class="soft" data-i18n="bio.previewSub">Filmmaker · Storyteller visivo</small>
             </div>
           </div>
-          <p style="margin-top:12px" class="soft" data-i18n="bio.previewText">
+          <p style="margin-top:10px" class="soft" data-i18n="bio.previewText">
             300+ progetti tra spot, videoclip e branded content. 1.2M+ visualizzazioni su YT e IG.
             Ritmo, atmosfera e narrativa che rimane.
           </p>
@@ -422,32 +390,32 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     </div>
   </header>
 
-  <!-- ====== STRISCIA METRICHE ====== -->
-  <section class="container" style="padding:24px 0 6px">
+  <!-- ===== METRICHE (senza overflow) ===== -->
+  <section class="container" style="padding:18px 0 6px">
     <div class="metrics">
       <div class="glass metric">
-        <div class="headline h3" style="margin:0">300+</div>
+        <div class="headline" style="margin:0">300+</div>
         <small class="soft" data-i18n="stats.projects">Progetti realizzati</small>
       </div>
       <div class="glass metric">
-        <div class="headline h3" style="margin:0">1.2M+</div>
+        <div class="headline" style="margin:0">1.2M+</div>
         <small class="soft" data-i18n="stats.views">Visualizzazioni totali</small>
       </div>
       <div class="glass metric">
-        <div class="headline h3" style="margin:0">Drone</div>
+        <div class="headline" style="margin:0">Drone</div>
         <small class="soft" data-i18n="stats.drone">Certificato</small>
       </div>
       <div class="glass metric">
-        <div class="headline h3" style="margin:0">4K · 10-bit</div>
+        <div class="headline" style="margin:0">4K · 10-bit</div>
         <small class="soft" data-i18n="stats.camera">Log / Pro codec</small>
       </div>
     </div>
   </section>
 
-  <!-- (Segnaposto #contatti per ancoraggio CTA) -->
+  <!-- Segnaposto #contatti per ancoraggio CTA -->
   <section id="contatti-anchor" style="padding:1px 0"></section>
 
-  <!-- ===== i18n: switch lingua senza scroll + CTA universale → #contatti ===== -->
+  <!-- ===== CTA universale → #contatti ===== -->
   <script>
     (function(){
       function toContacts(e){
@@ -456,25 +424,18 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
       }
-
-      // Reindirizza CTA "preventivo" ovunque compaia (testo localizzato)
       document.addEventListener('click', function(e){
         var a = e.target.closest('a'); if(!a) return;
         var href = a.getAttribute('href')||'';
-        if(href === '#contatti'){
-          toContacts(e); return;
-        }
+        if(href === '#contatti'){ toContacts(e); return; }
         var txt = (a.textContent||'').trim().toLowerCase();
-        var dict = ['richiedi preventivo','parliamone ora','get a quote','let\'s talk','pide presupuesto','hablemos','preventivo'];
-        if(dict.includes(txt)){
-          a.setAttribute('href','#contatti');
-          toContacts(e);
-        }
+        var dict = ['richiedi preventivo','parliamone ora','get a quote',"let's talk",'pide presupuesto','hablemos','preventivo'];
+        if(dict.includes(txt)){ a.setAttribute('href','#contatti'); toContacts(e); }
       }, {passive:false});
     })();
   </script>
 
-  <!-- ===== NAV MOBILE: hide/show on scroll ===== -->
+  <!-- ===== NAV MOBILE: hide/show on scroll up ===== -->
   <script>
     (function(){
       var nav = document.querySelector('.nav'); if(!nav) return;
@@ -483,35 +444,31 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
       function onScroll(){
         if(ticking) return; ticking = true;
         requestAnimationFrame(function(){
-          if(window.innerWidth > 700){
-            nav.classList.remove('nav--hidden');
-            lastY = window.scrollY || 0; ticking = false; return;
+          if(window.innerWidth > 760){
+            nav.style.transform = ''; lastY = window.scrollY || 0; ticking=false; return;
           }
           var y = window.scrollY || 0;
-          if(Math.abs(y - lastY) < 6){ ticking = false; return; }
-          var hide = (y > lastY) && (y > 80);
-          nav.classList.toggle('nav--hidden', hide);
-          lastY = y; ticking = false;
+          var goingDown = (y > lastY + 6);
+          var goingUp   = (y < lastY - 6);
+          if(goingDown && y > 60){ nav.classList.add('nav--hidden'); }
+          else if(goingUp){ nav.classList.remove('nav--hidden'); }
+          lastY = y; ticking=false;
         });
       }
       window.addEventListener('scroll', onScroll, {passive:true});
-      window.addEventListener('resize', function(){ if(window.innerWidth > 700) nav.classList.remove('nav--hidden'); }, {passive:true});
+      window.addEventListener('resize', function(){ if(window.innerWidth > 760) nav.classList.remove('nav--hidden'); }, {passive:true});
     })();
   </script>
 
-  <!-- ===== i18n BASE: inizializza e applica attuale lingua all'avvio ===== -->
-  <!-- (già sopra) -->
-
-  <!-- Fine body -->
 </body>
 </html>
 <!-- FINE PARTE 1 / 5 -->
 
 
+
 <!-- ==========================
-<!-- ==========================
-PART 2 / 5 — SERVIZI • REEL (incolonnati)
-(look IDENTICO; fix: grid stabile, CTA → #contatti, pause/play Vimeo con visibilità & viewport)
+PART 2 / 5 — SERVIZI • REEL (refatto)
+(look IDENTICO; grid stabile; CTA → #contatti; Vimeo pausa/play su visibilità & viewport)
 ========================== -->
 
 <!-- ====== SERVIZI (6 card) ====== -->
@@ -527,7 +484,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   </header>
 
   <!-- 3 colonne -->
-  <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+  <div class="grid grid-3" style="gap:14px">
     <!-- Brand/Commercial -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--neon1),var(--neon2));box-shadow:var(--ring);display:grid;place-items:center">
@@ -613,7 +570,6 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   </div>
 </section>
 
-
 <!-- ====== REEL (Commerciali → Wedding → Brand & Travel) ====== -->
 <section id="reel" class="container"
          style="padding:24px 0 8px;
@@ -631,7 +587,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   <!-- === COMMERCIALI === -->
   <section aria-labelledby="reelCommercialiH" style="margin:8px 0 12px">
     <h3 id="reelCommercialiH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.commercial">Commerciali</h3>
-    <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+    <div class="grid grid-3" style="gap:12px">
       <article class="glass videofx" style="overflow:hidden">
         <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988374113?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
         <div class="mini-meta"><b class="headline h3">Spot — Energy</b><span class="soft">60s</span></div>
@@ -650,7 +606,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   <!-- === WEDDING === -->
   <section aria-labelledby="reelWeddingH" style="margin:8px 0 12px">
     <h3 id="reelWeddingH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.wedding">Wedding</h3>
-    <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+    <div class="grid grid-3" style="gap:12px">
       <article class="glass videofx" style="overflow:hidden">
         <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988376023?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
         <div class="mini-meta"><b class="headline h3">Wedding — Tears & Joy</b><span class="soft">2:30</span></div>
@@ -668,7 +624,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   <!-- === BRAND & TRAVEL === -->
   <section aria-labelledby="reelBrandH" style="margin:8px 0 6px">
     <h3 id="reelBrandH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.brand">Brand & Travel</h3>
-    <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+    <div class="grid grid-3" style="gap:12px">
       <article class="glass videofx" style="overflow:hidden">
         <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1041605119?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
         <div class="mini-meta"><b class="headline h3">Travel — Ocean Drive</b><span class="soft">1:20</span></div>
@@ -685,19 +641,21 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   </section>
 </section>
 
-<!-- ====== STILI SPECIFICI REEL ====== -->
+<!-- ====== STILI SPECIFICI REEL/SERVIZI ====== -->
 <style>
+  .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:1100px){ .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:680px){ .grid-3{grid-template-columns:1fr} }
+
   .ratio{position:relative;width:100%;padding-top:56.25%}
   .ratio.slim{padding-top:50%}
   .ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .videofx iframe{filter:brightness(1.28) contrast(1.16) saturate(1.08);transition:filter .25s ease}
   .videofx:hover iframe{filter:brightness(1.42) contrast(1.22) saturate(1.12)}
   .mini-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid var(--stroke);background:rgba(255,255,255,.03)}
-  @media (max-width:1100px){#reel .grid[style*="repeat(3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
-  @media (max-width:680px){#reel .grid[style*="repeat(2"], #reel .grid[style*="repeat(3"]{grid-template-columns:1fr !important}}
 </style>
 
-<!-- ====== SCRIPT REEL: pausa/riavvio su visibilità + viewport + CTA quote ====== -->
+<!-- ====== SCRIPT: Vimeo pausa/riavvio + CTA quote → #contatti ====== -->
 <script>
   (function(){
     // PostMessage helper per tutti i frame Reel
@@ -707,12 +665,12 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
       });
     }
 
-    // Pausa/Play se la pagina perde/riacquista visibilità
+    // Pausa/Play su visibilità pagina
     document.addEventListener('visibilitychange', function(){
       postAll(document.hidden ? 'pause' : 'play');
     });
 
-    // IntersectionObserver: pausa i video fuori viewport (risparmio batteria)
+    // Pausa i video fuori viewport
     var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
     if('IntersectionObserver' in window && frames.length){
       var io = new IntersectionObserver(function(entries){
@@ -722,7 +680,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
             en.target.contentWindow && en.target.contentWindow.postMessage({method:m}, '*');
           }catch(e){}
         });
-      }, {root:null, rootMargin:'0px 0px 0px 0px', threshold:0.25});
+      }, {root:null, rootMargin:'0px', threshold:0.3});
       frames.forEach(function(fr){ io.observe(fr); });
     }
 
@@ -824,9 +782,10 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 </script>
 <!-- FINE PARTE 2 / 5 -->
 
+
 <!-- ==========================
-PART 3 / 5 — PACCHETTI • CTA • BIO
-(look IDENTICO; fix funzionali: prefill pack → #contatti, WhatsApp con pack selezionato, prezzi +IVA, 3a foto bio solo mobile)
+PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
+(prefill pack → #contatti, WA con pack, prezzi +IVA, 3a foto solo mobile)
 ========================== -->
 
 <!-- ====== PACCHETTI VIDEO COMMERCIALI ====== -->
@@ -842,7 +801,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   </header>
 
   <!-- 3 pacchetti principali -->
-  <div class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px">
+  <div class="grid grid-3" style="gap:12px;margin-bottom:12px">
     <!-- Basic -->
     <article class="glass pack-card" data-pack="Basic" style="overflow:hidden">
       <div style="position:relative">
@@ -914,7 +873,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   </div>
 
   <!-- 2 pacchetti avanzati -->
-  <div class="grid" style="gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))">
+  <div class="grid grid-2" style="gap:12px">
     <!-- Elite Project -->
     <article class="glass pack-card" data-pack="Elite Project" style="overflow:hidden">
       <div style="position:relative">
@@ -963,88 +922,16 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   <style>
     .pack-card{transition:transform .25s ease, box-shadow .25s ease}
     .pack-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.3), var(--ring)}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
     @media (max-width:1100px){
-      #pacchetti-videoprofessionali .grid[style*="repeat(3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+      .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media (max-width:700px){
-      #pacchetti-videoprofessionali .grid[style*="repeat(3"], #pacchetti-videoprofessionali .grid[style*="repeat(2"]{grid-template-columns:1fr !important}
+      .grid-3, .grid-2{grid-template-columns:1fr}
     }
   </style>
 </section>
-
-<script>
-  // Click su card/CTA → scroll a #contatti + prefill del pacchetto (+ WA)
-  (function(){
-    var lastPack = null;
-
-    function smoothToContacts(){
-      var t=document.querySelector('#contatti'); if(!t) return;
-      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-    }
-
-    function prefill(pack){
-      lastPack = pack || lastPack;
-      var qmsg = document.getElementById('q_message');
-      if(qmsg){
-        var add = 'Pacchetto di interesse: ' + (lastPack || '');
-        var current = (qmsg.value||'').trim();
-        if(!current.includes(add)){
-          qmsg.value = current ? (current + '\n' + add) : add;
-        }
-      }
-      // Aggiorna WhatsApp CTA se presente
-      var wa = document.getElementById('ctaWhatsApp');
-      var cfg = window.__CONFIG || {};
-      var waNumber = (cfg.WA_NUMBER || '').replace(/[^\d]/g,'');
-      if(wa && waNumber){
-        var p = {
-          pack: lastPack || '',
-          name: (document.getElementById('q_name')||{}).value || '',
-          email: (document.getElementById('q_email')||{}).value || '',
-          phone: (document.getElementById('q_phone')||{}).value || '',
-          service: (function(){
-            var el=document.getElementById('q_service');
-            return el && el.value ? el.options[el.selectedIndex].text : '';
-          })(),
-          message: (document.getElementById('q_message')||{}).value || ''
-        };
-        var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : ''));
-        wa.href = 'https://wa.me/'+waNumber+'?text='+text;
-      }
-    }
-
-    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(a){
-      a.addEventListener('click', function(e){
-        var card = a.closest('.pack-card'); if(!card) return;
-        var pack = card.getAttribute('data-pack') || (card.querySelector('.headline.h3') && card.querySelector('.headline.h3').textContent) || '';
-        e.preventDefault();
-        prefill(pack);
-        smoothToContacts();
-      }, {passive:false});
-    });
-
-    // Permetti anche click sull'intera card
-    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card').forEach(function(card){
-      card.addEventListener('click', function(e){
-        var isLink = e.target.closest('a');
-        if(isLink) return; // già gestito sopra
-        var pack = card.getAttribute('data-pack') || (card.querySelector('.headline.h3') && card.querySelector('.headline.h3').textContent) || '';
-        e.preventDefault && e.preventDefault();
-        prefill(pack);
-        smoothToContacts();
-      }, {passive:false});
-    });
-
-    // Aggiorna il bottone WA della CTA quando cliccato (anche senza pack)
-    var waBtn = document.getElementById('ctaWhatsApp');
-    if(waBtn){
-      waBtn.addEventListener('click', function(){
-        prefill(lastPack||'');
-      });
-    }
-  })();
-</script>
 
 <!-- ====== CTA COMPATTA ====== -->
 <section id="cta" class="container" style="padding:20px 0 6px">
@@ -1089,7 +976,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       <img src="/media/about-2.jpg" alt="Andrea Colucci e collega" loading="lazy"
            style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
                   box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
-      <!-- terza foto SOLO mobile per riempire il "buco" -->
+      <!-- terza foto SOLO mobile -->
       <img src="/media/hero.webp.jpg" alt="" loading="lazy" class="bio-third-mobile"
            style="display:none;position:absolute;left:14px;top:14px;width:120px;height:120px;object-fit:cover;border-radius:14px;
                   box-shadow:0 8px 20px rgba(0,0,0,.4), 0 0 0 3px rgba(255,255,255,.05)">
@@ -1107,12 +994,87 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       #bio .bio-wrap{grid-template-columns:1fr !important}
       #bio .bio-media{min-height:220px}
     }
-    /* Mostra la terza foto solo su schermi piccoli (riempie il buco mobile) */
+    /* Mostra la terza foto solo su schermi piccoli */
     @media (max-width:700px){
       #bio .bio-third-mobile{display:block !important}
     }
   </style>
 </section>
+
+<!-- ====== SCRIPT: Click su card/CTA → #contatti + prefill pack (+ WA) ====== -->
+<script>
+(function(){
+  var lastPack = null;
+
+  function smoothToContacts(){
+    var t=document.querySelector('#contatti'); if(!t) return;
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+  }
+
+  function prefillPack(pack){
+    lastPack = pack || lastPack;
+    window.__LAST_PACK = lastPack || '';
+    var qmsg = document.getElementById('q_message');
+    if(qmsg){
+      var add = 'Pacchetto di interesse: ' + (lastPack || '');
+      var current = (qmsg.value||'').trim();
+      if(!current.includes(add)){
+        qmsg.value = current ? (current + '\n' + add) : add;
+      }
+    }
+    // aggiorna WA CTA se presente
+    var wa = document.getElementById('ctaWhatsApp');
+    var cfg = window.__CONFIG || {};
+    var waNumber = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+    if(wa && waNumber){
+      var p = {
+        pack: lastPack || '',
+        name: (document.getElementById('q_name')||{}).value || '',
+        email: (document.getElementById('q_email')||{}).value || '',
+        phone: (document.getElementById('q_phone')||{}).value || '',
+        service: (function(){
+          var el=document.getElementById('q_service');
+          return el && el.value ? el.options[el.selectedIndex].text : '';
+        })(),
+        message: (document.getElementById('q_message')||{}).value || ''
+      };
+      var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌'));
+      wa.href = 'https://wa.me/'+waNumber+'?text='+text;
+    }
+  }
+
+  // click sui bottoni "Seleziona"
+  document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var card = a.closest('.pack-card'); if(!card) return;
+      var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+      e.preventDefault();
+      prefillPack(pack);
+      smoothToContacts();
+    }, {passive:false});
+  });
+
+  // click sull'intera card
+  document.querySelectorAll('#pacchetti-videoprofessionali .pack-card').forEach(function(card){
+    card.addEventListener('click', function(e){
+      if(e.target.closest('a')) return; // già gestito
+      var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+      e.preventDefault && e.preventDefault();
+      prefillPack(pack);
+      smoothToContacts();
+    }, {passive:false});
+  });
+
+  // Aggiorna il bottone WA della CTA quando cliccato (anche senza pack)
+  var waBtn = document.getElementById('ctaWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      prefillPack(lastPack||'');
+    });
+  }
+})();
+</script>
 
 <!-- ====== i18n EXTEND (Pacchetti + CTA + Bio) ====== -->
 <script>
@@ -1248,10 +1210,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 </script>
 <!-- FINE PARTE 3 / 5 -->
 
+
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (REFATTO)
-(Reviews: Backend Apps Script con API KEY + fallback GVIZ • Modale nuova recensione → POST backend
-Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS solo qui; nessun overflow orizzontale)
+PART 4 / 5 — RECENSIONI • CONTATTI (refatto)
+(Reviews live: store → GVIZ CSV → Apps Script; Contatti verticali; ordine campi; WA/Email dinamici)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1262,7 +1224,7 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
   </header>
 
   <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- 3 seed (subito visibili) -->
+    <!-- 3 seed visibili subito -->
     <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
       <img src="/media/client-1.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
@@ -1309,8 +1271,8 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
         <button type="button" class="btn" id="closeReview" aria-label="Chiudi">×</button>
       </header>
 
-      <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr">
-        <div class="field" style="grid-column:1 / -1">
+      <div class="grid" style="gap:10px;grid-template-columns:1fr">
+        <div class="field">
           <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
           <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
         </div>
@@ -1331,13 +1293,13 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
           </select>
         </div>
 
-        <div class="field" style="grid-column:1 / -1">
+        <div class="field">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
           <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
           <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
 
-        <div style="grid-column:1 / -1; display:flex; align-items:center; gap:10px">
+        <div style="display:flex; align-items:center; gap:10px">
           <div id="r_preview_wrap" style="width:54px;height:54px;border-radius:999px;overflow:hidden;border:1px solid var(--stroke);background:rgba(255,255,255,.04);display:grid;place-items:center">
             <img id="r_preview" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
             <span id="r_preview_ph" class="soft" style="font-size:12px">—</span>
@@ -1345,7 +1307,7 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
           <small class="soft" data-i18n="reviews.photoPreview">Anteprima miniatura</small>
         </div>
 
-        <div class="field" style="grid-column:1 / -1">
+        <div class="field">
           <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
           <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
         </div>
@@ -1392,29 +1354,20 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     <span class="soft" data-i18n="contact.subtitle">Brief gratuito • risposta in giornata</span>
   </header>
 
-  <div class="glass" style="border-radius:16px;padding:14px;overflow:hidden">
-    <!-- Layout: colonna sinistra (Email, Nome, Telefono, Messaggio) • colonna destra SOLO Select -->
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:2fr 1fr;grid-auto-rows:min-content">
-      <!-- Colonna sinistra -->
-      <div class="field" style="grid-column:1">
-        <label class="label" for="q_email" data-i18n="contact.email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
-      </div>
-      <div class="field" style="grid-column:1">
+  <div class="glass" style="border-radius:16px;padding:14px">
+    <!-- 1 colonna: un campo per riga -->
+    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:1fr">
+      <div class="field">
         <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
         <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
       </div>
-      <div class="field" style="grid-column:1">
-        <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
-      </div>
-      <div class="field" style="grid-column:1 / 2">
-        <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
-        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
+
+      <div class="field">
+        <label class="label" for="q_email" data-i18n="contact.email">Email</label>
+        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
       </div>
 
-      <!-- Colonna destra: solo selezione servizio -->
-      <div class="field" style="grid-column:2 / 3; grid-row: 1 / span 3; align-self:start">
+      <div class="field">
         <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
         <select id="q_service" class="control" required>
           <option value="" disabled selected data-i18n="contact.service.select">Seleziona…</option>
@@ -1427,7 +1380,17 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
         </select>
       </div>
 
-      <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
+      <div class="field">
+        <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
+        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
+      </div>
+
+      <div class="field">
+        <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
+        <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
         <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
         <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
       </div>
@@ -1444,44 +1407,25 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     #contatti select, #contatti option,
     #reviewModal select, #reviewModal option{ font-size:17px !important; }
     #contatti ::placeholder, #reviewModal ::placeholder{ font-size:17px !important; opacity:.85; }
-    @media (max-width:900px){
-      /* mobile: tutto in colonna, centrato, senza overflow destro */
-      #quoteForm{ grid-template-columns:1fr !important }
-      #contatti .glass{ padding:14px 12px }
-      html, body{ overflow-x:hidden }
-    }
   </style>
 </section>
 
-<!-- ===== SCRIPT: Reviews (Backend + fallback) • Contatti (Email/WA) • iOS Anti-Zoom ===== -->
+<!-- ===== SCRIPT: Reviews loader + Contatti (Email/WA) + Salvataggio su Backend ===== -->
 <script>
 (function(){
-  /* ===== CONFIG ===== */
+  /* ======= CONFIG recensioni (GVIZ + Backend Apps Script) ======= */
+  var CFG = window.__CONFIG || {};
+  var SHEET_GVIZ = CFG.REVIEWS_SRC || (function(){
+    // fallback GVIZ: cambia ID/GID se serve
+    var id='1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g', gid='0';
+    return 'https://docs.google.com/spreadsheets/d/' + id + '/gviz/tq?tqx=out:json&gid=' + gid;
+  })();
+
+  // Backend Apps Script (dati forniti)
   var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
-  var API_KEY     = 'acfilms_2025_secretKey_93Jv7';
-  var SHEET_ID    = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
-  var SHEET_GID   = '0';
-  var GVIZ_CSV    = 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/export?format=csv&gid='+SHEET_GID;
+  var BACKEND_KEY = 'acfilms_2025_secretKey_93Jv7';
 
-  var cfg = window.__CONFIG || (window.__CONFIG = {});
-  cfg.EMAIL     = cfg.EMAIL     || 'andreacolucci@hotmail.it';
-  cfg.WA_NUMBER = (cfg.WA_NUMBER|| '393910911719').replace(/[^\d]/g,'');
-  cfg.leadText  = cfg.leadText  || function(p){
-    var lines = [
-      'Ciao Andrea! 👋',
-      'Ti scrivo dal sito. Vorrei un preventivo. 📽️',
-      p.pack ? ('Pacchetto: ' + p.pack) : null,
-      '— Dati —',
-      'Nome: ' + (p.name || '-'),
-      'Email: ' + (p.email || '-'),
-      'Telefono/WA: ' + (p.phone || '-'),
-      'Servizio: ' + (p.service || '-'),
-      p.message ? ('Messaggio:\\n' + p.message) : null
-    ].filter(Boolean);
-    return lines.join('\\n');
-  };
-
-  /* ===== Utils ===== */
+  /* ======= Utils UI ======= */
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
   function appendReviewCard(rec, grid){
     var fig=document.createElement('figure');
@@ -1490,7 +1434,7 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     var img=document.createElement('img');
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = rec.img && /^data:image\\//.test(rec.img) ? rec.img :
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
               (rec.img && rec.img.trim() ? rec.img.trim() :
               ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
     var cap=document.createElement('figcaption');
@@ -1502,8 +1446,8 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     fig.appendChild(img); fig.appendChild(cap);
     grid.appendChild(fig);
   }
-  function updateAggregate(avgEl, jsonLdEl, baseStars, extraRecs){
-    var arr = (baseStars||[]).concat((extraRecs||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+  function updateAggregate(avgEl, jsonLdEl, baseStars, extra){
+    var arr = (baseStars||[]).concat((extra||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
     if(!arr.length) return;
     var avg = Math.round((arr.reduce((a,b)=>a+b,0)/arr.length)*10)/10;
     if(avgEl) avgEl.textContent = (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
@@ -1519,97 +1463,57 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     }
   }
 
-  /* ===== Loader Recensioni (Backend → fallback GVIZ CSV) ===== */
-  async function fetchBackend(){
-    var url = BACKEND_URL + '?key=' + encodeURIComponent(API_KEY);
-    var r = await fetch(url, {method:'GET', cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    var j = await r.json();
-    if(!j || !j.ok || !Array.isArray(j.items)) throw new Error('bad payload');
-    // normalizza
-    return j.items.map(function(x){
-      return {
-        ts: Number(x.ts)||0, name: String(x.name||''), role: String(x.role||''),
-        stars: Math.max(1,Math.min(5,Number(x.stars)||5)),
-        text: String(x.text||''), img: String(x.img||'')
-      };
-    }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-  }
-  function parseCSV(text){
-    var rows=[], cur=[], i=0, c, q=false, val='';
-    while(i<text.length){
-      c=text[i++];
-      if(q){
-        if(c==='"' && text[i]==='"'){ val+='"'; i++; }
-        else if(c==='"'){ q=false; }
-        else{ val+=c; }
-      }else{
-        if(c==='"' ){ q=true; }
-        else if(c===','){ cur.push(val); val=''; }
-        else if(c==='\n' || c==='\r'){
-          if(val!=='' || cur.length){ cur.push(val); rows.push(cur); cur=[]; val=''; }
-          if(c==='\r' && text[i]==='\n') i++;
-        }else{ val+=c; }
+  /* ======= GVIZ parser ======= */
+  function parseGVIZ(text, map){
+    var start=text.indexOf('('), end=text.lastIndexOf(')');
+    var json = JSON.parse(text.slice(start+1,end));
+    var rows=(json.table && json.table.rows)||[];
+    var out=[]; var MAP = map || ['ts','name','role','stars','text','img'];
+    rows.forEach(function(r){
+      if(!r || !r.c) return;
+      var o={};
+      for(var i=0;i<MAP.length;i++){
+        var cell = r.c[i] && (r.c[i].v != null ? r.c[i].v : r.c[i].f);
+        o[MAP[i]] = cell == null ? '' : cell;
       }
-    }
-    if(val!=='' || cur.length) cur.push(val), rows.push(cur);
-    return rows;
+      if(o.stars!=null){ o.stars = Number(String(o.stars).replace(',','.')) || 5; }
+      if(o.ts){ var d=new Date(o.ts); if(!isNaN(d)) o.ts=d.toISOString(); }
+      out.push(o);
+    });
+    return out;
   }
-  async function fetchCSV(url){
-    var r = await fetch(url, {cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    return await r.text();
-  }
+
+  /* ======= Load reviews: store → GVIZ ======= */
   async function loadReviews(){
     var grid = document.getElementById('reviewsGrid');
     var avg  = document.getElementById('avgRatingText');
     var ld   = document.getElementById('reviewsJsonLd');
-    if(!grid) return;
+    var loaded = [];
 
-    let loaded = [];
-    try{
-      loaded = await fetchBackend();                      // 1) BACKEND UFFICIALE
-    }catch(_){
+    // 1) se Parte 1 ha già caricato
+    if(window.__reviewsStore && Array.isArray(window.__reviewsStore.data) && window.__reviewsStore.data.length){
+      loaded = window.__reviewsStore.data.slice();
+    }else{
+      // 2) fallback GVIZ
       try{
-        var csv = await fetchCSV(GVIZ_CSV);              // 2) FALLBACK GVIZ CSV
-        var rows = parseCSV(csv);
-        if(rows.length){
-          var head = rows[0].map(s=>s.trim().toLowerCase());
-          var idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
-                       stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
-          loaded = rows.slice(1).map(function(r){
-            return {
-              ts:   idx.ts>=0 ? Number(r[idx.ts]||0) : 0,
-              name: idx.name>=0 ? r[idx.name]||'' : '',
-              role: idx.role>=0 ? r[idx.role]||'' : '',
-              stars: idx.stars>=0 ? Math.max(1,Math.min(5,parseInt(r[idx.stars]||'5',10))) : 5,
-              text: idx.text>=0 ? (r[idx.text]||'') : '',
-              img:  idx.img>=0 ? (r[idx.img]||'') : ''
-            };
-          }).filter(x=>x.name||x.text);
+        var r = await fetch(SHEET_GVIZ, {cache:'no-store'});
+        if(r.ok){
+          var txt = await r.text();
+          loaded = parseGVIZ(txt);
         }
       }catch(_){}
     }
 
-    // Cache locale “soft”
-    if(loaded.length){ try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
-    } else {
-      try{
-        var cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
-        if(Array.isArray(cache)) loaded = cache;
-      }catch(_){}
-    }
-
     // Appendi
-    loaded.forEach(function(r){ appendReviewCard(r, grid); });
+    loaded.forEach(function(rec){ appendReviewCard(rec, grid); });
 
-    // Media (seed: 5,5,4)
-    updateAggregate(avg, ld, [5,5,4], loaded.concat(__REVIEWS_NEW));
+    // Aggiorna media (seed: 5,5,4)
+    updateAggregate(avg, ld, [5,5,4], loaded.concat(window.__REVIEWS_NEW||[]));
   }
 
-  /* ===== Contatti: Email + WhatsApp ===== */
-  function val(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
-  function payload(){
+  /* ======= Contatti: Email + WhatsApp ======= */
+  function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
+  function buildPayload(){
     return {
       pack:   (window.__LAST_PACK || ''),
       name:   val('q_name'),
@@ -1619,37 +1523,50 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
       message:val('q_message')
     };
   }
-  function mailBody(p){
+  function buildMailBody(p){
     return (
-      "Richiesta preventivo dal sito Andrea Colucci Films\\n\\n" +
-      (p.pack ? ("Pacchetto: " + p.pack + "\\n\\n") : "") +
-      "Nome: " + (p.name || '-') + "\\n" +
-      "Email: " + (p.email || '-') + "\\n" +
-      "Telefono/WA: " + (p.phone || '-') + "\\n" +
-      "Servizio: " + (p.service || '-') + "\\n\\n" +
-      (p.message ? ("Messaggio:\\n" + p.message) : "")
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      (p.pack ? ("Pacchetto: " + p.pack + "\n\n") : "") +
+      "Nome: " + (p.name || '-') + "\n" +
+      "Email: " + (p.email || '-') + "\n" +
+      "Telefono/WA: " + (p.phone || '-') + "\n" +
+      "Servizio: " + (p.service || '-') + "\n\n" +
+      (p.message ? ("Messaggio:\n" + p.message) : "")
     );
   }
+
   var mailBtn = document.getElementById('sendMail');
   if(mailBtn){
     mailBtn.addEventListener('click', function(e){
       e.preventDefault();
-      var p = payload();
+      var p = buildPayload();
       var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      var body    = encodeURIComponent(mailBody(p));
-      location.href = "mailto:"+cfg.EMAIL+"?subject="+subject+"&body="+body;
+      var body    = encodeURIComponent(buildMailBody(p));
+      location.href = "mailto:" + ( (window.__CONFIG&&window.__CONFIG.EMAIL) || "andreacolucci@hotmail.it") + "?subject="+subject+"&body="+body;
     }, {passive:false});
   }
+
   var waBtn = document.getElementById('sendWhatsApp');
   if(waBtn){
     waBtn.addEventListener('click', function(){
-      var p = payload();
-      var text = encodeURIComponent(cfg.leadText ? cfg.leadText(p) : '');
-      waBtn.href = "https://wa.me/" + cfg.WA_NUMBER + "?text=" + text;
+      var p = buildPayload();
+      var cfg = window.__CONFIG || {};
+      var waNumber = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+      var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌'));
+      waBtn.href = "https://wa.me/" + waNumber + "?text=" + text;
     });
   }
 
-  /* ===== Modale Recensioni: preview + salvataggio su BACKEND ===== */
+  // quickWK (se esiste altrove)
+  var quickWA = document.getElementById('quickWA');
+  if(quickWA){
+    var cfg = window.__CONFIG || {};
+    var n = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+    var text = encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
+    quickWA.href = "https://wa.me/" + n + "?text=" + text;
+  }
+
+  /* ======= Modale Recensioni: preview + salvataggio su Backend ======= */
   var grid     = document.getElementById('reviewsGrid');
   var avgText  = document.getElementById('avgRatingText');
   var LD       = document.getElementById('reviewsJsonLd');
@@ -1681,6 +1598,7 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
       fr.readAsDataURL(file);
     }catch(e){ cb(e); }
   }
+
   fileIn && fileIn.addEventListener('change', function(){
     var f = this.files && this.files[0];
     if(!f || !f.type.startsWith('image/')){
@@ -1691,7 +1609,8 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
       preview.src = data; preview.style.display='block'; previewPh.style.display='none';
     });
   });
-  function recordFromForm(){
+
+  function buildRecord(){
     var name = (document.getElementById('r_name')||{}).value || '';
     var role = (document.getElementById('r_role')||{}).value || '';
     var stars= parseInt((document.getElementById('r_stars')||{}).value||'5',10);
@@ -1700,6 +1619,7 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
     if(!name || !text) return null;
     return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
   }
+
   function resetModal(){
     try{ form && form.reset(); }catch(_){}
     if(preview) preview.style.display='none';
@@ -1721,52 +1641,37 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
   });
 
   async function saveToBackend(rec){
-    var r = await fetch(BACKEND_URL + '?key=' + encodeURIComponent(API_KEY), {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img
-      })
-    });
-    var j = await r.json().catch(()=>({ok:false}));
-    if(!j || !j.ok) throw new Error('save failed');
-    return true;
+    try{
+      var resp = await fetch(BACKEND_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ key: BACKEND_KEY, name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img })
+      });
+      // non blocchiamo la UI se fallisce; logghiamo solo
+      if(!resp.ok){ console.warn('[reviews] backend HTTP', resp.status); }
+      else {
+        var j = await resp.json().catch(()=>({}));
+        if(j && j.ok !== true) console.warn('[reviews] backend reply', j);
+      }
+    }catch(err){ console.warn('[reviews] backend error', err); }
   }
 
-  async function handleSave(e){
+  function handleSave(e){
     if(e) e.preventDefault();
-    var rec = recordFromForm();
+    var rec = buildRecord();
     if(!rec) return;
-
     // UI immediata
     appendReviewCard(rec, grid);
     window.__REVIEWS_NEW.push(rec);
     updateAggregate(avgText, LD, [5,5,4], __REVIEWS_NEW);
     closeModal();
-
-    // Persistenza backend (best-effort; se fallisce resta in pagina)
-    try{ await saveToBackend(rec); }catch(_){}
+    // Persistenza su Apps Script
+    saveToBackend(rec);
   }
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  /* ===== iOS anti-zoom SOLO su #contatti ===== */
-  (function(){
-    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-    if(!isiOS) return;
-    var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
-    var vp = document.querySelector('meta[name="viewport"]');
-    function ensureVP(){ if(!vp){ vp=document.createElement('meta'); vp.name='viewport'; vp.content=VP_BASE; document.head.appendChild(vp); } }
-    function noZoom(){ ensureVP(); vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
-    function yesZoom(){ ensureVP(); vp.setAttribute('content', VP_BASE); }
-    function isCtrl(el){ return el && el.closest && el.closest('#contatti') && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(el.tagName); }
-    document.addEventListener('focusin', function(e){ if(isCtrl(e.target)){ noZoom(); } }, {passive:true});
-    document.addEventListener('blur', function(e){ if(isCtrl(e.target)){ setTimeout(yesZoom,60); } }, true);
-    window.addEventListener('gesturestart', yesZoom, {passive:true});
-  })();
-
-  // Avvio
+  // Carica le recensioni
   loadReviews();
 })();
 </script>
@@ -1884,9 +1789,10 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
 </script>
 <!-- FINE PARTE 4 / 5 -->
 
+
 <!-- ==========================
-PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
-(look identico; nessun meta viewport duplicato; WA dinamico da __CONFIG; i18n esteso; no overflow mobile)
+PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (fix)
+(look identico; mobile compatto e centrato; WA dinamico da __CONFIG; i18n esteso)
 ========================== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
@@ -1949,7 +1855,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
 
       <div style="margin-top:14px;border-top:1px solid var(--stroke);padding-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
         <small class="soft">© 2025 Andrea Colucci — All rights reserved</small>
-        <div style="display:flex;gap:12px;align-items:center">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
           <a class="link" href="#privacy" data-i18n="footer.privacy">Privacy</a>
           <a class="link" href="#cookie" data-i18n="footer.cookie">Cookie</a>
           <a class="link" href="#terms" data-i18n="footer.terms">Termini</a>
@@ -1958,6 +1864,17 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
       </div>
     </div>
   </div>
+
+  <!-- responsive fix footer -->
+  <style>
+    @media (max-width:900px){
+      #footer .grid{ grid-template-columns:1fr 1fr !important }
+    }
+    @media (max-width:640px){
+      #footer .grid{ grid-template-columns:1fr !important }
+      #footer .btn{ padding:10px 14px; }
+    }
+  </style>
 </footer>
 
 <!-- ====== POLICY (accordion compatto) ====== -->
@@ -1991,13 +1908,13 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
     </details>
   </div>
 
+  <!-- responsive fix policy -->
   <style>
-    /* Mobile: 1 colonna + padding ridotto, no overflow orizzontale */
     @media (max-width:900px){
+      #policy .grid{ grid-template-columns:1fr 1fr !important }
+    }
+    @media (max-width:640px){
       #policy .grid{ grid-template-columns:1fr !important }
-      #footer .grid{ grid-template-columns:1fr !important }
-      #footer .glass{ border-radius:16px }
-      html, body{ overflow-x:hidden }
     }
   </style>
 </section>
@@ -2015,25 +1932,38 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
     }, {passive:false});
   }
 
-  // WhatsApp nel footer (riusa __CONFIG.WA_NUMBER + leadText)
+  // WhatsApp nel footer: genera sempre testo live dai campi del form (se presenti)
   (function(){
     var wa = document.getElementById('footerWA');
     if(!wa) return;
-    var cfg    = window.__CONFIG || {};
-    var number = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
-    var p = {
-      pack: (window.__LAST_PACK || ''),
-      name: (document.getElementById('q_name')||{}).value || '',
-      email:(document.getElementById('q_email')||{}).value || '',
-      phone:(document.getElementById('q_phone')||{}).value || '',
-      service:(function(){ var el=document.getElementById('q_service'); return el && el.value ? el.options[el.selectedIndex].text : ''; })(),
-      message:(document.getElementById('q_message')||{}).value || ''
-    };
-    var text = encodeURIComponent(cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌');
-    wa.href = 'https://wa.me/' + number + '?text=' + text;
+    function payload(){
+      var q = function(id){ var el=document.getElementById(id); return el? (el.value||'').trim() : ''; };
+      return {
+        pack:(window.__LAST_PACK||''),
+        name:q('q_name'),
+        email:q('q_email'),
+        phone:q('q_phone'),
+        service:(function(){ var el=document.getElementById('q_service'); return el&&el.value? el.options[el.selectedIndex].text : ''; })(),
+        message:q('q_message')
+      };
+    }
+    function updateWA(){
+      var cfg = window.__CONFIG || {};
+      var number = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+      var text = encodeURIComponent( (cfg.leadText ? cfg.leadText(payload()) : 'Ciao Andrea! Ti scrivo dal sito 🙌') );
+      wa.href = 'https://wa.me/' + number + '?text=' + text;
+    }
+    // aggiorna al click e quando cambiano i campi noti
+    wa.addEventListener('click', updateWA);
+    ['q_name','q_email','q_phone','q_service','q_message'].forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      el.addEventListener('input', updateWA, {passive:true});
+      el.addEventListener('change', updateWA, {passive:true});
+    });
+    updateWA();
   })();
 
-  // Apri details corretti se atterro da link del footer (Privacy/Cookie/Termini)
+  // Apri details da hash (Privacy/Cookie/Termini) + scroll morbido
   (function(){
     function openFromHash(){
       if(!location.hash) return;
@@ -2139,5 +2069,8 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
     });
   })();
 })();
+</script>
+<!-- FINE PARTE 5 / 5 -->
+
 </script>
 <!-- FINE PARTE 5 / 5 -->
