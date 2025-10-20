@@ -318,18 +318,50 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
       });
     })();
   </script>
-  <!-- ===== CONFIG RECENSIONI (collega Apps Script + fallback GVIZ) ===== -->
+  <!-- ===== CONFIG RECENSIONI (Apps Script + GVIZ fallback) ===== -->
 <script>
-window.__CONFIG = Object.assign(window.__CONFIG || {}, {
-  // === BACKEND principale (Apps Script) ===
-  REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
-  REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
-  REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
+(function(){
+  // Mantieni eventuali chiavi già definite (EMAIL, WA_NUMBER, ecc.)
+  window.__CONFIG = window.__CONFIG || {};
 
-  // === Fallback GVIZ diretto al foglio ===
-  REVIEWS_GVIZ:  'https://docs.google.com/spreadsheets/d/1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g/gviz/tq?tqx=out:json&gid=0'
-});
+  // === Endpoint principali (tuoi URL già validati) ===
+  Object.assign(window.__CONFIG, {
+    // Backend Apps Script (READ JSON)
+    REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
+
+    // Backend Apps Script (WRITE JSON)
+    REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
+
+    // Chiave di sicurezza condivisa con l’Apps Script
+    REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
+
+    // === Fallback diretto Google Sheet (GVIZ JSON) ===
+    // Assicurati che il foglio sia “Chiunque con il link → Visualizzatore”
+    REVIEWS_GVIZ:  'https://docs.google.com/spreadsheets/d/1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g/gviz/tq?tqx=out:json&gid=0',
+
+    // (opzionale) Altri CSV pubblici da usare come ulteriori fallback
+    REVIEWS_CSVS: []
+  });
+
+  // Hardening: normalizza a stringa le chiavi critiche
+  ['REVIEWS_READ','REVIEWS_WRITE','REVIEWS_KEY','REVIEWS_GVIZ'].forEach(function(k){
+    if (window.__CONFIG[k] != null) window.__CONFIG[k] = String(window.__CONFIG[k]);
+  });
+
+  // Piccolo log diagnostico (una sola volta)
+  if (!window.__CFG_LOGGED) {
+    window.__CFG_LOGGED = true;
+    try {
+      console.info('[CONFIG] Reviews wired:', {
+        read: !!window.__CONFIG.REVIEWS_READ,
+        write: !!window.__CONFIG.REVIEWS_WRITE,
+        gviz: !!window.__CONFIG.REVIEWS_GVIZ
+      });
+    } catch(_) {}
+  }
+})();
 </script>
+
 
 </head>
 <body>
