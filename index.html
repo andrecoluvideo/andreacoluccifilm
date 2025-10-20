@@ -376,9 +376,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
       }, {passive:true});
     })();
   </script>
-
-</body>
-</html>
+  
 <!-- FINE PARTE 1 / 5 -->
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (incolonnati)
@@ -1415,7 +1413,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
       }catch(_){}
     }
 
-    // 4) Apps Script Web App (opzionale) — definisci window.__REVIEWS_CONFIG.endpoint = 'https://script.google.com/macros/s/DEPLOYMENT_ID/exec'
+    // 4) Apps Script Web App (opzionale) — definisci window.__REVIEWS_CONFIG.endpoint = https://script.google.com/macros/s/AKfycbxWRUoEJEBadg_PMfLzIVrgkQ01-PMJOmEi6kD55BScQ-_i0qIBkYiXelzR--aTA4cTDQ/exec
     if(!extra.length && window.__REVIEWS_CONFIG && window.__REVIEWS_CONFIG.endpoint){
       try{
         const url = new URL(window.__REVIEWS_CONFIG.endpoint);
