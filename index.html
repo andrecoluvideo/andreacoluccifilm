@@ -1,19 +1,19 @@
 <!-- ==========================
-PART 1 / 5 — NAV • HERO • METRICHE • i18n base
-(look IDENTICO; fix funzionali: meta viewport pulito, anti-zoom iOS centralizzato e valido)
+PART 1 / 5 — NAV • TOP-REVIEWS • HERO • METRICHE • i18n base
+(look IDENTICO; fix funzionali: viewport unico pulito + anti-zoom iOS centralizzato valido per #contatti/#reviewModal nelle parti successive)
 ========================== -->
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ Viewport “base” (niente maximum-scale qui; verrà gestito dallo script in fondo) -->
+  <!-- ✅ Viewport “base” (senza maximum-scale fisso; lo gestiamo via script sugli input del preventivo nelle parti successive) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
 
-  <!-- Performance: preconnect ai font (nessun impatto visivo) -->
+  <!-- Performance: preconnect ai font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
@@ -47,17 +47,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     /* NAV */
     .nav{position:sticky;top:0;z-index:60;background:linear-gradient(to right, rgba(11,15,20,.85), rgba(11,15,20,.6));backdrop-filter: blur(8px);border-bottom:1px solid var(--stroke); transition: transform .25s ease; will-change: transform;}
     @media (max-width:700px){ .nav.nav--hidden{ transform: translateY(calc(-100% - 2px)); } }
-    /* Mobile: riduci pulsante "Richiedi preventivo" nella navbar */
-    @media (max-width:700px){
-      .nav .btn[data-i18n="nav.quote"]{
-        font-size: 13px !important;
-        padding: 4px 10px !important;
-        border-radius: 20px !important;
-        line-height: 1.1;
-        transform: scale(.95);
-      }
-      .nav .btn[data-i18n="nav.quote"]:not(:hover){ opacity:.9; }
-    }
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
     .brand .logo{width:28px;height:28px}
@@ -65,6 +54,24 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .lang{display:flex;gap:8px;margin-left:8px}
     .lang a{padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff}
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
+    /* Mobile: riduci pulsante "Richiedi preventivo" nella navbar */
+    @media (max-width:700px){
+      .nav .btn[data-i18n="nav.quote"]{
+        font-size: 13px !important;
+        padding: 6px 12px !important;
+        border-radius: 18px !important;
+        line-height: 1.1;
+        transform: translateY(-1px);
+      }
+    }
+
+    /* TOP REVIEWS STRIP */
+    .topbar{position:relative;z-index:55;border-bottom:1px solid var(--stroke);background:
+      radial-gradient(800px 180px at 10% -40%, rgba(46,231,255,.08), transparent 60%),
+      rgba(255,255,255,.02);}
+    .topbar-inner{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px}
+    .stars{letter-spacing:1px}
+    .topbar a{display:inline-flex;align-items:center;gap:8px}
 
     /* HERO */
     .hero{position:relative;overflow:hidden;background:#0b0f14}
@@ -83,46 +90,18 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .metric{padding:12px 14px;text-align:center}
 
-    /* Responsive invariato */
+    /* Mobile adjustments conservativi */
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
     @media (max-width:700px){
       .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))}
-    }
-
-    /* Utility grid globale */
-    .grid{display:grid}
-
-    /* ===== MOBILE-ONLY STACKING (desktop invariato) ===== */
-    @media (max-width: 700px){
       section.container{ padding: 26px 0 !important; }
       .container{ padding-left:14px; padding-right:14px; }
-
       .hero-grid{ grid-template-columns: 1fr !important; gap: 18px !important; }
-
-      #servizi .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-      #servizi article.glass{ padding:16px !important; }
-
-      #reel .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-      .ratio.slim{ padding-top: 56% !important; }
-
-      #pacchetti-videoprofessionali .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-      #pacchetti-videoprofessionali .pack-card img{ height: 160px !important; }
-
-      #bio .bio-wrap{ grid-template-columns: 1fr !important; }
-      #bio .bio-media{ min-height: 220px !important; }
-
-      #recensioni #reviewsGrid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-
-      #contatti form.grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-
-      #policy .grid{ grid-template-columns: 1fr !important; gap: 10px !important; }
-      #footer .grid{ grid-template-columns: 1fr !important; gap: 12px !important; }
-
       .btn{ padding:12px 16px !important; }
     }
   </style>
 
-  <!-- ✅ iOS anti-zoom consolidato e valido (font reali ≥17px su #contatti e modali) -->
+  <!-- ✅ iOS anti-zoom centralizzato (agirà su #contatti e #reviewModal quando presenti) -->
   <style id="ios-nozoom">
     @supports (-webkit-touch-callout: none) {
       #contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control,
@@ -132,18 +111,22 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         min-height:44px !important;
         -webkit-text-size-adjust:100% !important;
       }
-      #contatti select, #contatti option,
-      #reviewModal select, #reviewModal option {
-        font-size:17px !important;
-      }
-      #contatti ::placeholder, #reviewModal ::placeholder {
-        font-size:17px !important; opacity:.8;
-      }
+      #contatti ::placeholder, #reviewModal ::placeholder { font-size:17px !important; opacity:.85; }
     }
     html { -webkit-text-size-adjust:100%; }
   </style>
 </head>
 <body>
+
+  <!-- ====== TOP REVIEWS (linka a #recensioni) ====== -->
+  <div class="topbar" role="region" aria-label="Valutazioni">
+    <div class="container topbar-inner">
+      <span class="soft" aria-hidden="true">★</span>
+      <span class="soft stars" aria-label="Valutazione media">★★★★★</span>
+      <span class="soft" data-i18n="topreviews.text">Valutazione media 4.9/5 — 36 recensioni</span>
+      <a href="#recensioni" class="btn" data-i18n="topreviews.cta">Leggi le recensioni</a>
+    </div>
+  </div>
 
   <!-- ====== NAV ====== -->
   <nav class="nav" aria-label="Main">
@@ -230,19 +213,19 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     </div>
   </section>
 
-  <!-- (Segnaposto #contatti per ancoraggio CTA) -->
-  <section id="contatti-anchor" style="padding:1px 0"></section>
-
-  <!-- ====== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ====== -->
+  <!-- ===== i18n BASE + switch lingua senza scroll + CTA sempre a #contatti ===== -->
   <script>
     (function(){
-      // Dizionari base (le Parti 2→5 potranno estendere con window.__i18n.__dict)
+      // Dizionari base
       window.__i18n = window.__i18n || { __dict:{}, apply:null };
 
       const base = {
         it:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.",
+          "topreviews.text":"Valutazione media 4.9/5 — 36 recensioni",
+          "topreviews.cta":"Leggi le recensioni",
+
           "nav.reel":"Reel","nav.services":"Servizi","nav.packs":"Pacchetti","nav.reviews":"Recensioni","nav.quote":"Richiedi preventivo",
           "hero.badge":"Chiavari · Riviera di Levante",
           "hero.title":"Video che parlano, immagini che restano",
@@ -256,6 +239,9 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         en:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker for brands, weddings and travel. Cinematic look and social performance. Chiavari & Riviera di Levante.",
+          "topreviews.text":"Average rating 4.9/5 — 36 reviews",
+          "topreviews.cta":"Read reviews",
+
           "nav.reel":"Reel","nav.services":"Services","nav.packs":"Packages","nav.reviews":"Reviews","nav.quote":"Get a quote",
           "hero.badge":"Chiavari · Riviera di Levante",
           "hero.title":"Videos that speak, images that stay",
@@ -269,19 +255,22 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         es:{
           "meta.title":"Andrea Colucci — Filmmaker | Chiavari & Riviera",
           "meta.description":"Filmmaker para marcas, bodas y travel. Look cinematográfico y rendimiento social. Chiavari y la Riviera de Levante.",
+          "topreviews.text":"Valoración media 4.9/5 — 36 reseñas",
+          "topreviews.cta":"Leer reseñas",
+
           "nav.reel":"Reel","nav.services":"Servicios","nav.packs":"Paquetes","nav.reviews":"Reseñas","nav.quote":"Pide presupuesto",
           "hero.badge":"Chiavari · Riviera de Levante",
           "hero.title":"Vídeos que hablan, imágenes que perduran",
           "hero.subtitle":"Comerciales, bodas y brand/travel con look cinematográfico y rendimiento social. Dron 4K certificado. Disponible en Liguria y donde haga falta.",
           "cta.watch":"Ver el Reel","cta.quote":"Pedir presupuesto",
           "bio.previewTitle":"Andrea Colucci","bio.previewSub":"Filmmaker · Narrador visual",
-          "bio.previewText":"300+ proyectos entre spots, videoclips y branded content. 1.2M+ visualizaciones en YT e IG. Ritmo, atmósfera y narrativa que permanece.",
+          "bio.previewText":"300+ proyectos entre spots, videoclips y branded content. 1.2M+ visualizaciones en YT e IG. Ritmo, atmósfera y narrativa perdurable.",
           "bio.previewCta":"Ver servicios",
           "stats.projects":"Proyectos","stats.views":"Visualizaciones totales","stats.drone":"Certificado","stats.camera":"Log / Códec Pro"
         }
       };
 
-      // Applica traduzioni (senza toccare layout/markup)
+      // Applica traduzioni
       window.__i18n.apply = function(lang){
         const dict = Object.assign({}, base[lang]||base.it, window.__i18n.__dict?.[lang]||{});
         document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -297,13 +286,13 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         });
       };
 
-      // Init lingua da URL o localStorage (mantiene lo scroll)
+      // Init lingua da URL/localStorage (mantiene lo scroll)
       const urlLang = new URLSearchParams(location.search).get('lang');
       const saved   = localStorage.getItem('ac_lang');
       const start   = urlLang || saved || document.documentElement.lang || 'it';
       window.__i18n.apply(start);
 
-      // Switch lingua senza refresh/scroll (preserva posizione)
+      // Switch lingua senza refresh/scroll
       document.querySelectorAll('.lang [data-lang]').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -331,7 +320,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
       }
-      // Cattura TUTTI i click su link che devono portare ai contatti
       document.addEventListener('click', function(e){
         var a = e.target.closest('a'); if(!a) return;
         if(a.getAttribute('href') === '#contatti'){ return toContacts(e); }
@@ -371,12 +359,82 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base
     })();
   </script>
 
+  <!-- ===== HOTFIX iOS anti-zoom (non tocca il viewport base; applica noZoom SOLO quando servirà su #contatti/#reviewModal) ===== -->
+  <script>
+  (function(){
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    if(!isiOS) return;
+
+    var vp = document.querySelector('meta[name="viewport"]');
+    var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+
+    // 1) Assicura un solo meta viewport base, senza maximum-scale
+    (function normalize(){
+      var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
+      if(!metas.length){
+        var m = document.createElement('meta');
+        m.name = 'viewport'; m.content = VP_BASE;
+        document.head.appendChild(m);
+        vp = m;
+      } else {
+        for(var i=1;i<metas.length;i++) metas[i].remove();
+        metas[0].setAttribute('content', VP_BASE);
+        vp = metas[0];
+      }
+    })();
+
+    function noZoom(){ if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
+    function yesZoom(){ if(vp) vp.setAttribute('content', VP_BASE); }
+
+    function ensure17px(el){
+      try{
+        var fs = parseFloat(getComputedStyle(el).fontSize)||0;
+        if(fs < 17){
+          el.style.fontSize   = '17px';
+          el.style.lineHeight = '1.35';
+          el.style.minHeight  = '44px';
+        }
+      }catch(_){}
+    }
+    function isFormCtrl(el){
+      return el && el.closest && (el.closest('#contatti') || el.closest('#reviewModal')) &&
+             /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(el.tagName);
+    }
+
+    // Blocca zoom a ridosso del focus sui controlli del preventivo (quando saranno nel DOM)
+    var captureOpts = {capture:true, passive:true};
+    document.addEventListener('touchstart', function(e){
+      var t = e.target;
+      if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+    }, captureOpts);
+    document.addEventListener('pointerdown', function(e){
+      var t = e.target;
+      if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+    }, captureOpts);
+
+    document.addEventListener('focusin', function(e){
+      var t = e.target;
+      if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
+      else { yesZoom(); }
+    }, {passive:true});
+
+    document.addEventListener('blur', function(e){
+      var t = e.target;
+      if(isFormCtrl(t)){ setTimeout(yesZoom, 50); }
+    }, true);
+
+    // Gesture manuale → consenti zoom utente
+    window.addEventListener('gesturestart', yesZoom, {passive:true});
+  })();
+  </script>
+
 </body>
 </html>
 <!-- FINE PARTE 1 / 5 -->
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (incolonnati)
-(look IDENTICO; fix funzionali: grid stabile, CTA → #contatti, pause/play Vimeo con visibilità & viewport)
+(look IDENTICO; fix: grid mobile-first, CTA → #contatti, Vimeo pausa/riavvio con visibilità & viewport)
 ========================== -->
 
 <!-- ====== SERVIZI (6 card) ====== -->
@@ -391,12 +449,12 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <a href="#contatti" class="btn" data-i18n="services.cta">Richiedi preventivo</a>
   </header>
 
-  <!-- 3 colonne -->
+  <!-- 3 colonne su desktop, 1 su mobile -->
   <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
     <!-- Brand/Commercial -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--neon1),var(--neon2));box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brand">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" role="img" aria-label="Brand">
           <path d="M4 6h16v12H4z" opacity=".2"/>
           <path d="M4 6h16M4 18h16M9 6v12" stroke="#061016" stroke-width="2"/>
         </svg>
@@ -410,7 +468,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <!-- Wedding -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,#ffd6e8,var(--neon2));box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" aria-label="Wedding">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" aria-label="Wedding">
           <path d="M12 7l3 3-3 3-3-3 3-3z" opacity=".2"/>
           <path d="M6 18a6 6 0 0112 0H6zM9 7l3-3 3 3" stroke="#061016" stroke-width="2" fill="none"/>
         </svg>
@@ -424,7 +482,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <!-- Travel/Real Estate -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--neon1),#a0ffd4);box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" aria-label="Travel">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" aria-label="Travel">
           <path d="M3 12h18M12 3v18" stroke="#061016" stroke-width="2"/>
           <circle cx="12" cy="12" r="3" opacity=".2"/>
         </svg>
@@ -438,7 +496,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <!-- Music Video -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,#fff0b3,#ffd84d);box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" aria-label="Music Video">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" aria-label="Music Video">
           <path d="M9 18a3 3 0 100-6 3 3 0 000 6zm6-11v8" stroke="#061016" stroke-width="2" fill="none"/>
           <path d="M15 7l5-1v7" stroke="#061016" stroke-width="2" fill="none"/>
         </svg>
@@ -452,7 +510,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <!-- Eventi & Corporate -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,#a0ffd4,#62ffa6);box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" aria-label="Eventi">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" aria-label="Eventi">
           <path d="M4 7h16v12H4zM8 3v4M16 3v4" stroke="#061016" stroke-width="2" fill="none"/>
         </svg>
       </div>
@@ -465,7 +523,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <!-- Boat / Charter -->
     <article class="glass" style="padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center">
       <div aria-hidden="true" style="width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,var(--neon1),#6fe2ff);box-shadow:var(--ring);display:grid;place-items:center">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" xmlns="http://www.w3.org/2000/svg" aria-label="Boat">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#061016" aria-label="Boat">
           <path d="M3 15l9 4 9-4-9-9-9 9z" opacity=".2"/>
           <path d="M3 15l9 4 9-4M12 19v-9" stroke="#061016" stroke-width="2" fill="none"/>
         </svg>
@@ -477,7 +535,6 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     </article>
   </div>
 </section>
-
 
 <!-- ====== REEL (Commerciali → Wedding → Brand & Travel) ====== -->
 <section id="reel" class="container"
@@ -498,15 +555,21 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <h3 id="reelCommercialiH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.commercial">Commerciali</h3>
     <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988374113?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/988374113?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Spot — Energy</b><span class="soft">60s</span></div>
       </article>
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/967274150?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/967274150?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Promo — Lifestyle</b><span class="soft">90s</span></div>
       </article>
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1077604297?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/1077604297?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Brand — Motion</b><span class="soft">75s</span></div>
       </article>
     </div>
@@ -517,11 +580,15 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <h3 id="reelWeddingH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.wedding">Wedding</h3>
     <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988376023?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/988376023?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Wedding — Tears & Joy</b><span class="soft">2:30</span></div>
       </article>
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1025024490?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/1025024490?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Wedding — Sunset Vows</b><span class="soft">3:10</span></div>
       </article>
       <article class="glass" style="display:flex;align-items:center;justify-content:center;min-height:120px;border:1px dashed var(--stroke)">
@@ -535,15 +602,21 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     <h3 id="reelBrandH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.brand">Brand & Travel</h3>
     <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1041605119?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/1041605119?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Travel — Ocean Drive</b><span class="soft">1:20</span></div>
       </article>
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1080060195?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/1080060195?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Real Estate — Views</b><span class="soft">1:05</span></div>
       </article>
       <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/967514987?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+        <div class="ratio slim">
+          <iframe src="https://player.vimeo.com/video/967514987?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         <div class="mini-meta"><b class="headline h3">Brand — Movement</b><span class="soft">0:55</span></div>
       </article>
     </div>
@@ -560,12 +633,14 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
   .mini-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid var(--stroke);background:rgba(255,255,255,.03)}
   @media (max-width:1100px){#reel .grid[style*="repeat(3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
   @media (max-width:680px){#reel .grid[style*="repeat(2"], #reel .grid[style*="repeat(3"]{grid-template-columns:1fr !important}}
+  /* Mobile stack per servizi */
+  @media (max-width:980px){#servizi .grid{grid-template-columns:1fr !important}}
 </style>
 
 <!-- ====== SCRIPT REEL: pausa/riavvio su visibilità + viewport + CTA quote ====== -->
 <script>
   (function(){
-    // PostMessage helper per tutti i frame Reel
+    // Helper postMessage per tutti i frame nel #reel
     function postAll(method){
       document.querySelectorAll('#reel iframe').forEach(function(fr){
         try{ fr.contentWindow && fr.contentWindow.postMessage({method: method}, '*'); }catch(e){}
@@ -578,7 +653,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
     });
 
     // IntersectionObserver: pausa i video fuori viewport (risparmio batteria)
-    var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
+    var frames = Array.from(document.querySelectorAll('#reel iframe'));
     if('IntersectionObserver' in window && frames.length){
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(en){
@@ -591,7 +666,7 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
       frames.forEach(function(fr){ io.observe(fr); });
     }
 
-    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll)
+    // CTA "Richiedi preventivo" in SERVIZI → #contatti (smooth-scroll, niente 404)
     document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
       a.addEventListener('click', function(e){
         var t = document.querySelector('#contatti'); if(!t) return;
@@ -690,10 +765,10 @@ PART 2 / 5 — SERVIZI • REEL (incolonnati)
 <!-- FINE PARTE 2 / 5 -->
 <!-- ==========================
 PART 3 / 5 — PACCHETTI • CTA • BIO
-(look IDENTICO; fix funzionali: no-404 pack → scroll #contatti + prefill messaggio, WhatsApp con pack selezionato, 3a foto bio solo mobile)
+(look IDENTICO; fix: no-404 su pacchetti → #contatti + prefill, WhatsApp con pack selezionato, 3ª foto bio solo mobile, i18n esteso)
 ========================== -->
 
-<!-- ====== PACCHETTI VIDEO COMMERCIALI (unica sezione) ====== -->
+<!-- ====== PACCHETTI VIDEO COMMERCIALI ====== -->
 <section id="pacchetti-videoprofessionali" class="container"
          style="padding:28px 0 12px;
                 background-image:
@@ -708,7 +783,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   <!-- 3 pacchetti principali -->
   <div class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px">
     <!-- Basic -->
-    <article class="glass pack-card" data-pack="Basic" style="overflow:hidden">
+    <article class="glass pack-card" data-pack="Basic" style="overflow:hidden;cursor:pointer">
       <div style="position:relative">
         <img src="/media/portfolio-1.jpg" alt="Basic" loading="lazy"
              style="width:100%;height:150px;object-fit:cover;display:block;filter:brightness(.8) contrast(1.06)">
@@ -720,17 +795,17 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
-        <li>Mezza giornata di riprese</li>
-        <li>1 consegna orizzontale + 1 verticale</li>
-        <li>Color base</li>
+        <li data-i18n="packs.basic.f1">Mezza giornata di riprese</li>
+        <li data-i18n="packs.basic.f2">1 consegna orizzontale + 1 verticale</li>
+        <li data-i18n="packs.basic.f3">Color base</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
     <!-- Standard (Consigliato) -->
-    <article class="glass pack-card" data-pack="Standard" style="overflow:hidden;box-shadow:var(--ring)">
+    <article class="glass pack-card" data-pack="Standard" style="overflow:hidden;box-shadow:var(--ring);cursor:pointer">
       <div style="position:relative">
         <img src="/media/bg-realestate.webp.jpg" alt="Standard" loading="lazy"
              style="width:100%;height:150px;object-fit:cover;display:block;filter:brightness(.82) contrast(1.08)">
@@ -741,21 +816,21 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
             <p class="soft" style="margin:0 0 8px" data-i18n="packs.standard.desc">Promo (&lt;3 min), montaggio avanzato e color grading.</p>
             <div class="price" data-i18n="packs.standard.price">€599</div>
           </div>
-          <span class="tag" aria-label="Consigliato">Consigliato</span>
+          <span class="tag" aria-label="Consigliato" data-i18n="packs.badge">Consigliato</span>
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
-        <li>1 giornata di riprese</li>
-        <li>2 consegne verticali + 1 orizzontale</li>
-        <li>Color grading + sound design</li>
+        <li data-i18n="packs.standard.f1">1 giornata di riprese</li>
+        <li data-i18n="packs.standard.f2">2 consegne verticali + 1 orizzontale</li>
+        <li data-i18n="packs.standard.f3">Color grading + sound design</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn fill">Seleziona</a>
+        <a href="#contatti" class="btn fill" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
     <!-- Premium -->
-    <article class="glass pack-card" data-pack="Premium" style="overflow:hidden">
+    <article class="glass pack-card" data-pack="Premium" style="overflow:hidden;cursor:pointer">
       <div style="position:relative">
         <img src="/media/bg-turismo.webp.jpg" alt="Premium" loading="lazy"
              style="width:100%;height:150px;object-fit:cover;display:block;filter:brightness(.82) contrast(1.08)">
@@ -767,12 +842,12 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
-        <li>1–2 giorni di riprese</li>
-        <li>Drone (dove consentito)</li>
-        <li>Consegne verticali continuo</li>
+        <li data-i18n="packs.premium.f1">1–2 giorni di riprese</li>
+        <li data-i18n="packs.premium.f2">Drone (dove consentito)</li>
+        <li data-i18n="packs.premium.f3">Consegne verticali continue</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
   </div>
@@ -780,7 +855,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   <!-- 2 pacchetti avanzati -->
   <div class="grid" style="gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))">
     <!-- Elite Project -->
-    <article class="glass pack-card" data-pack="Elite Project" style="overflow:hidden">
+    <article class="glass pack-card" data-pack="Elite Project" style="overflow:hidden;cursor:pointer">
       <div style="position:relative">
         <img src="/media/bg-portfolio.webp.jpg" alt="Elite Project" loading="lazy"
              style="width:100%;height:140px;object-fit:cover;display:block;filter:brightness(.8) contrast(1.06)">
@@ -792,17 +867,17 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
-        <li>Team esteso + regia</li>
-        <li>Storyboard & pre-produzione</li>
-        <li>Consegne multi-piattaforma</li>
+        <li data-i18n="packs.elite.f1">Team esteso + regia</li>
+        <li data-i18n="packs.elite.f2">Storyboard & pre-produzione</li>
+        <li data-i18n="packs.elite.f3">Consegne multi-piattaforma</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
 
     <!-- Full Storytelling -->
-    <article class="glass pack-card" data-pack="Full Storytelling" style="overflow:hidden">
+    <article class="glass pack-card" data-pack="Full Storytelling" style="overflow:hidden;cursor:pointer">
       <div style="position:relative">
         <img src="/media/bg-charter.webp.jpg" alt="Full Storytelling" loading="lazy"
              style="width:100%;height:140px;object-fit:cover;display:block;filter:brightness(.8) contrast(1.06)">
@@ -814,12 +889,12 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         </div>
       </div>
       <ul class="soft" style="margin:8px 12px 12px; padding-left:18px">
-        <li>Piano editoriale trimestrale</li>
-        <li>Batch di Reels/Shorts</li>
-        <li>Reportistica risultati</li>
+        <li data-i18n="packs.fullstory.f1">Piano editoriale trimestrale</li>
+        <li data-i18n="packs.fullstory.f2">Batch di Reels/Shorts</li>
+        <li data-i18n="packs.fullstory.f3">Reportistica risultati</li>
       </ul>
       <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
-        <a href="#contatti" class="btn">Seleziona</a>
+        <a href="#contatti" class="btn" data-i18n="packs.select">Seleziona</a>
       </div>
     </article>
   </div>
@@ -836,50 +911,6 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   </style>
 </section>
 
-<script>
-  // Click su card/CTA → scroll a #contatti + prefill del pacchetto (no 404)
-  (function(){
-    function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-    var lastPack = null;
-
-    document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"], #pacchetti-videoprofessionali .pack-card').forEach(function(el){
-      el.addEventListener('click', function(e){
-        var card = el.closest('.pack-card'); if(!card) return;
-        var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
-        lastPack = pack;
-
-        // Prefill nel form se presente
-        var qmsg = document.getElementById('q_message');
-        if(qmsg){
-          var base = getVal('q_message');
-          var add = 'Pacchetto di interesse: ' + pack;
-          if(!base.includes(add)){ qmsg.value = (base ? (base+'\n') : '') + add; }
-        }
-
-        // Scroll a #contatti
-        var t=document.querySelector('#contatti');
-        if(t){ e.preventDefault(); 
-          var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-        }
-      }, {passive:false});
-    });
-
-    // CTA WhatsApp in questa parte → include pack selezionato
-    var wa = document.getElementById('ctaWhatsApp');
-    var WA_NUMBER = (typeof WA_NUMBER!=='undefined' && WA_NUMBER) ? (''+WA_NUMBER).replace(/[^\d]/g,'') : '393910911719';
-    if(wa){
-      function updateWA(){
-        var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
-        if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
-        wa.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
-      }
-      updateWA();
-      wa.addEventListener('click', updateWA);
-    }
-  })();
-</script>
-
 <!-- ====== CTA COMPATTA ====== -->
 <section id="cta" class="container" style="padding:20px 0 6px">
   <div class="glass" style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px">
@@ -894,7 +925,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
   </div>
 </section>
 
-<!-- ====== BIO (sfondo NON scurito) ====== -->
+<!-- ====== BIO ====== -->
 <section id="bio" class="container" style="padding:26px 0 8px;position:relative">
   <div class="bio-wrap glass" style="display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center;overflow:hidden">
     <!-- Testo -->
@@ -905,10 +936,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         Creo video emozionali e ad alto impatto per brand, turismo, barche e real estate. Da autodidatta a regia, con un unico obiettivo: trasformare storie in immagini memorabili.
       </p>
       <ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
-        <li class="chip">300+ progetti</li>
-        <li class="chip">Drone 4K certificato</li>
-        <li class="chip">Consegne verticali (Reels/Shorts)</li>
-        <li class="chip">Color grading professionale</li>
+        <li class="chip" data-i18n="bio.f1">300+ progetti</li>
+        <li class="chip" data-i18n="bio.f2">Drone 4K certificato</li>
+        <li class="chip" data-i18n="bio.f3">Consegne verticali (Reels/Shorts)</li>
+        <li class="chip" data-i18n="bio.f4">Color grading professionale</li>
       </ul>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <a href="#reel" class="btn" data-i18n="bio.btn.reel">Guarda il Reel</a>
@@ -923,7 +954,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       <img src="/media/about-2.jpg" alt="Andrea Colucci e collega" loading="lazy"
            style="position:absolute;right:14px;bottom:14px;width:140px;height:140px;object-fit:cover;border-radius:16px;
                   box-shadow:0 10px 24px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.05)">
-      <!-- terza foto SOLO mobile per riempire il "buco" -->
+      <!-- terza foto SOLO mobile -->
       <img src="/media/hero.webp.jpg" alt="" loading="lazy" class="bio-third-mobile"
            style="display:none;position:absolute;left:14px;top:14px;width:120px;height:120px;object-fit:cover;border-radius:14px;
                   box-shadow:0 8px 20px rgba(0,0,0,.4), 0 0 0 3px rgba(255,255,255,.05)">
@@ -941,12 +972,63 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       #bio .bio-wrap{grid-template-columns:1fr !important}
       #bio .bio-media{min-height:220px}
     }
-    /* Mostra la terza foto solo su schermi piccoli (riempie il buco mobile) */
     @media (max-width:700px){
       #bio .bio-third-mobile{display:block !important}
     }
   </style>
 </section>
+
+<!-- ====== SCRIPT: Pacchetti → #contatti + prefill; WhatsApp con pack ====== -->
+<script>
+(function(){
+  // Numero WhatsApp globale (riusa se già definito altrove)
+  var WA_NUMBER = (window.WA_NUMBER ? (''+window.WA_NUMBER) : '393910911719').replace(/[^\d]/g,'');
+
+  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function setVal(id, val){ var el=document.getElementById(id); if(el){ el.value = val; } }
+
+  var lastPack = '';
+
+  // Delegazione: click su card intera o bottone "Seleziona"
+  document.querySelectorAll('#pacchetti-videoprofessionali .pack-card, #pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      var card = el.closest('.pack-card'); if(!card) return;
+      var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+      lastPack = pack;
+
+      // Prefill nel form se presente (#contatti verrà nella parte 4)
+      var msgEl = document.getElementById('q_message');
+      if(msgEl){
+        var base = getVal('q_message');
+        var line = 'Pacchetto di interesse: ' + pack;
+        if(!base.includes(line)){
+          setVal('q_message', (base ? base+'\n' : '') + line);
+        }
+      }
+
+      // Scroll a #contatti (se esiste già)
+      var t = document.querySelector('#contatti');
+      if(t){
+        e.preventDefault();
+        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+      }
+    }, {passive:false});
+  });
+
+  // CTA WhatsApp (in questa sezione) aggiunge il pack selezionato
+  var waBtn = document.getElementById('ctaWhatsApp');
+  if(waBtn){
+    function updateWA(){
+      var text = 'Ciao Andrea! 👋%0AVorrei un preventivo.%0A';
+      if(lastPack){ text += 'Pacchetto: ' + encodeURIComponent(lastPack) + '%0A'; }
+      waBtn.href = 'https://wa.me/'+WA_NUMBER+'?text=' + text;
+    }
+    updateWA();
+    waBtn.addEventListener('click', updateWA);
+  }
+})();
+</script>
 
 <!-- ====== i18n EXTEND (Pacchetti + CTA + Bio) ====== -->
 <script>
@@ -963,21 +1045,43 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       it:{
         "packs.title":"Pacchetti Video Commerciali",
         "packs.cta":"Richiedi preventivo",
+        "packs.select":"Seleziona",
+        "packs.badge":"Consigliato",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Video breve (<1 min), riprese e montaggio base.",
         "packs.basic.price":"€399",
+        "packs.basic.f1":"Mezza giornata di riprese",
+        "packs.basic.f2":"1 consegna orizzontale + 1 verticale",
+        "packs.basic.f3":"Color base",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), montaggio avanzato e color grading.",
         "packs.standard.price":"€599",
+        "packs.standard.f1":"1 giornata di riprese",
+        "packs.standard.f2":"2 consegne verticali + 1 orizzontale",
+        "packs.standard.f3":"Color grading + sound design",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematografico (>3 min), storytelling + drone.",
         "packs.premium.price":"€999",
+        "packs.premium.f1":"1–2 giorni di riprese",
+        "packs.premium.f2":"Drone (dove consentito)",
+        "packs.premium.f3":"Consegne verticali continue",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Produzione multi-giorno, multi-location, regia.",
         "packs.elite.price":"€1.999",
+        "packs.elite.f1":"Team esteso + regia",
+        "packs.elite.f2":"Storyboard & pre-produzione",
+        "packs.elite.f3":"Consegne multi-piattaforma",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Piano completo: main video + short form continuativa.",
         "packs.fullstory.price":"€3.500",
+        "packs.fullstory.f1":"Piano editoriale trimestrale",
+        "packs.fullstory.f2":"Batch di Reels/Shorts",
+        "packs.fullstory.f3":"Reportistica risultati",
 
         "cta.headline":"Pronto a dare vita al tuo progetto?",
         "cta.sub":"Risposta in giornata, brief gratuito.",
@@ -987,6 +1091,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         "bio.kicker":"Su di me",
         "bio.title":"Andrea Colucci — Filmmaker & Storyteller",
         "bio.desc":"Creo video emozionali e ad alto impatto per brand, turismo, barche e real estate. Da autodidatta a regia, con un unico obiettivo: trasformare storie in immagini memorabili.",
+        "bio.f1":"300+ progetti",
+        "bio.f2":"Drone 4K certificato",
+        "bio.f3":"Consegne verticali (Reels/Shorts)",
+        "bio.f4":"Color grading professionale",
         "bio.btn.reel":"Guarda il Reel",
         "bio.btn.contact":"Parliamone ora",
         "bio.badge":"Based in Italy • Working in Riviera"
@@ -994,21 +1102,43 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       en:{
         "packs.title":"Commercial Video Packages",
         "packs.cta":"Get a quote",
+        "packs.select":"Select",
+        "packs.badge":"Recommended",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Short video (<1 min), basic shoot and edit.",
         "packs.basic.price":"€399",
+        "packs.basic.f1":"Half-day shoot",
+        "packs.basic.f2":"1 horizontal + 1 vertical delivery",
+        "packs.basic.f3":"Basic color",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), advanced editing and color grading.",
         "packs.standard.price":"€599",
+        "packs.standard.f1":"1 shooting day",
+        "packs.standard.f2":"2 vertical + 1 horizontal delivery",
+        "packs.standard.f3":"Color grading + sound design",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematic (>3 min), storytelling + drone.",
         "packs.premium.price":"€999",
+        "packs.premium.f1":"1–2 shooting days",
+        "packs.premium.f2":"Drone (where allowed)",
+        "packs.premium.f3":"Ongoing vertical deliveries",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Multi-day, multi-location production, direction.",
         "packs.elite.price":"€1,999",
+        "packs.elite.f1":"Extended team + direction",
+        "packs.elite.f2":"Storyboard & pre-production",
+        "packs.elite.f3":"Multi-platform deliveries",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Complete plan: main video + ongoing short-form.",
         "packs.fullstory.price":"€3,500",
+        "packs.fullstory.f1":"Quarterly editorial plan",
+        "packs.fullstory.f2":"Batch of Reels/Shorts",
+        "packs.fullstory.f3":"Performance reporting",
 
         "cta.headline":"Ready to bring your project to life?",
         "cta.sub":"Same-day reply, free brief.",
@@ -1018,6 +1148,10 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
         "bio.kicker":"About me",
         "bio.title":"Andrea Colucci — Filmmaker & Storyteller",
         "bio.desc":"I craft emotional, high-impact films for brands, tourism, boats and real estate. Self–taught to directing, turning stories into memorable images.",
+        "bio.f1":"300+ projects",
+        "bio.f2":"Certified 4K drone",
+        "bio.f3":"Vertical deliveries (Reels/Shorts)",
+        "bio.f4":"Professional color grading",
         "bio.btn.reel":"Watch the reel",
         "bio.btn.contact":"Let's talk",
         "bio.badge":"Based in Italy • Working in Riviera"
@@ -1025,21 +1159,43 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
       es:{
         "packs.title":"Paquetes de vídeo comercial",
         "packs.cta":"Pide presupuesto",
+        "packs.select":"Seleccionar",
+        "packs.badge":"Recomendado",
+
         "packs.basic.title":"Basic",
         "packs.basic.desc":"Vídeo corto (<1 min), rodaje y edición básica.",
         "packs.basic.price":"€399",
+        "packs.basic.f1":"Media jornada de rodaje",
+        "packs.basic.f2":"1 entrega horizontal + 1 vertical",
+        "packs.basic.f3":"Color básico",
+
         "packs.standard.title":"Standard",
         "packs.standard.desc":"Promo (<3 min), edición avanzada y color.",
         "packs.standard.price":"€599",
+        "packs.standard.f1":"1 día de rodaje",
+        "packs.standard.f2":"2 verticales + 1 horizontal",
+        "packs.standard.f3":"Color grading + diseño de sonido",
+
         "packs.premium.title":"Premium",
         "packs.premium.desc":"Cinematográfico (>3 min), storytelling + dron.",
         "packs.premium.price":"€999",
+        "packs.premium.f1":"1–2 días de rodaje",
+        "packs.premium.f2":"Dron (donde esté permitido)",
+        "packs.premium.f3":"Entregas verticales continuas",
+
         "packs.elite.title":"Elite Project",
         "packs.elite.desc":"Producción multi–día, multi–localización, dirección.",
         "packs.elite.price":"€1.999",
+        "packs.elite.f1":"Equipo ampliado + dirección",
+        "packs.elite.f2":"Storyboard y preproducción",
+        "packs.elite.f3":"Entregas multiplataforma",
+
         "packs.fullstory.title":"Full Storytelling",
         "packs.fullstory.desc":"Plan completo: vídeo principal + short–form continuo.",
         "packs.fullstory.price":"€3.500",
+        "packs.fullstory.f1":"Plan editorial trimestral",
+        "packs.fullstory.f2":"Lote de Reels/Shorts",
+        "packs.fullstory.f3":"Informes de resultados",
 
         "cta.headline":"¿Listo para dar vida a tu proyecto?",
         "cta.sub":"Respuesta en el día, brief gratuito.",
@@ -1048,7 +1204,11 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 
         "bio.kicker":"Sobre mí",
         "bio.title":"Andrea Colucci — Filmmaker & Storyteller",
-        "bio.desc":"Creo vídeos emocionales y de alto impacto para marcas, turismo, barcos e inmobiliario. De autodidacta a dirección, historias convertidas en imágenes memorables.",
+        "bio.desc":"Creo vídeos emocionales y de alto impacto para marcas, turismo, barcos e inmobiliario. De autodidacta a dirección, historias hechas imágenes memorables.",
+        "bio.f1":"300+ proyectos",
+        "bio.f2":"Dron 4K certificado",
+        "bio.f3":"Entregas verticales (Reels/Shorts)",
+        "bio.f4":"Color grading profesional",
         "bio.btn.reel":"Ver el reel",
         "bio.btn.contact":"Hablemos",
         "bio.badge":"Based in Italy • Working in Riviera"
@@ -1058,8 +1218,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 </script>
 <!-- FINE PARTE 3 / 5 -->
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI
-(look IDENTICO; fix funzionali: iOS anti-zoom SOLO per #contatti e #reviewModal, smooth scroll, mail/WA builder)
+PART 4 / 5 — RECENSIONI • CONTATTI (preventivo rifatto anti-zoom iOS)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1206,7 +1365,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </style>
 </section>
 
-<!-- ====== CONTATTI (preventivo) ====== -->
+<!-- ====== CONTATTI (preventivo rifatto anti-zoom iOS) ====== -->
 <section id="contatti" class="container" style="padding:22px 0 6px">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
     <h2 class="headline h2" style="margin:0" data-i18n="contact.title">Richiedi un preventivo</h2>
@@ -1214,18 +1373,18 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div class="glass" style="border-radius:16px;padding:14px">
-    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
+    <form id="quoteForm" class="grid" style="gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))" novalidate>
       <div class="field">
         <label class="label" for="q_name" data-i18n="contact.name">Nome e Cognome</label>
-        <input id="q_name" class="control" type="text" placeholder="Es. Andrea Rossi" required>
+        <input id="q_name" class="control" type="text" inputmode="text" autocomplete="name" placeholder="Es. Andrea Rossi" required>
       </div>
       <div class="field">
         <label class="label" for="q_email" data-i18n="contact.email">Email</label>
-        <input id="q_email" class="control" type="email" placeholder="nome@email.com" required>
+        <input id="q_email" class="control" type="email" inputmode="email" autocomplete="email" placeholder="nome@email.com" required>
       </div>
       <div class="field">
         <label class="label" for="q_phone" data-i18n="contact.phone">Telefono / WhatsApp</label>
-        <input id="q_phone" class="control" type="tel" placeholder="+39 3XX XXX XXXX">
+        <input id="q_phone" class="control" type="tel" inputmode="tel" autocomplete="tel" placeholder="+39 3XX XXX XXXX">
       </div>
       <div class="field">
         <label class="label" for="q_service" data-i18n="contact.service">Servizio</label>
@@ -1239,6 +1398,16 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           <option data-i18n="contact.service.other">Altro</option>
         </select>
       </div>
+
+      <div class="field">
+        <label class="label" for="q_location" data-i18n="contact.location">Location</label>
+        <input id="q_location" class="control" type="text" placeholder="Città / Venue">
+      </div>
+      <div class="field">
+        <label class="label" for="q_date" data-i18n="contact.date">Data (facoltativa)</label>
+        <input id="q_date" class="control" type="date" placeholder="">
+      </div>
+
       <div class="field" style="grid-column:1 / -1">
         <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
         <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
@@ -1251,111 +1420,64 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </div>
 
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
-  <style id="ios-nozoom">
+  <!-- Anti-zoom iOS: SOLO per #contatti, senza duplicare meta viewport -->
+  <style id="ios-nozoom-controls">
     #contatti input,
     #contatti select,
     #contatti textarea,
     #contatti button,
-    #contatti .control,
-    #reviewModal .control,
-    #reviewModal input,
-    #reviewModal select,
-    #reviewModal textarea,
-    #reviewModal button{
-      font-size:16px !important;
+    #contatti .control{
+      font-size:17px !important;
       line-height:1.35 !important;
       min-height:44px !important;
       -webkit-text-size-adjust:100% !important;
     }
-    #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option{
-      font-size:16px !important;
+    #contatti select, #contatti option{
+      font-size:17px !important;
     }
-    #contatti ::placeholder,
-    #reviewModal ::placeholder{
-      font-size:16px !important;
-      opacity:.8;
+    #contatti ::placeholder{
+      font-size:17px !important; opacity:.85;
     }
   </style>
 </section>
 
-<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
+<!-- ===== SCRIPT: Reviews + Quote form (Email/WA) + iOS anti-zoom (viewport toggle) ===== -->
 <script>
 (function(){
-  /* ====== CONTATTI: Email / WhatsApp ====== */
-  var WA_NUMBER = '393910911719'; // solo cifre
+  /* =========================
+     UTIL
+  ========================= */
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function scrollToEl(el){ if(!el) return; el.scrollIntoView({behavior: prefersReduced ? 'auto':'smooth', block:'start'}); }
+  function byId(id){ return document.getElementById(id); }
+  function val(id){ var el = byId(id); return el ? (el.value || '').trim() : ''; }
 
-  function val(id){
-    var el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
-  }
+  /* =========================
+     REVIEWS
+  ========================= */
+  var grid     = byId('reviewsGrid');
+  var avgText  = byId('avgRatingText');
+  var LD       = byId('reviewsJsonLd');
+  var formR    = byId('reviewForm');
+  var dialog   = byId('reviewModal');
+  var openBtn  = byId('openReview');
+  var closeBtn = byId('closeReview');
+  var cancelBtn= byId('cancelReview');
+  var saveBtn  = byId('saveReview');
+  var fileIn   = byId('r_img');
+  var preview  = byId('r_preview');
+  var previewPh= byId('r_preview_ph');
 
-  function buildMessage(){
-    var name = val('q_name');
-    var email = val('q_email');
-    var phone = val('q_phone');
-    var servEl = document.getElementById('q_service');
-    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-    var msg = val('q_message');
-    return (
-      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
-      "Nome: " + (name || '-') + "\n" +
-      "Email: " + (email || '-') + "\n" +
-      "Telefono/WA: " + (phone || '-') + "\n" +
-      "Servizio: " + (service || '-') + "\n\n" +
-      (msg ? ("Messaggio:\n" + msg) : "")
-    );
-  }
-
-  var mailBtn = document.getElementById('sendMail');
-  if(mailBtn){
-    mailBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      var body = encodeURIComponent(buildMessage());
-      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-    }, {passive:false});
-  }
-
-  var waBtn = document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var txt = encodeURIComponent(buildMessage());
-      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-    });
-  }
-
-  var quickWA = document.getElementById('quickWA');
-  if(quickWA){
-    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-  }
-
-  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
-
-  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
   function toDataUrlThumb(file, cb){
     try{
-      const fr=new FileReader();
+      var fr=new FileReader();
       fr.onload=function(){
-        const img=new Image();
+        var img=new Image();
         img.onload=function(){
-          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          var size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
           c.width=size; c.height=size;
-          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
           ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
           cb(null, c.toDataURL('image/jpeg', .85));
         };
@@ -1366,455 +1488,314 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   }
   function appendReviewCard(rec){
     if(!grid || !rec) return;
-    const fig=document.createElement('figure');
+    var fig=document.createElement('figure');
     fig.className='glass review';
     fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    const img=document.createElement('img');
+    var img=document.createElement('img');
     img.loading='lazy'; img.alt='Cliente';
     img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
     img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
       ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    const cap=document.createElement('figcaption');
-    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    var cap=document.createElement('figcaption');
+    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    var strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
     top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
     fig.appendChild(img); fig.appendChild(cap);
     grid.insertBefore(fig, grid.firstChild);
   }
   function updateAverage(baseStars, extras){
-    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    var all = (baseStars||[]).concat((extras||[]).map(function(r){return Number(r.stars)||0;})).filter(Boolean);
     if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    var avg = Math.round((all.reduce(function(a,b){return a+b;},0)/all.length)*10)/10;
     if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
     if(LD){
       try{
-        const obj=JSON.parse(LD.textContent);
+        var obj=JSON.parse(LD.textContent);
         obj.aggregateRating.ratingValue=String(avg);
         obj.aggregateRating.reviewCount=String(all.length);
         LD.textContent=JSON.stringify(obj);
       }catch(_){}
     }
   }
-
-  // Modal open/close
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  function closeModal(){
-    try{ form && form.reset(); }catch(_){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-  }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', (e)=>{
-    const rect = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-    if(!inside) closeModal();
-  });
-
-  // Preview immagine recensione
-  fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none';
-      previewPh.style.display='block';
-      return;
-    }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data;
-      preview.style.display='block';
-      previewPh.style.display='none';
-    });
-  });
-
-  // Salvataggio recensione (solo frontend — identico look)
-  function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+  function buildReview(){
+    var name = val('r_name');
+    var role = val('r_role');
+    var stars= parseInt(byId('r_stars')?.value||'5',10);
+    var text = val('r_text');
+    var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
     if(!name || !text) return null;
     return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
   }
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
+  function closeModal(){
+    try{ formR && formR.reset(); }catch(_){}
+    if(preview){ preview.style.display='none'; preview.src=''; }
+    if(previewPh){ previewPh.style.display='block'; }
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', function(e){
+    var rect = dialog.getBoundingClientRect();
+    var inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+    if(!inside) closeModal();
+  });
+  fileIn && fileIn.addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
+      preview.style.display='none'; previewPh.style.display='block'; return;
+    }
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data; preview.style.display='block'; previewPh.style.display='none';
+    });
+  });
   function handleSave(e){
     if(e) e.preventDefault();
-    const rec = buildRecord();
-    if(!rec) return;
-    appendReviewCard(rec);
-    closeModal();
-    // media (finte 3 base: 5,5,4)
+    var rec = buildReview(); if(!rec) return;
+    appendReviewCard(rec); closeModal();
     updateAverage([5,5,4], [rec]);
   }
-  form && form.addEventListener('submit', handleSave, {passive:false});
+  formR && formR.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
-  <style id="ios-nozoom">
-    #contatti input,
-    #contatti select,
-    #contatti textarea,
-    #contatti button,
-    #contatti .control,
-    #reviewModal .control,
-    #reviewModal input,
-    #reviewModal select,
-    #reviewModal textarea,
-    #reviewModal button{
-      font-size:16px !important;
-      line-height:1.35 !important;
-      min-height:44px !important;
-      -webkit-text-size-adjust:100% !important;
-    }
-    #contatti select, #contatti option,
-    #reviewModal select, #reviewModal option{
-      font-size:16px !important;
-    }
-    #contatti ::placeholder,
-    #reviewModal ::placeholder{
-      font-size:16px !important;
-      opacity:.8;
-    }
-  </style>
-</section>
+  /* =========================
+     QUOTE FORM — Email / WhatsApp
+  ========================= */
+  var WA_NUMBER = (window.WA_NUMBER ? (''+window.WA_NUMBER) : '393910911719').replace(/[^\d]/g,'');
 
-<!-- SCRIPT: Email / WhatsApp + Recensioni + iOS no-zoom helpers (coerenti con Parte 1) -->
-<script>
-(function(){
-  /* ====== CONTATTI: Email / WhatsApp ====== */
-  var WA_NUMBER = '393910911719'; // solo cifre
-
-  function val(id){
-    var el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
-  }
-
-  function buildMessage(){
+  function buildQuoteMessage(){
     var name = val('q_name');
     var email = val('q_email');
     var phone = val('q_phone');
-    var servEl = document.getElementById('q_service');
+    var loc   = val('q_location');
+    var date  = val('q_date');
+    var servEl= byId('q_service');
     var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
     var msg = val('q_message');
+
     return (
       "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
       "Nome: " + (name || '-') + "\n" +
       "Email: " + (email || '-') + "\n" +
       "Telefono/WA: " + (phone || '-') + "\n" +
-      "Servizio: " + (service || '-') + "\n\n" +
+      "Servizio: " + (service || '-') + "\n" +
+      "Location: " + (loc || '-') + "\n" +
+      "Data: " + (date || '-') + "\n\n" +
       (msg ? ("Messaggio:\n" + msg) : "")
     );
   }
 
-  var mailBtn = document.getElementById('sendMail');
+  function validateEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
+
+  var mailBtn = byId('sendMail');
   if(mailBtn){
     mailBtn.addEventListener('click', function(e){
       e.preventDefault();
-      var body = encodeURIComponent(buildMessage());
-      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
-    }, {passive:false});
-  }
-
-  var waBtn = document.getElementById('sendWhatsApp');
-  if(waBtn){
-    waBtn.addEventListener('click', function(){
-      var txt = encodeURIComponent(buildMessage());
-      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
-    });
-  }
-
-  var quickWA = document.getElementById('quickWA');
-  if(quickWA){
-    quickWA.href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Ciao Andrea! Ti scrivo dal sito 🙌");
-  }
-
-  /* ====== RECENSIONI: preview + salvataggio + media (identico look) ====== */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
-
-  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
-  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-  function toDataUrlThumb(file, cb){
-    try{
-      const fr=new FileReader();
-      fr.onload=function(){
-        const img=new Image();
-        img.onload=function(){
-          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
-          c.width=size; c.height=size;
-          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
-          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-          cb(null, c.toDataURL('image/jpeg', .85));
-        };
-        img.src=fr.result;
-      };
-      fr.readAsDataURL(file);
-    }catch(e){ cb(e); }
-  }
-  function appendReviewCard(rec){
-    if(!grid || !rec) return;
-    const fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    const img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
-      ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
-    const cap=document.createElement('figcaption');
-    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.insertBefore(fig, grid.firstChild);
-  }
-  function updateAverage(baseStars, extras){
-    const all = (baseStars||[]).concat((extras||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
-    if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{
-        const obj=JSON.parse(LD.textContent);
-        obj.aggregateRating.ratingValue=String(avg);
-        obj.aggregateRating.reviewCount=String(all.length);
-        LD.textContent=JSON.stringify(obj);
-      }catch(_){}
-    }
-  }
-
-  // Modal open/close
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  function closeModal(){
-    try{ form && form.reset(); }catch(_){}
-    if(preview) preview.style.display='none';
-    if(previewPh) previewPh.style.display='block';
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-  }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', (e)=>{
-    const rect = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
-    if(!inside) closeModal();
-  });
-
-  // Preview immagine recensione
-  fileIn && fileIn.addEventListener('change', function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){
-      preview.style.display='none';
-      previewPh.style.display='block';
-      return;
-    }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
-      preview.src = data;
-      preview.style.display='block';
-      previewPh.style.display='none';
-    });
-  });
-
-  // Salvataggio recensione (solo frontend — identico look)
-  function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
-    if(!name || !text) return null;
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
-  }
-  function handleSave(e){
-    if(e) e.preventDefault();
-    const rec = buildRecord();
-    if(!rec) return;
-    appendReviewCard(rec);
-    closeModal();
-    // media (finte 3 base: 5,5,4)
-    updateAverage([5,5,4], [rec]);
-  }
-  form && form.addEventListener('submit', handleSave, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
-
-  /* ====== iOS anti-zoom: cooperazione con Parte 1 ======
-     Non tocchiamo il meta viewport qui (già normalizzato in Parte 1).
-     Garantiamo però font >=16 su controlli (#ios-nozoom stylesheet) e,
-     se Safari provasse comunque a zoomare, Parte 1 intercetta focus e forza no-zoom. */
-})();
-</script>
-<!-- ===== HOTFIX iOS anti-zoom per #contatti (pre-focus) ===== -->
-<script>
-(function(){
-  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  if(!isiOS) return;
-
-  // 1) Assicura un solo meta viewport "base"
-  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
-  (function normalize(){
-    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
-    if(!metas.length){
-      var m = document.createElement('meta');
-      m.name = 'viewport'; m.content = VP_BASE;
-      document.head.appendChild(m);
-    } else {
-      for(var i=1;i<metas.length;i++) metas[i].remove();
-      metas[0].setAttribute('content', VP_BASE);
-    }
-  })();
-  var vp = document.querySelector('meta[name="viewport"]');
-  function noZoom(){
-    if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no');
-  }
-  function yesZoom(){
-    if(vp) vp.setAttribute('content', VP_BASE);
-  }
-  function ensure17px(el){
-    try{
-      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
-      if(fs < 17){
-        el.style.fontSize   = '17px';
-        el.style.lineHeight = '1.35';
-        el.style.minHeight  = '44px';
+      var name = val('q_name');
+      var email= val('q_email');
+      var service = (byId('q_service')?.value||'');
+      // Validazione minima
+      if(!name || !email || !validateEmail(email) || !service){
+        // focus sul primo campo mancante
+        if(!name) return byId('q_name').focus();
+        if(!email || !validateEmail(email)) return byId('q_email').focus();
+        if(!service) return byId('q_service').focus();
       }
-    }catch(_){}
+      var body = encodeURIComponent(buildQuoteMessage());
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
+    }, {passive:false});
   }
-  function isFormCtrl(el){
-    return el && el.closest && el.closest('#contatti') &&
-           /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+
+  var waBtn = byId('sendWhatsApp');
+  if(waBtn){
+    waBtn.addEventListener('click', function(){
+      var txt = encodeURIComponent(buildQuoteMessage());
+      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
+    });
   }
 
-  // 2) PRIMA del focus: blocca zoom (touchstart/pointerdown in CAPTURE)
-  var opts = {capture:true, passive:true};
-  document.addEventListener('touchstart', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, opts);
-  document.addEventListener('pointerdown', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, opts);
+  /* =========================
+     iOS ANTI-ZOOM (viewport toggle SOLO durante focus nel form)
+  ========================= */
+  (function(){
+    var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    if(!isiOS) return;
 
-  // 3) Durante l’uso: mantieni noZoom; al blur ripristina
-  document.addEventListener('focusin', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ noZoom(); ensure17px(t); }
-  }, {passive:true});
-  document.addEventListener('blur', function(e){
-    var t = e.target;
-    if(isFormCtrl(t)){ setTimeout(yesZoom, 50); }
-  }, true);
+    var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    var vp = document.querySelector('meta[name="viewport"]');
+    // non creare duplicati: se non c'è, crealo; se c'è, lascialo
+    if(!vp){
+      vp = document.createElement('meta');
+      vp.name = 'viewport';
+      vp.content = VP_BASE;
+      document.head.appendChild(vp);
+    }
 
-  // 4) Failsafe: se il focus esce dal form, riabilita zoom
-  document.addEventListener('focusin', function(e){
-    if(!(e.target && e.target.closest('#contatti'))) yesZoom();
-  }, {passive:true});
+    function noZoom(){ if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
+    function yesZoom(){ if(vp) vp.setAttribute('content', VP_BASE); }
 
-  // 5) Ulteriore failsafe: se l’utente fa una gesture, consenti zoom
-  window.addEventListener('gesturestart', yesZoom, {passive:true});
+    function ensure17(el){
+      try{
+        var fs = parseFloat(getComputedStyle(el).fontSize)||0;
+        if(fs < 17){
+          el.style.fontSize   = '17px';
+          el.style.lineHeight = '1.35';
+          el.style.minHeight  = '44px';
+        }
+      }catch(_){}
+    }
+
+    function isCtrl(el){
+      return el && el.closest && el.closest('#contatti') &&
+             /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(el.tagName);
+    }
+
+    // Toggle al focus/blur (solo dentro #contatti)
+    document.addEventListener('focusin', function(e){
+      var t = e.target;
+      if(isCtrl(t)){ noZoom(); ensure17(t); }
+      else { yesZoom(); }
+    }, {passive:true});
+    document.addEventListener('blur', function(e){
+      var t = e.target;
+      if(isCtrl(t)){ setTimeout(yesZoom, 60); }
+    }, true);
+    // Failsafe: gesture manuali → consenti zoom
+    window.addEventListener('gesturestart', yesZoom, {passive:true});
+  })();
 })();
 </script>
-<!-- ===== /HOTFIX ===== -->
 
+<!-- ====== i18n EXTEND (Recensioni + Contatti) ====== -->
+<script>
+(function(){
+  function extend(extra){
+    window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
+    var D = window.__i18n.__dict = window.__i18n.__dict || {};
+    Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
+    var lang = document.documentElement.lang || 'it';
+    if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
+  }
+
+  extend({
+    it:{
+      "reviews.title":"Cosa dicono di me",
+      "reviews.subtitle":"Valutazione media 4.9/5",
+      "reviews.cta":"Lascia una recensione",
+      "reviews.newTitle":"La tua esperienza",
+      "reviews.name":"Nome",
+      "reviews.role":"Ruolo",
+      "reviews.rating":"Valutazione",
+      "reviews.photo":"Foto (opzionale)",
+      "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
+      "reviews.photoPreview":"Anteprima miniatura",
+      "reviews.text":"Recensione",
+      "reviews.save":"Pubblica",
+      "common.cancel":"Annulla",
+
+      "contact.title":"Richiedi un preventivo",
+      "contact.subtitle":"Brief gratuito • risposta in giornata",
+      "contact.name":"Nome e Cognome",
+      "contact.email":"Email",
+      "contact.phone":"Telefono / WhatsApp",
+      "contact.service":"Servizio",
+      "contact.service.select":"Seleziona…",
+      "contact.service.commerciali":"Commerciali",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Barche / Charter",
+      "contact.service.other":"Altro",
+      "contact.location":"Location",
+      "contact.date":"Data (facoltativa)",
+      "contact.message":"Messaggio",
+      "contact.sendEmail":"Invia via Email",
+      "contact.sendWA":"Invia su WhatsApp"
+    },
+    en:{
+      "reviews.title":"What clients say",
+      "reviews.subtitle":"Average rating 4.9/5",
+      "reviews.cta":"Leave a review",
+      "reviews.newTitle":"Your experience",
+      "reviews.name":"Name",
+      "reviews.role":"Role",
+      "reviews.rating":"Rating",
+      "reviews.photo":"Photo (optional)",
+      "reviews.photoHint":"PNG/JPG, will be thumb-cropped",
+      "reviews.photoPreview":"Thumbnail preview",
+      "reviews.text":"Review",
+      "reviews.save":"Publish",
+      "common.cancel":"Cancel",
+
+      "contact.title":"Request a quote",
+      "contact.subtitle":"Free brief • same-day reply",
+      "contact.name":"Full name",
+      "contact.email":"Email",
+      "contact.phone":"Phone / WhatsApp",
+      "contact.service":"Service",
+      "contact.service.select":"Select…",
+      "contact.service.commerciali":"Commercial",
+      "contact.service.wedding":"Wedding",
+      "contact.service.music":"Music Video",
+      "contact.service.realestate":"Real Estate",
+      "contact.service.boat":"Boats / Charter",
+      "contact.service.other":"Other",
+      "contact.location":"Location",
+      "contact.date":"Date (optional)",
+      "contact.message":"Message",
+      "contact.sendEmail":"Send via Email",
+      "contact.sendWA":"Send on WhatsApp"
+    },
+    es:{
+      "reviews.title":"Qué dicen de mí",
+      "reviews.subtitle":"Valoración media 4.9/5",
+      "reviews.cta":"Deja una reseña",
+      "reviews.newTitle":"Tu experiencia",
+      "reviews.name":"Nombre",
+      "reviews.role":"Rol",
+      "reviews.rating":"Valoración",
+      "reviews.photo":"Foto (opcional)",
+      "reviews.photoHint":"PNG/JPG, se adaptará como miniatura",
+      "reviews.photoPreview":"Vista previa miniatura",
+      "reviews.text":"Reseña",
+      "reviews.save":"Publicar",
+      "common.cancel":"Cancelar",
+
+      "contact.title":"Pide un presupuesto",
+      "contact.subtitle":"Brief gratuito • respuesta en el día",
+      "contact.name":"Nombre y Apellido",
+      "contact.email":"Email",
+      "contact.phone":"Teléfono / WhatsApp",
+      "contact.service":"Servicio",
+      "contact.service.select":"Seleccionar…",
+      "contact.service.commerciali":"Comercial",
+      "contact.service.wedding":"Boda (Wedding)",
+      "contact.service.music":"Vídeo musical",
+      "contact.service.realestate":"Inmobiliario",
+      "contact.service.boat":"Barcos / Charter",
+      "contact.service.other":"Otro",
+      "contact.location":"Ubicación",
+      "contact.date":"Fecha (opcional)",
+      "contact.message":"Mensaje",
+      "contact.sendEmail":"Enviar por Email",
+      "contact.sendWA":"Enviar por WhatsApp"
+    }
+  });
+})();
+</script>
+<!-- FINE PARTE 4 / 5 -->
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
-(look IDENTICO; fix funzionali: nessun meta viewport duplicato; iOS no-zoom lasciato a Parte 1/4)
+(look IDENTICO; nessun meta viewport duplicato; i18n footer/policy)
 ========================== -->
-<!-- ===== HOTFIX iOS anti-zoom SOLO per #contatti (drop-in) ===== -->
-<style id="ios-nozoom-hotfix">
-  /* assicura che anche le OPTION siano >=16px */
-  #contatti select, #contatti option { font-size:16px !important; }
-  /* placeholder coerente (alcuni Safari fanno trigger se <16) */
-  #contatti ::placeholder { font-size:16px !important; opacity:.85; }
-</style>
-<script>
-(function(){
-  // Rileva iOS (anche iPad Safari “desktop”)
-  var isiOS = /iP(hone|ad|od)/.test(navigator.platform) ||
-              (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-  if(!isiOS) return;
-
-  // 1) Normalizza/recupera il meta viewport (niente duplicati, niente maximum-scale fisso)
-  (function normalizeViewport(){
-    var metas = Array.from(document.querySelectorAll('meta[name="viewport"]'));
-    var base = 'width=device-width, initial-scale=1, viewport-fit=cover';
-    if(!metas.length){
-      var m = document.createElement('meta');
-      m.name = 'viewport';
-      m.content = base;
-      document.head.appendChild(m);
-    }else{
-      // tieni il primo, rimuovi gli altri
-      for(var i=1;i<metas.length;i++){ metas[i].parentNode.removeChild(metas[i]); }
-      metas[0].setAttribute('content', base);
-    }
-  })();
-
-  var vp = document.querySelector('meta[name="viewport"]');
-  var VP_BASE = 'width=device-width, initial-scale=1, viewport-fit=cover';
-  function noZoom(){ if(vp) vp.setAttribute('content', VP_BASE + ', maximum-scale=1, user-scalable=no'); }
-  function yesZoom(){ if(vp) vp.setAttribute('content', VP_BASE); }
-
-  // 2) Forza inline >=17px solo se il computed è <17 (vincendo su qualsiasi !important esterno)
-  function ensure17px(el){
-    try{
-      var fs = parseFloat(getComputedStyle(el).fontSize)||0;
-      if(fs < 17){
-        el.style.fontSize   = '17px';
-        el.style.lineHeight = '1.35';
-        el.style.minHeight  = '44px';
-      }
-    }catch(_){}
-  }
-
-  // 3) Applica alle control del form Preventivo
-  function bindControls(){
-    var controls = document.querySelectorAll('#contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control');
-    controls.forEach(function(el){
-      // prima verifica: porta a 17px se qualcuno lo ha ridotto in cascata
-      ensure17px(el);
-      // al focus: blocca lo zoom
-      el.addEventListener('focus', function(){ noZoom(); ensure17px(el); }, {passive:true});
-      // al blur: ripristina
-      el.addEventListener('blur', function(){ yesZoom(); }, {passive:true});
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', bindControls, {once:true});
-  }else{
-    bindControls();
-  }
-
-  // 4) failsafe: se il focus esce dal form, riabilita lo zoom utente
-  document.addEventListener('focusin', function(e){
-    var t = e.target;
-    if(!(t && t.closest && t.closest('#contatti'))) yesZoom();
-  }, {passive:true});
-})();
-</script>
-<!-- ===== /HOTFIX iOS anti-zoom ===== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
 <footer id="footer" class="container" style="padding:24px 0 18px">
@@ -1823,7 +1804,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
       background:
         radial-gradient(1200px 400px at 80% 120%, rgba(77,225,75,.06), transparent 50%),
         rgba(255,255,255,.04)">
-    <!-- background con immagine scuretta per leggibilità -->
+    <!-- bg image scurita per leggibilità -->
     <div style="
         background:url('/media/bg-contact.webp.jpg') center/cover no-repeat;
         filter:brightness(.58) contrast(1.06) saturate(1.06);
@@ -2048,4 +2029,3 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
     });
   })();
 </script>
-
