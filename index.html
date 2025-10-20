@@ -1060,8 +1060,9 @@ PART 3 / 5 — PACCHETTI • CTA • BIO
 <!-- ==========================
 <!-- ==========================
 <!-- ==========================
+<!-- ==========================
 PART 4 / 5 — RECENSIONI • CONTATTI
-(look IDENTICO; integrazione AC_Reviews_Backend con key; iOS anti-zoom locale)
+(look IDENTICO; fix: modal OK, camera/galleria, media live, loader AC_reviews)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1072,32 +1073,49 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </header>
 
   <div id="reviewsGrid" class="grid" style="gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))">
-    <!-- 3 seed statici (rimangono anche se il backend non risponde) -->
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+    <!-- 3 card statiche -->
+    <figure class="glass review"
+            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-1.jpg" alt="Cliente" loading="lazy"
+           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Giulia R. — Hotel Manager</strong><span class="stars" aria-label="5 su 5">★★★★★</span>
+          <strong>Giulia R. — Hotel Manager</strong>
+          <span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">“Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”</p>
+        <p class="soft" style="margin:6px 0 0">
+          “Video emozionale perfetto per la homepage. Tagli verticali pronti per social — prenotazioni in crescita!”
+        </p>
       </figcaption>
     </figure>
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+
+    <figure class="glass review"
+            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-2.jpg" alt="Cliente" loading="lazy"
+           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Marco D. — Boat Charter</strong><span class="stars" aria-label="5 su 5">★★★★★</span>
+          <strong>Marco D. — Boat Charter</strong>
+          <span class="stars" aria-label="5 su 5">★★★★★</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">“Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”</p>
+        <p class="soft" style="margin:6px 0 0">
+          “Riprese drone incredibili. Raccontata l’esperienza a bordo come volevamo, zero stress sul set.”
+        </p>
       </figcaption>
     </figure>
-    <figure class="glass review" style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover">
+
+    <figure class="glass review"
+            style="padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
+      <img src="/media/client-3.jpg" alt="Cliente" loading="lazy"
+           style="width:46px;height:46px;border-radius:999px;object-fit:cover">
       <figcaption>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>Sara & Luca — Wedding</strong><span class="stars" aria-label="4 su 5">★★★★☆</span>
+          <strong>Sara & Luca — Wedding</strong>
+          <span class="stars" aria-label="4 su 5">★★★★☆</span>
         </div>
-        <p class="soft" style="margin:6px 0 0">“Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”</p>
+        <p class="soft" style="margin:6px 0 0">
+          “Timeline perfetta dell’intera giornata, trailer per Instagram che ha fatto il botto.”
+        </p>
       </figcaption>
     </figure>
   </div>
@@ -1107,7 +1125,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   </div>
 
   <!-- Modal nuova recensione -->
-  <dialog id="reviewModal" style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
+  <dialog id="reviewModal"
+          style="border:none;border-radius:16px;padding:0;max-width:560px;width:92vw;background:#0a0a0a;color:#fff">
     <form id="reviewForm" method="dialog" style="padding:16px 16px 10px">
       <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <h3 class="headline h3" style="margin:0" data-i18n="reviews.newTitle">La tua esperienza</h3>
@@ -1119,10 +1138,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           <label class="label" for="r_name" data-i18n="reviews.name">Nome</label>
           <input id="r_name" class="control" type="text" placeholder="Es. Martina P." required>
         </div>
+
         <div class="field">
           <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
           <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
         </div>
+
         <div class="field">
           <label class="label" for="r_stars" data-i18n="reviews.rating">Valutazione</label>
           <select id="r_stars" class="control" required>
@@ -1133,11 +1154,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
             <option value="1">★☆☆☆☆ — 1</option>
           </select>
         </div>
+
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
-          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
+          <!-- camera o galleria -->
+          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png" capture="environment">
           <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
+
         <div style="grid-column:1 / -1; display:flex; align-items:center; gap:10px">
           <div id="r_preview_wrap" style="width:54px;height:54px;border-radius:999px;overflow:hidden;border:1px solid var(--stroke);background:rgba(255,255,255,.04);display:grid;place-items:center">
             <img id="r_preview" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
@@ -1145,6 +1169,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
           </div>
           <small class="soft" data-i18n="reviews.photoPreview">Anteprima miniatura</small>
         </div>
+
         <div class="field" style="grid-column:1 / -1">
           <label class="label" for="r_text" data-i18n="reviews.text">Recensione</label>
           <textarea id="r_text" class="control" rows="4" placeholder="Scrivi qui la tua recensione…" required></textarea>
@@ -1158,13 +1183,17 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </dialog>
 
-  <!-- JSON-LD (aggregate rating; aggiornato dinamicamente) -->
+  <!-- JSON-LD (aggregate rating) -->
   <script type="application/ld+json" id="reviewsJsonLd">
   {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "Servizi Video — Andrea Colucci",
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "36" }
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "36"
+    }
   }
   </script>
 
@@ -1172,169 +1201,14 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     .review .stars{letter-spacing:1px;color:var(--neon1)}
     dialog::backdrop{background:rgba(0,0,0,.6)}
     .field .label{display:block;font-size:13px;margin:0 0 4px;color:#bbb}
-    .field .control{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);border-radius:10px;color:#fff;padding:10px 12px;outline:none}
+    .field .control{
+      width:100%;background:rgba(255,255,255,.05);border:1px solid var(--stroke);
+      border-radius:10px;color:#fff;padding:10px 12px;outline:none
+    }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
     @media (max-width:980px){#recensioni .grid{grid-template-columns:1fr !important}}
   </style>
 </section>
-
-<!-- ====== BACKEND RECENSIONI (AC_Reviews_Backend — Google Apps Script) ====== -->
-<script>
-(() => {
-  /* CONFIG CLIENT */
-  const GAS_WEBAPP_URL = https://script.google.com/home/projects/1ooBCgS1_QTaApn8X-0rh5myZbU_Zom0UCGLfmmo1q9m6zwECsio8gfaJ/edit; // 
-  const GAS_API_KEY    = acfilms_2025_secretKey_93Jv7; // Script Properties: REVIEWS_API_KEY
-  const SEED_STARS = [5,5,4]; // 3 card statiche iniziali
-
-  /* DOM refs */
-  const grid     = document.getElementById('reviewsGrid');
-  const avgText  = document.getElementById('avgRatingText');
-  const LD       = document.getElementById('reviewsJsonLd');
-  const form     = document.getElementById('reviewForm');
-  const dialog   = document.getElementById('reviewModal');
-  const openBtn  = document.getElementById('openReview');
-  const closeBtn = document.getElementById('closeReview');
-  const cancelBtn= document.getElementById('cancelReview');
-  const saveBtn  = document.getElementById('saveReview');
-  const fileIn   = document.getElementById('r_img');
-  const preview  = document.getElementById('r_preview');
-  const previewPh= document.getElementById('r_preview_ph');
-
-  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-  function appendReviewCard(rec, {prepend=true}={}){
-    if(!grid || !rec) return;
-    const fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-
-    const img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img
-      : (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
-
-    const cap=document.createElement('figcaption');
-    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
-    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
-    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
-
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
-    prepend ? grid.insertBefore(fig, grid.firstChild) : grid.appendChild(fig);
-  }
-  function updateAverage(extraStars){
-    const all = SEED_STARS.concat((extraStars||[]).map(n=>Number(n)||0)).filter(Boolean);
-    if(!all.length) return;
-    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
-    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
-    if(LD){
-      try{ const obj=JSON.parse(LD.textContent); obj.aggregateRating.ratingValue=String(avg); obj.aggregateRating.reviewCount=String(all.length); LD.textContent=JSON.stringify(obj); }catch(_){}
-    }
-  }
-  function getVal(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
-
-  /* Preview img -> dataURL 120x120 */
-  function toDataUrlThumb(file){
-    return new Promise((resolve,reject)=>{
-      const fr=new FileReader();
-      fr.onload=()=>{ const img=new Image(); img.onload=()=>{ try{
-        const s=120,c=document.createElement('canvas'),ctx=c.getContext('2d'); c.width=s;c.height=s;
-        const crop=Math.min(img.width,img.height), sx=(img.width-crop)/2, sy=(img.height-crop)/2;
-        ctx.drawImage(img, sx, sy, crop, crop, 0, 0, s, s); resolve(c.toDataURL('image/jpeg', .85));
-      }catch(e){reject(e)} }; img.onerror=()=>reject(new Error('img error')); img.src=fr.result; };
-      fr.onerror=()=>reject(new Error('reader error')); fr.readAsDataURL(file);
-    });
-  }
-
-  /* LOAD (GET) */
-  async function loadReviews(){
-    if(!GAS_WEBAPP_URL || !/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL)){ updateAverage([]); return; }
-    try{
-      const url = GAS_WEBAPP_URL + (GAS_WEBAPP_URL.includes('?')?'&':'?') + 'key=' + encodeURIComponent(GAS_API_KEY);
-      const res = await fetch(url, { method:'GET', credentials:'omit' });
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const data = await res.json(); // {ok:true, items:[...]}
-      if(!data || !data.ok || !Array.isArray(data.items)){ updateAverage([]); return; }
-      const stars = [];
-      data.items.forEach(it=>{
-        const rec = {
-          name: it.name || '',
-          role: it.role || '',
-          stars: Math.max(1,Math.min(5, Number(it.stars)||5)),
-          text: it.text || '',
-          img: it.img || ''
-        };
-        appendReviewCard(rec, {prepend:false});
-        stars.push(rec.stars);
-      });
-      updateAverage(stars);
-    }catch(_){ updateAverage([]); }
-  }
-
-  /* SAVE (POST) */
-  async function buildRecord(){
-    const name = getVal('r_name');
-    const role = getVal('r_role');
-    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
-    const text = getVal('r_text');
-    if(!name || !text) return null;
-    let img64 = '';
-    const f = fileIn?.files && fileIn.files[0];
-    if(f && f.type && f.type.startsWith('image/')){ try{ img64=await toDataUrlThumb(f);}catch(_){} }
-    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64 };
-  }
-
-  async function submitReview(e){
-    if(e) e.preventDefault();
-    const rec = await buildRecord(); if(!rec) return;
-
-    // append ottimistico + media
-    appendReviewCard(rec);
-    updateAverage([rec.stars]);
-
-    // POST al backend con key
-    if(GAS_WEBAPP_URL && GAS_API_KEY){
-      try{
-        await fetch(GAS_WEBAPP_URL, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ key:GAS_API_KEY, ...rec }),
-          credentials:'omit'
-        });
-      }catch(_){}
-    }
-    closeModal();
-  }
-
-  /* Modal + preview bindings */
-  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
-  function closeModal(){ try{ form && form.reset(); }catch(_){}
-    if(preview){ preview.style.display='none'; } if(previewPh){ previewPh.style.display='block'; }
-    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
-  }
-  openBtn && openBtn.addEventListener('click', openModal);
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  cancelBtn && cancelBtn.addEventListener('click', closeModal);
-  dialog && dialog.addEventListener('keydown', e=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
-  dialog && dialog.addEventListener('click', e=>{
-    const r = dialog.getBoundingClientRect();
-    const inside = (e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
-    if(!inside) closeModal();
-  });
-  fileIn && fileIn.addEventListener('change', async function(){
-    const f = this.files && this.files[0];
-    if(!f || !f.type.startsWith('image/')){ preview.style.display='none'; previewPh.style.display='block'; return; }
-    try{ const d=await toDataUrlThumb(f); preview.src=d; preview.style.display='block'; previewPh.style.display='none'; }
-    catch(_){ preview.style.display='none'; previewPh.style.display='block'; }
-  });
-  form && form.addEventListener('submit', submitReview, {passive:false});
-  saveBtn && saveBtn.addEventListener('click', submitReview, {passive:false});
-
-  // Init
-  loadReviews();
-})();
-</script>
 
 <!-- ====== CONTATTI (preventivo) ====== -->
 <section id="contatti" class="container" style="padding:22px 0 6px">
@@ -1373,6 +1247,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI
         <label class="label" for="q_message" data-i18n="contact.message">Messaggio</label>
         <textarea id="q_message" class="control" rows="4" placeholder="Raccontami il tuo progetto, timing, location…"></textarea>
       </div>
+
       <div style="grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
         <button type="button" class="btn" id="sendMail" data-i18n="contact.sendEmail">Invia via Email</button>
         <a class="btn fill" id="sendWhatsApp" target="_blank" rel="noopener" data-i18n="contact.sendWA">Invia su WhatsApp</a>
@@ -1380,51 +1255,254 @@ PART 4 / 5 — RECENSIONI • CONTATTI
     </form>
   </div>
 
-  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal -->
+  <!-- iOS anti-zoom SOLO per #contatti + #reviewModal (coerente con Parte 1) -->
   <style id="ios-nozoom">
-    #contatti input, #contatti select, #contatti textarea, #contatti button, #contatti .control,
-    #reviewModal .control, #reviewModal input, #reviewModal select, #reviewModal textarea, #reviewModal button{
-      font-size:16px !important; line-height:1.35 !important; min-height:44px !important; -webkit-text-size-adjust:100% !important;
+    #contatti input,
+    #contatti select,
+    #contatti textarea,
+    #contatti button,
+    #contatti .control,
+    #reviewModal .control,
+    #reviewModal input,
+    #reviewModal select,
+    #reviewModal textarea,
+    #reviewModal button{
+      font-size:16px !important;
+      line-height:1.35 !important;
+      min-height:44px !important;
+      -webkit-text-size-adjust:100% !important;
     }
-    #contatti select, #contatti option, #reviewModal select, #reviewModal option{ font-size:16px !important; }
-    #contatti ::placeholder, #reviewModal ::placeholder{ font-size:16px !important; opacity:.8; }
+    #contatti select, #contatti option,
+    #reviewModal select, #reviewModal option{
+      font-size:16px !important;
+    }
+    #contatti ::placeholder,
+    #reviewModal ::placeholder{
+      font-size:16px !important;
+      opacity:.8;
+    }
   </style>
 </section>
 
-<!-- ====== SCRIPT: Email / WhatsApp (builder) ====== -->
+<!-- ===== SCRIPT unificato: Email/WA + Recensioni (modal + loader) ===== -->
 <script>
-(() => {
-  const WA_NUMBER = '393910911719'; // dal tuo codice
-  function val(id){ const el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
+(function(){
+  /* ====== CONTATTI: Email / WhatsApp ====== */
+  var WA_NUMBER = '393910911719'; // solo cifre
+
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  }
+
   function buildMessage(){
-    const name=val('q_name'), email=val('q_email'), phone=val('q_phone');
-    const servEl=document.getElementById('q_service'); const service=servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
-    const msg=val('q_message');
-    return "Richiesta preventivo dal sito Andrea Colucci Films\n\n"
-      + "Nome: " + (name||'-') + "\n"
-      + "Email: " + (email||'-') + "\n"
-      + "Telefono/WA: " + (phone||'-') + "\n"
-      + "Servizio: " + (service||'-') + "\n\n"
-      + (msg ? ("Messaggio:\n"+msg) : "");
+    var name = val('q_name');
+    var email = val('q_email');
+    var phone = val('q_phone');
+    var servEl = document.getElementById('q_service');
+    var service = servEl && servEl.value ? servEl.options[servEl.selectedIndex].text : '';
+    var msg = val('q_message');
+    return (
+      "Richiesta preventivo dal sito Andrea Colucci Films\n\n" +
+      "Nome: " + (name || '-') + "\n" +
+      "Email: " + (email || '-') + "\n" +
+      "Telefono/WA: " + (phone || '-') + "\n" +
+      "Servizio: " + (service || '-') + "\n\n" +
+      (msg ? ("Messaggio:\n" + msg) : "")
+    );
   }
-  const mailBtn=document.getElementById('sendMail');
+
+  var mailBtn = document.getElementById('sendMail');
   if(mailBtn){
-    mailBtn.addEventListener('click',(e)=>{
+    mailBtn.addEventListener('click', function(e){
       e.preventDefault();
-      const body=encodeURIComponent(buildMessage());
-      const subject=encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
-      window.location.href="mailto:andreacolucci@hotmail.it?subject="+subject+"&body="+body;
-    },{passive:false});
+      var body = encodeURIComponent(buildMessage());
+      var subject = encodeURIComponent("Richiesta preventivo — Andrea Colucci Films");
+      window.location.href = "mailto:andreacolucci@hotmail.it?subject=" + subject + "&body=" + body;
+    }, {passive:false});
   }
-  const waBtn=document.getElementById('sendWhatsApp');
+
+  var waBtn = document.getElementById('sendWhatsApp');
   if(waBtn){
-    waBtn.addEventListener('click',()=>{
-      const txt=encodeURIComponent(buildMessage());
-      waBtn.href="https://wa.me/"+WA_NUMBER+"?text="+txt;
+    waBtn.addEventListener('click', function(){
+      var txt = encodeURIComponent(buildMessage());
+      waBtn.href = "https://wa.me/" + WA_NUMBER + "?text=" + txt;
     });
   }
+
+  /* ====== RECENSIONI: preview + salvataggio + media ====== */
+  const grid     = document.getElementById('reviewsGrid');
+  const avgText  = document.getElementById('avgRatingText');
+  const LD       = document.getElementById('reviewsJsonLd');
+  const form     = document.getElementById('reviewForm');
+  const dialog   = document.getElementById('reviewModal');
+  const openBtn  = document.getElementById('openReview');
+  const closeBtn = document.getElementById('closeReview');
+  const cancelBtn= document.getElementById('cancelReview');
+  const saveBtn  = document.getElementById('saveReview');
+  const fileIn   = document.getElementById('r_img');
+  const preview  = document.getElementById('r_preview');
+  const previewPh= document.getElementById('r_preview_ph');
+
+  function getVal(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+
+  function toDataUrlThumb(file, cb){
+    try{
+      const fr=new FileReader();
+      fr.onload=function(){
+        const img=new Image();
+        img.onload=function(){
+          const size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          c.width=size; c.height=size;
+          const s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          cb(null, c.toDataURL('image/jpeg', .85));
+        };
+        img.src=fr.result;
+      };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(e); }
+  }
+
+  function appendReviewCard(rec){
+    if(!grid || !rec) return;
+    const fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    const img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
+      (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
+    const cap=document.createElement('figcaption');
+    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    const stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(rec.stars||5)+' su 5'); stars.textContent=starString(rec.stars);
+    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
+
+  function setAverageFromLists(baseStars, extraList){
+    const all = (baseStars||[]).concat((extraList||[]).map(r=>Number(r.stars)||0)).filter(Boolean);
+    if(!all.length) return;
+    const avg = Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+    if(avgText) avgText.textContent='Valutazione media '+avg+'/5';
+    if(LD){
+      try{
+        const obj=JSON.parse(LD.textContent);
+        obj.aggregateRating.ratingValue=String(avg);
+        obj.aggregateRating.reviewCount=String(all.length);
+        LD.textContent=JSON.stringify(obj);
+      }catch(_){}
+    }
+  }
+
+  // Modal open/close (compatibile anche se dialog non supportato)
+  function openModal(){ if(dialog?.showModal) dialog.showModal(); else dialog?.setAttribute('open','open'); }
+  function closeModal(){
+    try{ form && form.reset(); }catch(_){}
+    if(preview) preview.style.display='none';
+    if(previewPh) previewPh.style.display='block';
+    if(dialog?.open) dialog.close(); else dialog?.removeAttribute('open');
+  }
+  openBtn && openBtn.addEventListener('click', openModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  cancelBtn && cancelBtn.addEventListener('click', closeModal);
+  dialog && dialog.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ e.preventDefault(); closeModal(); } });
+  dialog && dialog.addEventListener('click', (e)=>{
+    const rect = dialog.getBoundingClientRect();
+    const inside = (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom);
+    if(!inside) closeModal();
+  });
+
+  // Preview immagine recensione
+  fileIn && fileIn.addEventListener('change', function(){
+    const f = this.files && this.files[0];
+    if(!f || !f.type.startsWith('image/')){
+      preview.style.display='none';
+      previewPh.style.display='block';
+      return;
+    }
+    toDataUrlThumb(f, function(err, data){
+      if(err){ preview.style.display='none'; previewPh.style.display='block'; return; }
+      preview.src = data;
+      preview.style.display='block';
+      previewPh.style.display='none';
+    });
+  });
+
+  // Salvataggio recensione (frontend)
+  function buildRecord(){
+    const name = getVal('r_name');
+    const role = getVal('r_role');
+    const stars= parseInt(document.getElementById('r_stars')?.value||'5',10);
+    const text = getVal('r_text');
+    const img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
+    if(!name || !text) return null;
+    return { name, role, stars:Math.max(1,Math.min(5,stars||5)), text, img: img64, ts: Date.now() };
+  }
+
+  function handleSave(e){
+    if(e) e.preventDefault();
+    const rec = buildRecord();
+    if(!rec) return;
+    appendReviewCard(rec);
+    closeModal();
+    // aggiorna media considerando 3 statiche (5,5,4) + questa nuova
+    setAverageFromLists([5,5,4], [rec]);
+  }
+  form && form.addEventListener('submit', handleSave, {passive:false});
+  saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
+
+  /* ====== LOADER AC_reviews ======
+     Cerca finestre JS (window.AC_REVIEWS) o file JSON comuni. */
+  (async function loadExternalReviews(){
+    var extra = [];
+    // 1) Se esiste window.AC_REVIEWS (script .js)
+    if(Array.isArray(window.AC_REVIEWS)){
+      extra = window.AC_REVIEWS;
+    }else{
+      // 2) Altrimenti prova JSON (root o /data/)
+      var CANDIDATES = ['AC_reviews.json','/AC_reviews.json','/data/AC_reviews.json'];
+      for(const url of CANDIDATES){
+        try{
+          const r = await fetch(url, {cache:'no-store'});
+          if(r.ok){
+            const data = await r.json();
+            extra = Array.isArray(data) ? data : (Array.isArray(data.reviews) ? data.reviews : []);
+            if(extra.length) break;
+          }
+        }catch(_){}
+      }
+    }
+
+    if(extra && extra.length){
+      // normalizza campi e append
+      var normalized = [];
+      extra.forEach(function(r){
+        var rec = {
+          name:  r.name || r.nome || 'Cliente',
+          role:  r.role || r.ruolo || '',
+          stars: Math.max(1,Math.min(5, Number(r.stars ?? r.voto ?? 5))),
+          text:  r.text || r.recensione || '',
+          img:   r.img  || r.photo || r.foto || ''
+        };
+        appendReviewCard(rec);
+        normalized.push(rec);
+      });
+      // aggiorna media con statiche (5,5,4) + tutto il file
+      setAverageFromLists([5,5,4], normalized);
+    }else{
+      // nessun file, mantieni media di default
+      setAverageFromLists([5,5,4], []);
+    }
+  })();
 })();
 </script>
+<!-- ===== /ENDPART 4 ===== -->
 
 
 <!-- ==========================
