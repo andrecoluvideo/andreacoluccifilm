@@ -569,7 +569,7 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
   </div>
 </section>
 
-<!-- ====== REEL (Commerciali → Wedding → Brand & Travel) ====== -->
+<!-- ====== REEL (con paging, 6 desktop / 3 mobile) ====== -->
 <section id="reel" class="container"
          style="padding:24px 0 8px;
                 background-image:
@@ -578,204 +578,221 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
                 background-size:cover;background-position:center;background-repeat:no-repeat">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px">
     <h2 class="headline h2" style="margin:0" data-i18n="reel.title">Reel selezionati</h2>
-    <div class="tag" style="gap:8px">
-      <span class="soft" data-i18n="reel.hint">Categorie in evidenza</span>
+    <div class="reel-nav" style="display:flex;gap:8px;align-items:center">
+      <button class="btn" id="reelPrev" aria-label="Pagina precedente">‹</button>
+      <span class="soft" id="reelCounter" style="min-width:70px;text-align:center">1/1</span>
+      <button class="btn" id="reelNext" aria-label="Pagina successiva">›</button>
     </div>
   </header>
 
-  <!-- === COMMERCIALI === -->
-  <section aria-labelledby="reelCommercialiH" style="margin:8px 0 12px">
-    <h3 id="reelCommercialiH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.commercial">Commerciali</h3>
-    <div class="grid grid-3" style="gap:12px">
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988374113?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Spot — Energy</b><span class="soft">60s</span></div>
-      </article>
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/967274150?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Promo — Lifestyle</b><span class="soft">90s</span></div>
-      </article>
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1077604297?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Brand — Motion</b><span class="soft">75s</span></div>
-      </article>
-    </div>
-  </section>
-
-  <!-- === WEDDING === -->
-  <section aria-labelledby="reelWeddingH" style="margin:8px 0 12px">
-    <h3 id="reelWeddingH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.wedding">Wedding</h3>
-    <div class="grid grid-3" style="gap:12px">
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/988376023?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Wedding — Tears & Joy</b><span class="soft">2:30</span></div>
-      </article>
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1025024490?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Wedding — Sunset Vows</b><span class="soft">3:10</span></div>
-      </article>
-      <article class="glass" style="display:flex;align-items:center;justify-content:center;min-height:120px;border:1px dashed var(--stroke)">
-        <span class="soft" data-i18n="reel.soon">Prossimamente…</span>
-      </article>
-    </div>
-  </section>
-
-  <!-- === BRAND & TRAVEL === -->
-  <section aria-labelledby="reelBrandH" style="margin:8px 0 6px">
-    <h3 id="reelBrandH" class="headline h3" style="margin:0 0 8px" data-i18n="reel.group.brand">Brand & Travel</h3>
-    <div class="grid grid-3" style="gap:12px">
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1041605119?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Travel — Ocean Drive</b><span class="soft">1:20</span></div>
-      </article>
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/1080060195?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Real Estate — Views</b><span class="soft">1:05</span></div>
-      </article>
-      <article class="glass videofx" style="overflow:hidden">
-        <div class="ratio slim"><iframe src="https://player.vimeo.com/video/967514987?quality=1080p&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&pip=0&playsinline=1" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        <div class="mini-meta"><b class="headline h3">Brand — Movement</b><span class="soft">0:55</span></div>
-      </article>
-    </div>
-  </section>
+  <div id="reelGrid" class="grid" style="gap:12px"></div>
 </section>
 
-<!-- ====== STILI SPECIFICI REEL/SERVIZI ====== -->
+<!-- ====== STILI SPECIFICI ====== -->
 <style>
+  :root{
+    --videoTitleColor: var(--neon1);
+  }
+
   .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   @media (max-width:1100px){ .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:680px){ .grid-3{grid-template-columns:1fr} }
 
-  .ratio{position:relative;width:100%;padding-top:56.25%}
-  .ratio.slim{padding-top:50%}
-  .ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .videofx iframe{filter:brightness(1.28) contrast(1.16) saturate(1.08);transition:filter .25s ease}
-  .videofx:hover iframe{filter:brightness(1.42) contrast(1.22) saturate(1.12)}
-  .mini-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid var(--stroke);background:rgba(255,255,255,.03)}
+  /* Card video senza bordini laterali (frame = video) */
+  .videocard{
+    border-radius:16px;
+    overflow:hidden;
+    background:rgba(255,255,255,.03); /* solo per la meta */
+  }
+  .videocard .frame{
+    position:relative;width:100%;padding-top:56.25%; /* 16:9 */
+    background:#000; /* evita flash */
+  }
+  .videocard .frame iframe{
+    position:absolute;inset:0;width:100%;height:100%;border:0;display:block;
+    filter:brightness(1.18) contrast(1.12) saturate(1.06);
+    transition:filter .25s ease;
+  }
+  .videocard:hover .frame iframe{ filter:brightness(1.32) contrast(1.16) saturate(1.10); }
+
+  .videocard .meta{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 12px;border-top:1px solid var(--stroke);
+    background:rgba(255,255,255,.03);
+  }
+  .videocard .vid-title{
+    color:var(--videoTitleColor);
+    font-weight:700; letter-spacing:.2px; margin:0;
+  }
+  .videocard .vid-len{ color:#c9c9c9; }
+
+  /* Griglia dinamica: desktop 3 col, mobile 1 col (3 elementi per pagina) */
+  #reelGrid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  @media (max-width:680px){ #reelGrid{ grid-template-columns:1fr; } }
+
+  /* Bottoni nav compatti */
+  .reel-nav .btn{min-width:40px;padding:6px 10px}
 </style>
 
-<!-- ====== SCRIPT: Vimeo pausa/riavvio + CTA quote → #contatti ====== -->
+<!-- ====== SCRIPT: Dataset, Render, Paging, Vimeo PostMessage ====== -->
 <script>
-  (function(){
-    function postAll(method){
-      document.querySelectorAll('#reel iframe').forEach(function(fr){
-        try{ fr.contentWindow && fr.contentWindow.postMessage({method: method}, '*'); }catch(e){}
-      });
-    }
+(function(){
+  // === DATASET: aggiungi/rimuovi qui i video ===
+  var VIDEOS = [
+    {url:"https://player.vimeo.com/video/988374113", title:"Spot — Energy", len:"60s"},
+    {url:"https://player.vimeo.com/video/967274150", title:"Promo — Lifestyle", len:"90s"},
+    {url:"https://player.vimeo.com/video/1077604297", title:"Brand — Motion", len:"75s"},
+    {url:"https://player.vimeo.com/video/988376023", title:"Wedding — Tears & Joy", len:"2:30"},
+    {url:"https://player.vimeo.com/video/1025024490", title:"Wedding — Sunset Vows", len:"3:10"},
+    {url:"https://player.vimeo.com/video/1041605119", title:"Travel — Ocean Drive", len:"1:20"},
+    {url:"https://player.vimeo.com/video/1080060195", title:"Real Estate — Views", len:"1:05"},
+    {url:"https://player.vimeo.com/video/967514987", title:"Brand — Movement", len:"0:55"}
+  ];
 
-    document.addEventListener('visibilitychange', function(){
-      postAll(document.hidden ? 'pause' : 'play');
+  // Parametri Vimeo standard
+  function vimeoSrc(base){
+    var q = [
+      "quality=1080p","autoplay=1","muted=1","loop=1","autopause=0",
+      "controls=0","title=0","byline=0","portrait=0","pip=0","playsinline=1"
+    ].join("&");
+    return base + "?" + q;
+  }
+
+  var grid   = document.getElementById('reelGrid');
+  var prevB  = document.getElementById('reelPrev');
+  var nextB  = document.getElementById('reelNext');
+  var count  = document.getElementById('reelCounter');
+
+  var state = { page:1, perPage: perPageForViewport(), total: 1 };
+
+  function perPageForViewport(){
+    return (window.matchMedia && window.matchMedia("(max-width:680px)").matches) ? 3 : 6;
+  }
+
+  function updatePager(){
+    var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
+    state.total = max;
+    if(count) count.textContent = state.page + "/" + max;
+    prevB && (prevB.disabled = (state.page<=1));
+    nextB && (nextB.disabled = (state.page>=max));
+  }
+
+  function clearGrid(){
+    while(grid && grid.firstChild) grid.removeChild(grid.firstChild);
+  }
+
+  function renderPage(){
+    if(!grid) return;
+    clearGrid();
+    var start = (state.page-1)*state.perPage;
+    var slice = VIDEOS.slice(start, start+state.perPage);
+
+    slice.forEach(function(v){
+      var card = document.createElement('article');
+      card.className = 'videocard';
+
+      var frame = document.createElement('div');
+      frame.className = 'frame';
+
+      var ifr = document.createElement('iframe');
+      ifr.loading = 'lazy';
+      ifr.allow = 'autoplay; fullscreen';
+      ifr.allowFullscreen = true;
+      ifr.src = vimeoSrc(v.url);
+      frame.appendChild(ifr);
+
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      var t = document.createElement('b');
+      t.className = 'vid-title';
+      t.textContent = v.title;
+      var len = document.createElement('span');
+      len.className = 'vid-len soft';
+      len.textContent = v.len;
+
+      meta.appendChild(t); meta.appendChild(len);
+      card.appendChild(frame); card.appendChild(meta);
+      grid.appendChild(card);
     });
 
+    // ri-aggancia observer sui nuovi iframe
+    setupIntersection();
+    // forza il play/pause corretto in base allo stato della pagina
+    postAll(document.hidden ? 'pause' : 'play');
+    updatePager();
+  }
+
+  function goto(delta){
+    var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
+    state.page += delta;
+    if(state.page<1) state.page=1;
+    if(state.page>max) state.page=max;
+    renderPage();
+  }
+
+  // Nav
+  prevB && prevB.addEventListener('click', function(){ goto(-1); });
+  nextB && nextB.addEventListener('click', function(){ goto(+1); });
+
+  // Ricalcola perPage su resize / orientation
+  var mq = window.matchMedia ? window.matchMedia("(max-width:680px)") : null;
+  if(mq){
+    mq.addEventListener('change', function(){
+      var old = state.perPage;
+      state.perPage = perPageForViewport();
+      if(state.perPage !== old){
+        state.page = 1;
+        renderPage();
+      }
+    });
+  }
+  window.addEventListener('resize', function(){
+    var p = perPageForViewport();
+    if(p !== state.perPage){ state.perPage = p; state.page = 1; renderPage(); }
+  });
+
+  // === Vimeo PostMessage helpers ===
+  function postAll(method){
+    document.querySelectorAll('#reel iframe').forEach(function(fr){
+      try{ fr.contentWindow && fr.contentWindow.postMessage({method:method}, '*'); }catch(e){}
+    });
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    postAll(document.hidden ? 'pause' : 'play');
+  });
+
+  var io; // IntersectionObserver
+  function setupIntersection(){
+    if(io) { io.disconnect(); io = null; }
     var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
     if('IntersectionObserver' in window && frames.length){
-      var io = new IntersectionObserver(function(entries){
+      io = new IntersectionObserver(function(entries){
         entries.forEach(function(en){
           try{
             var m = en.isIntersecting ? 'play' : 'pause';
             en.target.contentWindow && en.target.contentWindow.postMessage({method:m}, '*');
           }catch(e){}
         });
-      }, {root:null, rootMargin:'0px', threshold:0.3});
+      }, {root:null, rootMargin:'0px', threshold:0.35});
       frames.forEach(function(fr){ io.observe(fr); });
     }
+  }
 
-    document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
-      a.addEventListener('click', function(e){
-        var t = document.querySelector('#contatti'); if(!t) return;
-        e.preventDefault();
-        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-      }, {passive:false});
-    });
-  })();
+  // CTA smooth scroll da Servizi
+  document.querySelectorAll('#servizi a[href="#contatti"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.querySelector('#contatti'); if(!t) return;
+      e.preventDefault();
+      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      t.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+    }, {passive:false});
+  });
+
+  // Init
+  renderPage();
+})();
 </script>
-
-<!-- ====== i18n EXTEND (Servizi + Reel) ====== -->
-<script>
-  (function(){
-    function extend(extra){
-      window.__i18n = window.__i18n || { __dict:{}, apply:function(){} };
-      var D = window.__i18n.__dict = window.__i18n.__dict || {};
-      Object.keys(extra).forEach(function(k){ D[k] = Object.assign({}, D[k]||{}, extra[k]); });
-      var lang = document.documentElement.lang || 'it';
-      if(typeof window.__i18n.apply === 'function'){ window.__i18n.apply(lang); }
-    }
-
-    extend({
-      it:{
-        "services.title":"Servizi principali",
-        "services.cta":"Richiedi preventivo",
-        "services.brand.title":"Brand & Commercial",
-        "services.brand.desc":"Spot per aziende, hotel e location; script, riprese multi-camera, color grading e consegne ottimizzate per social/ADV.",
-        "services.wedding.title":"Wedding Film",
-        "services.wedding.desc":"Stile cinematografico, audio curato e storytelling emotivo. Trailer + film lungo, drone dove consentito.",
-        "services.travel.title":"Travel & Real Estate",
-        "services.travel.desc":"Contenuti per turismo, barche, proprietà: riprese aeree, motion dinamico, consegne verticali (Reels/Shorts).",
-        "services.music.title":"Music Video",
-        "services.music.desc":"Regia, storyboard e riprese multi-camera; clip verticali extra per lanciare il singolo.",
-        "services.events.title":"Eventi & Corporate",
-        "services.events.desc":"Conferenze, lanci prodotto, aftermovie; highlights + cut social in 24/48h.",
-        "services.boat.title":"Boat / Charter",
-        "services.boat.desc":"Esperienza a bordo: riprese aeree, cabina, navigazione; pacchetti stagionali per flotte.",
-
-        "reel.title":"Reel selezionati",
-        "reel.hint":"Categorie in evidenza",
-        "reel.group.commercial":"Commerciali",
-        "reel.group.wedding":"Wedding",
-        "reel.group.brand":"Brand & Travel",
-        "reel.soon":"Prossimamente…"
-      },
-      en:{
-        "services.title":"Main services",
-        "services.cta":"Get a quote",
-        "services.brand.title":"Brand & Commercial",
-        "services.brand.desc":"Ads for companies, hotels and venues; scripting, multi-camera shoots, color grading and social/ads-ready deliveries.",
-        "services.wedding.title":"Wedding Film",
-        "services.wedding.desc":"Cinematic style, clean audio and emotional storytelling. Trailer + long film, drone where allowed.",
-        "services.travel.title":"Travel & Real Estate",
-        "services.travel.desc":"Content for tourism, boats and properties: aerials, dynamic motion, vertical deliveries (Reels/Shorts).",
-        "services.music.title":"Music Video",
-        "services.music.desc":"Direction, storyboard and multi-camera; extra vertical clips to launch the single.",
-        "services.events.title":"Events & Corporate",
-        "services.events.desc":"Conferences, product launches, aftermovies; highlights + social cuts in 24/48h.",
-        "services.boat.title":"Boats / Charter",
-        "services.boat.desc":"On-board experience: drone, cabin, navigation; seasonal packages for fleets.",
-
-        "reel.title":"Selected reels",
-        "reel.hint":"Featured categories",
-        "reel.group.commercial":"Commercial",
-        "reel.group.wedding":"Wedding",
-        "reel.group.brand":"Brand & Travel",
-        "reel.soon":"Coming soon…"
-      },
-      es:{
-        "services.title":"Servicios principales",
-        "services.cta":"Pide presupuesto",
-        "services.brand.title":"Brand & Comercial",
-        "services.brand.desc":"Anuncios para empresas, hoteles y espacios; guion, rodaje multicámara, color grading y entregas listas para redes/ads.",
-        "services.wedding.title":"Boda (Wedding Film)",
-        "services.wedding.desc":"Estilo cinematográfico, audio cuidado y storytelling emocional. Tráiler + película larga, dron donde esté permitido.",
-        "services.travel.title":"Travel & Inmobiliario",
-        "services.travel.desc":"Contenidos para turismo, barcos y propiedades: aéreos, motion dinámico, entregas verticales (Reels/Shorts).",
-        "services.music.title":"Vídeo musical",
-        "services.music.desc":"Dirección, storyboard y multicámara; clips verticales extra para lanzar el single.",
-        "services.events.title":"Eventos & Corporate",
-        "services.events.desc":"Conferencias, lanzamientos de producto, aftermovie; highlights + cortes para redes en 24/48h.",
-        "services.boat.title":"Barcos / Charter",
-        "services.boat.desc":"Experiencia a bordo: dron, cabina, navegación; paquetes de temporada para flotas.",
-
-        "reel.title":"Reels seleccionados",
-        "reel.hint":"Categorías destacadas",
-        "reel.group.commercial":"Comercial",
-        "reel.group.wedding":"Boda",
-        "reel.group.brand":"Brand & Travel",
-        "reel.soon":"Próximamente…"
-      }
-    });
-  })();
-</script>
-<!-- FINE PARTE 2 / 5 -->
 
 
 <!-- ==========================
