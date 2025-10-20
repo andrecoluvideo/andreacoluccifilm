@@ -1361,93 +1361,125 @@ PART 4 / 5 — RECENSIONI • CONTATTI
   form && form.addEventListener('submit', handleSave, {passive:false});
   saveBtn && saveBtn.addEventListener('click', handleSave, {passive:false});
 
-  /* ====== LOADER: AC_reviews.json → window.AC_REVIEWS → Google Sheets → GAS ====== */
-  const SHEET_ID = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
+  <script>
+(function(){
+  /* ====== LOADER robusto: GAS → GViz → JSON → window ====== */
+  const grid=document.getElementById('reviewsGrid');
+  const avgText=document.getElementById('avgRatingText');
+  const LD=document.getElementById('reviewsJsonLd');
+
+  const SHEET_ID  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g'; // OK
   const SHEET_GID = '0';
-  const REVIEWS_API_KEY = 'acfilms_2025_secretKey_93Jv7'; // dalle Proprietà script
+  const REVIEWS_API_KEY = 'acfilms_2025_secretKey_93Jv7';
 
-  (async function loadExternalReviews(){
-    let extra = [];
+  function append(rec){
+    if(!grid || !rec) return;
+    const fig=document.createElement('figure');
+    fig.className='glass review';
+    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
+    const img=document.createElement('img');
+    img.loading='lazy'; img.alt='Cliente';
+    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
+    img.src = rec.img && /^data:image\//.test(rec.img) ? rec.img :
+             (rec.img || ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
+    const cap=document.createElement('figcaption');
+    const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const strong=document.createElement('strong'); strong.textContent=(rec.name||'Cliente')+(rec.role?' — '+rec.role:'');
+    const stars=document.createElement('span'); stars.className='stars';
+    const s=Math.max(1,Math.min(5,Number(rec.stars)||5)); stars.setAttribute('aria-label',s+' su 5');
+    stars.textContent=('★★★★★'.slice(0,s)+'☆☆☆☆☆'.slice(0,5-s));
+    const p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(rec.text||'')+'”';
+    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.insertBefore(fig, grid.firstChild);
+  }
 
-    // 1) window.AC_REVIEWS
-    if(Array.isArray(window.AC_REVIEWS)){ extra = window.AC_REVIEWS; }
-
-    // 2) AC_reviews.json (root / data/)
-    if(!extra.length){
-      for(const url of ['AC_reviews.json','/AC_reviews.json','/data/AC_reviews.json']){
-        try{
-          const r = await fetch(url, {cache:'no-store'});
-          if(r.ok){
-            const data = await r.json();
-            extra = Array.isArray(data) ? data : (Array.isArray(data.reviews) ? data.reviews : []);
-            if(extra.length) break;
-          }
-        }catch(_){}
-      }
+  function applyAverage(list){
+    const nums = list.map(r=>Number(r.stars)||0).filter(Boolean);
+    if(!nums.length) return;
+    const avg = Math.round((nums.reduce((a,b)=>a+b,0)/nums.length)*10)/10;
+    avgText && (avgText.textContent='Valutazione media '+avg+'/5');
+    if(LD){ try{
+      const obj=JSON.parse(LD.textContent); obj.aggregateRating.ratingValue=String(avg); obj.aggregateRating.reviewCount=String(nums.length);
+      LD.textContent=JSON.stringify(obj);
+    }catch(_){ }
     }
+  }
 
-    // 3) Google Sheets (GViz JSON) se pubblico in lettura
-    if(!extra.length && SHEET_ID){
+  function normalize(arr){
+    return (arr||[]).map(r=>({
+      name: r.name||r.nome||'Cliente',
+      role: r.role||r.ruolo||'',
+      stars: Math.max(1,Math.min(5, Number(r.stars ?? r.voto ?? 5))),
+      text: r.text||r.recensione||'',
+      img: r.img||r.photo||r.foto||''
+    })).filter(x=>x.text||x.name);
+  }
+
+  async function loadFromGAS(){
+    const cfg = window.__REVIEWS_CONFIG && window.__REVIEWS_CONFIG.endpoint;
+    if(!cfg) return [];
+    const url = new URL(cfg);
+    url.searchParams.set('key', REVIEWS_API_KEY);
+    const r = await fetch(url.toString(), { headers: { 'X-API-Key': REVIEWS_API_KEY }, cache:'no-store' });
+    console.log('[REVIEWS] GAS status', r.status);
+    if(!r.ok) throw new Error('GAS status '+r.status);
+    const data = await r.json();
+    const arr = Array.isArray(data) ? data : (Array.isArray(data.reviews) ? data.reviews : []);
+    return normalize(arr);
+  }
+
+  async function loadFromGViz(){
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+    const r = await fetch(url, {cache:'no-store'});
+    console.log('[REVIEWS] GViz status', r.status);
+    if(!r.ok) throw new Error('GViz status '+r.status);
+    const txt = await r.text();
+    if(!/google\.visualization\.Query\.setResponse/.test(txt)) throw new Error('GViz not published');
+    const json = JSON.parse(txt.replace(/^[^{]+/, '').replace(/;?$/,''));
+    const cols = json.table.cols.map(c => (c.label||c.id||'').toLowerCase());
+    const rows = json.table.rows || [];
+    const arr = rows.map(row=>{
+      const c=row.c||[]; const get=(label)=>{ const i=cols.indexOf(label); return i>-1 && c[i] && c[i].v!=null ? String(c[i].v):'' };
+      return { name:get('name')||get('nome'), role:get('role')||get('ruolo'), stars:get('stars')||get('voto'), text:get('text')||get('recensione'), img:get('img')||get('photo')||get('foto') };
+    });
+    return normalize(arr);
+  }
+
+  async function loadFromJSON(){
+    for(const u of ['AC_reviews.json','/AC_reviews.json','/data/AC_reviews.json']){
       try{
-        const gviz = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`, {cache:'no-store'});
-        if(gviz.ok){
-          const txt = await gviz.text();
-          // GViz risponde con "google.visualization.Query.setResponse({...})"
-          const json = JSON.parse(txt.replace(/^[^{]+/, '').replace(/;?$/,''));
-          const cols = json.table.cols.map(c => (c.label||c.id||'').toLowerCase());
-          const rows = json.table.rows || [];
-          extra = rows.map(r=>{
-            const cells = r.c || [];
-            const get = (label) => {
-              const idx = cols.indexOf(label.toLowerCase());
-              return idx>-1 && cells[idx] && cells[idx].v != null ? String(cells[idx].v) : '';
-            };
-            return {
-              name: get('name') || get('nome'),
-              role: get('role') || get('ruolo'),
-              stars: Number(get('stars') || get('voto') || 5),
-              text: get('text') || get('recensione'),
-              img: get('img') || get('photo') || get('foto')
-            };
-          }).filter(r=>r.name || r.text);
-        }
+        const r=await fetch(u,{cache:'no-store'}); console.log('[REVIEWS] JSON',u,'status',r.status);
+        if(r.ok){ const d=await r.json(); const arr=Array.isArray(d)?d:(Array.isArray(d.reviews)?d.reviews:[]); if(arr.length) return normalize(arr); }
       }catch(_){}
     }
+    return [];
+  }
 
-    // 4) Apps Script Web App (opzionale) — definisci window.__REVIEWS_CONFIG.endpoint = https://script.google.com/macros/s/AKfycbxWRUoEJEBadg_PMfLzIVrgkQ01-PMJOmEi6kD55BScQ-_i0qIBkYiXelzR--aTA4cTDQ/exec
-    if(!extra.length && window.__REVIEWS_CONFIG && window.__REVIEWS_CONFIG.endpoint){
-      try{
-        const url = new URL(window.__REVIEWS_CONFIG.endpoint);
-        url.searchParams.set('key', REVIEWS_API_KEY);
-        const r = await fetch(url.toString(), { headers: { 'X-API-Key': REVIEWS_API_KEY }});
-        if(r.ok){
-          const data = await r.json();
-          extra = Array.isArray(data) ? data : (Array.isArray(data.reviews) ? data.reviews : []);
-        }
-      }catch(_){}
+  async function loadFromWindow(){
+    const arr = Array.isArray(window.AC_REVIEWS) ? window.AC_REVIEWS : [];
+    console.log('[REVIEWS] window.AC_REVIEWS', arr.length);
+    return normalize(arr);
+  }
+
+  (async function init(){
+    let list=[];
+    try{ list = await loadFromGAS(); }catch(e){ console.warn(e); }
+    if(!list.length){ try{ list = await loadFromGViz(); }catch(e){ console.warn(e); } }
+    if(!list.length){ try{ list = await loadFromJSON(); }catch(e){ console.warn(e); } }
+    if(!list.length){ try{ list = await loadFromWindow(); }catch(e){ console.warn(e); } }
+
+    if(!list.length){
+      console.warn('[REVIEWS] Nessuna sorgente disponibile: mostro fallback');
+      list = [{name:'Cliente', role:'', stars:5, text:'Esperienza super! Montaggio e drone top.'}];
     }
 
-    // Render + media
-    if(extra.length){
-      const normalized = [];
-      extra.forEach(r=>{
-        const rec = {
-          name:  r.name || r.nome || 'Cliente',
-          role:  r.role || r.ruolo || '',
-          stars: Math.max(1,Math.min(5, Number(r.stars ?? r.voto ?? 5))),
-          text:  r.text || r.recensione || '',
-          img:   r.img  || r.photo || r.foto || ''
-        };
-        appendReviewCard(rec);
-        normalized.push(rec);
-      });
-      setAverageFromLists([5,5,4], normalized);
-    }else{
-      setAverageFromLists([5,5,4], []);
-    }
+    list.forEach(append);
+    applyAverage(list);
   })();
 })();
 </script>
+
 <!-- ===== end/PART 4 ===== -->
 
 
