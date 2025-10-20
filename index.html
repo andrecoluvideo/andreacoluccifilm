@@ -1,5 +1,5 @@
 <!-- ==========================
-PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
+PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
 ========================== -->
 <!doctype html>
 <html lang="it">
@@ -95,7 +95,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
     @media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
     @media (max-width:700px){ .hero{min-height:calc(68vh + env(safe-area-inset-top,0px))} }
 
-    /* ===== METRICHE: nessun overflow, testi che vanno a capo ===== */
+    /* ===== METRICHE ===== */
     .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
     .metric{padding:12px 12px;text-align:center;word-break:break-word}
     .metric .headline{font-size:clamp(18px,3.6vw,22px)}
@@ -108,7 +108,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
     .nowrap{white-space:nowrap}
   </style>
 
-  <!-- ===== Config globale (contatti, sorgenti recensioni) ===== -->
+  <!-- ===== Config globale (contatti + recensioni) ===== -->
   <script>
     window.__CONFIG = {
       EMAIL: 'andreacolucci@hotmail.it',
@@ -126,11 +126,23 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
           "\n— Inviato dal sito"
         );
       },
-      REVIEWS_SRC: (function(){
+
+      /* =====================
+         REVIEWS CONFIG
+         ===================== */
+      // Backend Apps Script (READ/WRITE). Chiave in GET/POST deve combaciare con lo Script Property REVIEWS_API_KEY
+      REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
+      REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
+      REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
+
+      // 🔧 GVIZ FALLBACK (ora per NOME TAB: AC_Reviews – niente gid)
+      REVIEWS_GVIZ:  (function(){
         var id  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
-        var gid = '0';
-        return 'https://docs.google.com/spreadsheets/d/' + id + '/gviz/tq?tqx=out:json&gid=' + gid;
+        var sheetName = 'AC_Reviews'; // <— il nome del tab in basso
+        return 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&tqx=out:json';
       })(),
+
+      // Mappa colonne dello Sheet (ts,name,role,stars,text,img)
       REVIEWS_MAP: ['ts','name','role','stars','text','img']
     };
   </script>
@@ -192,46 +204,89 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
   })();
   </script>
 
-  <!-- ===== Loader recensioni (GVIZ) → window.__reviewsStore + evento ===== -->
+  <!-- ===== Loader recensioni ORCHESTRATO (Backend first, GVIZ fallback) ===== -->
   <script>
   (function(){
-    var CFG = window.__CONFIG || {};
-    var SRC = CFG.REVIEWS_SRC;
-    var MAP = (CFG.REVIEWS_MAP || []).slice();
+    const CFG = window.__CONFIG || {};
+    const MAP = (CFG.REVIEWS_MAP || []).slice();
 
-    function parseGVIZ(text){
-      var start = text.indexOf('('), end = text.lastIndexOf(')');
-      if(start === -1 || end === -1) throw new Error('GVIZ format unexpected');
-      var json = JSON.parse(text.slice(start+1, end));
-      var table = json.table, rows = (table.rows||[]), out=[];
-      rows.forEach(function(r){
-        if(!r || !r.c) return;
-        var obj = {};
-        for(var i=0;i<MAP.length;i++){
-          var cell = r.c[i] && (r.c[i].v != null ? r.c[i].v : r.c[i].f);
-          obj[MAP[i]] = cell == null ? '' : cell;
-        }
-        if(obj.stars != null){ obj.stars = Number(String(obj.stars).replace(',','.')) || 5; }
-        if(obj.ts){ var d = new Date(obj.ts); if(!isNaN(d)) obj.ts = d.toISOString(); }
-        out.push(obj);
-      });
-      return out;
+    function toItemsFromGVIZ(text){
+      try{
+        const start = text.indexOf('('), end = text.lastIndexOf(')');
+        if(start === -1 || end === -1) throw new Error('GVIZ format unexpected');
+        const json = JSON.parse(text.slice(start+1, end));
+        const rows = (json.table && json.table.rows) || [];
+        const out = [];
+        rows.forEach(r=>{
+          if(!r || !r.c) return;
+          const obj = {};
+          for(let i=0;i<MAP.length;i++){
+            const c = r.c[i] && (r.c[i].v != null ? r.c[i].v : r.c[i].f);
+            obj[MAP[i]] = c == null ? '' : c;
+          }
+          if(obj.stars != null){ obj.stars = Number(String(obj.stars).replace(',','.')) || 5; }
+          if(obj.ts){ const d = new Date(obj.ts); if(!isNaN(d)) obj.ts = +d; }
+          out.push(obj);
+        });
+        out.sort((a,b)=>(+b.ts||0)-(+a.ts||0));
+        return out;
+      }catch(e){ console.warn('[reviews] gviz parse fail:', e); return []; }
     }
 
-    function fetchReviews(url){
-      return fetch(url, {cache:'no-store'})
-        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
-        .then(parseGVIZ);
+    async function readFromBackend(){
+      try{
+        const res = await fetch(CFG.REVIEWS_READ, { cache:'no-store' });
+        const j = await res.json();
+        if(j && j.ok && Array.isArray(j.items)) return j.items;
+      }catch(e){
+        console.warn('[reviews] backend read fail:', e);
+      }
+      return [];
     }
 
-    var store = { data:[], ready:null, error:null, set:function(a){this.data=Array.isArray(a)?a:[];this.error=null;}, fail:function(e){this.error=e||new Error('Unknown');} };
+    async function readFromGVIZ(){
+      try{
+        const res = await fetch(CFG.REVIEWS_GVIZ, { cache:'no-store', redirect:'follow' });
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const text = await res.text();
+        return toItemsFromGVIZ(text);
+      }catch(e){
+        console.warn('[reviews] gviz read fail:', e);
+        return [];
+      }
+    }
+
+    async function orchestrate(){
+      const a = await readFromBackend();
+      if(a.length){
+        console.info('[reviews] source: backend count:', a.length);
+        return a;
+      }
+      const b = await readFromGVIZ();
+      if(b.length){
+        console.info('[reviews] source: gviz fallback count:', b.length);
+        return b;
+      }
+      console.info('[reviews] no data from backend or gviz');
+      return [];
+    }
+
+    const store = {
+      data:[], error:null, ready:null,
+      set(a){ this.data = Array.isArray(a) ? a : []; this.error=null; },
+      fail(e){ this.error = e || new Error('Unknown'); }
+    };
     window.__reviewsStore = store;
 
-    store.ready = fetchReviews(SRC).then(function(list){
+    store.ready = orchestrate().then(list=>{
       store.set(list);
       window.dispatchEvent(new CustomEvent('ac:reviews-ready', { detail:{ count:list.length } }));
       return list;
-    }).catch(function(err){ store.fail(err); console.error('[ac.reviews] load error:', err); return []; });
+    }).catch(err=>{
+      store.fail(err);
+      console.error('[ac.reviews] load error:', err);
+      return [];
+    });
   })();
   </script>
 
@@ -318,136 +373,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
       });
     })();
   </script>
-  <!-- ===== CONFIG RECENSIONI (Apps Script + GVIZ fallback) ===== -->
-<script>
-(function(){
-  // Mantieni eventuali chiavi già definite (EMAIL, WA_NUMBER, ecc.)
-  window.__CONFIG = window.__CONFIG || {};
-
-  // === Endpoint principali (tuoi URL già validati) ===
-  Object.assign(window.__CONFIG, {
-    // Backend Apps Script (READ JSON)
-    REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
-
-    // Backend Apps Script (WRITE JSON)
-    REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
-
-    // Chiave di sicurezza condivisa con l’Apps Script
-    REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
-
-    // === Fallback diretto Google Sheet (GVIZ JSON) ===
-    // Assicurati che il foglio sia “Chiunque con il link → Visualizzatore”
-    REVIEWS_GVIZ:  'https://docs.google.com/spreadsheets/d/1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g/gviz/tq?tqx=out:json&gid=0',
-
-    // (opzionale) Altri CSV pubblici da usare come ulteriori fallback
-    REVIEWS_CSVS: []
-  });
-
-  // Hardening: normalizza a stringa le chiavi critiche
-  ['REVIEWS_READ','REVIEWS_WRITE','REVIEWS_KEY','REVIEWS_GVIZ'].forEach(function(k){
-    if (window.__CONFIG[k] != null) window.__CONFIG[k] = String(window.__CONFIG[k]);
-  });
-
-  // Piccolo log diagnostico (una sola volta)
-  if (!window.__CFG_LOGGED) {
-    window.__CFG_LOGGED = true;
-    try {
-      console.info('[CONFIG] Reviews wired:', {
-        read: !!window.__CONFIG.REVIEWS_READ,
-        write: !!window.__CONFIG.REVIEWS_WRITE,
-        gviz: !!window.__CONFIG.REVIEWS_GVIZ
-      });
-    } catch(_) {}
-  }
-})();
-</script>
-<!-- ========== REVIEWS: HOTFIX SOLO BACKEND (incolla prima di </body>) ========== -->
-<style>
-  /* stile semplice, non cambia il layout del sito */
-  .rev{padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin:12px 0;background:rgba(255,255,255,.02)}
-  .rev-hdr{display:flex;gap:12px;align-items:center;margin-bottom:6px}
-  .rev-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;display:block}
-  .rev-meta{display:flex;flex-direction:column;line-height:1.1}
-  .rev-role{opacity:.7;font-size:.9em}
-  .rev-stars{font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;letter-spacing:.5px;margin:6px 0}
-  .rev-text{margin:8px 0 6px}
-  .rev-date{opacity:.6;font-size:.85em}
-</style>
-
-<script>
-(function(){
-  // 1) CONFIG — usa il tuo backend Apps Script (già attivo)
-  const API = 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec';
-  const KEY = 'acfilms_2025_secretKey_93Jv7';
-
-  // 2) Trova un contenitore dove stampare (sceglie automaticamente quello che trova)
-  const target =
-    document.querySelector('[data-reviews]') ||
-    document.getElementById('reviews-list') ||
-    document.querySelector('#recensioni .grid') ||
-    document.querySelector('#recensioni') ||
-    document.body;
-
-  target.insertAdjacentHTML('beforeend', '<div id="__reviews_loading">Carico le recensioni…</div>');
-
-  // 3) Legge SOLO dal backend e stampa
-  fetch(`${API}?action=read&key=${encodeURIComponent(KEY)}`)
-    .then(r => r.json())
-    .then(j => {
-      const loader = document.getElementById('__reviews_loading');
-      if (loader) loader.remove();
-
-      if (!j || !j.ok) {
-        target.insertAdjacentHTML('beforeend', `<p>Errore caricamento recensioni.</p>`);
-        console.error('Reviews error:', j);
-        return;
-      }
-      if (!Array.isArray(j.items) || !j.items.length) {
-        target.insertAdjacentHTML('beforeend', `<p>Nessuna recensione al momento.</p>`);
-        return;
-      }
-
-      const html = j.items.map(renderReview).join('');
-      // se hai già una lista esistente, la sostituisce; altrimenti la aggiunge
-      const box = document.getElementById('__reviews_box') || document.createElement('div');
-      box.id = '__reviews_box';
-      box.innerHTML = html;
-      target.appendChild(box);
-    })
-    .catch(err => {
-      const loader = document.getElementById('__reviews_loading');
-      if (loader) loader.remove();
-      target.insertAdjacentHTML('beforeend', `<p>Errore rete caricamento recensioni.</p>`);
-      console.error(err);
-    });
-
-  function renderReview(it){
-    const stars = '★★★★★'.slice(0, clamp(+it.stars||5,1,5)).padEnd(5,'☆');
-    const date  = it.ts ? new Date(Number(it.ts)).toLocaleDateString('it-IT') : '';
-    const img   = it.img ? `<img src="${safe(it.img)}" alt="${safe(it.name)}" class="rev-avatar">` : '';
-    const role  = it.role ? `<span class="rev-role">${safe(it.role)}</span>` : '';
-    return `
-      <article class="rev">
-        <div class="rev-hdr">
-          ${img}
-          <div class="rev-meta">
-            <strong>${safe(it.name)}</strong>
-            ${role}
-          </div>
-        </div>
-        <div class="rev-stars" aria-label="${clamp(+it.stars||5,1,5)}/5">${stars}</div>
-        <p class="rev-text">“${safe(it.text)}”</p>
-        <time class="rev-date">${date}</time>
-      </article>
-    `;
-  }
-  function safe(s){return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-  function clamp(n,min,max){return Math.max(min, Math.min(max, n));}
-})();
-</script>
-<!-- ========== /REVIEWS HOTFIX ========== -->
-
-
 </head>
 <body>
 
@@ -592,13 +517,11 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (REFATTO)
 
 </body>
 </html>
-<!-- FINE PARTE 1 / 5 -->
-
-
+<!-- FINE PARTE 1 / 5 (FIX) -->
 
 <!-- ==========================
-PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
-(look IDENTICO; grid stabile; CTA → #contatti; Vimeo pausa/play su visibilità & viewport)
+PART 2 / 5 — SERVIZI • REEL (FIX)
+(look identico; paging stabile; Vimeo autoplay muted + pausa/play con IntersectionObserver e visibility)
 ========================== -->
 
 <!-- ====== SERVIZI (6 card) ====== -->
@@ -720,54 +643,37 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
 
 <!-- ====== STILI SPECIFICI ====== -->
 <style>
-  :root{
-    --videoTitleColor: var(--neon1);
-  }
+  :root{ --videoTitleColor: var(--neon1); }
 
   .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   @media (max-width:1100px){ .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:680px){ .grid-3{grid-template-columns:1fr} }
 
-  /* Card video senza bordini laterali (frame = video) */
-  .videocard{
-    border-radius:16px;
-    overflow:hidden;
-    background:rgba(255,255,255,.03); /* solo per la meta */
-  }
-  .videocard .frame{
-    position:relative;width:100%;padding-top:56.25%; /* 16:9 */
-    background:#000; /* evita flash */
-  }
+  .videocard{ border-radius:16px; overflow:hidden; background:rgba(255,255,255,.03); }
+  .videocard .frame{ position:relative;width:100%;padding-top:56.25%; background:#000; }
   .videocard .frame iframe{
     position:absolute;inset:0;width:100%;height:100%;border:0;display:block;
-    filter:brightness(1.18) contrast(1.12) saturate(1.06);
-    transition:filter .25s ease;
+    filter:brightness(1.18) contrast(1.12) saturate(1.06); transition:filter .25s ease;
   }
   .videocard:hover .frame iframe{ filter:brightness(1.32) contrast(1.16) saturate(1.10); }
 
   .videocard .meta{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:10px 12px;border-top:1px solid var(--stroke);
-    background:rgba(255,255,255,.03);
+    padding:10px 12px;border-top:1px solid var(--stroke); background:rgba(255,255,255,.03);
   }
-  .videocard .vid-title{
-    color:var(--videoTitleColor);
-    font-weight:700; letter-spacing:.2px; margin:0;
-  }
+  .videocard .vid-title{ color:var(--videoTitleColor); font-weight:700; letter-spacing:.2px; margin:0; }
   .videocard .vid-len{ color:#c9c9c9; }
 
-  /* Griglia dinamica: desktop 3 col, mobile 1 col (3 elementi per pagina) */
   #reelGrid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
   @media (max-width:680px){ #reelGrid{ grid-template-columns:1fr; } }
 
-  /* Bottoni nav compatti */
   .reel-nav .btn{min-width:40px;padding:6px 10px}
 </style>
 
 <!-- ====== SCRIPT: Dataset, Render, Paging, Vimeo PostMessage ====== -->
 <script>
 (function(){
-  // === DATASET: aggiungi/rimuovi qui i video ===
+  // === DATASET (puoi cambiare/ordinare i video qui) ===
   var VIDEOS = [
     {url:"https://player.vimeo.com/video/988374113", title:"Spot — Energy", len:"60s"},
     {url:"https://player.vimeo.com/video/967274150", title:"Promo — Lifestyle", len:"90s"},
@@ -779,7 +685,7 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
     {url:"https://player.vimeo.com/video/967514987", title:"Brand — Movement", len:"0:55"}
   ];
 
-  // Parametri Vimeo standard
+  // Parametri Vimeo; evitiamo allowfullscreen duplicato (niente warning)
   function vimeoSrc(base){
     var q = [
       "quality=1080p","autoplay=1","muted=1","loop=1","autopause=0",
@@ -803,8 +709,8 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
     var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
     state.total = max;
     if(count) count.textContent = state.page + "/" + max;
-    prevB && (prevB.disabled = (state.page<=1));
-    nextB && (nextB.disabled = (state.page>=max));
+    if(prevB) prevB.disabled = (state.page<=1);
+    if(nextB) nextB.disabled = (state.page>=max);
   }
 
   function clearGrid(){
@@ -826,8 +732,9 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
 
       var ifr = document.createElement('iframe');
       ifr.loading = 'lazy';
-      ifr.allow = 'autoplay; fullscreen';
-      ifr.allowFullscreen = true;
+      ifr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      // evitiamo l’attributo allowfullscreen perché è deprecato rispetto a "allow"
+      ifr.title = v.title + " — Vimeo player";
       ifr.src = vimeoSrc(v.url);
       frame.appendChild(ifr);
 
@@ -845,35 +752,28 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
       grid.appendChild(card);
     });
 
-    // ri-aggancia observer sui nuovi iframe
     setupIntersection();
-    // forza il play/pause corretto in base allo stato della pagina
     postAll(document.hidden ? 'pause' : 'play');
     updatePager();
+    // mantieni la testata del reel a vista quando cambi pagina
+    try{ document.getElementById('reel').querySelector('h2').scrollIntoView({block:'nearest'}); }catch(_){}
   }
 
   function goto(delta){
     var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
-    state.page += delta;
-    if(state.page<1) state.page=1;
-    if(state.page>max) state.page=max;
+    state.page = Math.min(max, Math.max(1, state.page + delta));
     renderPage();
   }
 
-  // Nav
-  prevB && prevB.addEventListener('click', function(){ goto(-1); });
-  nextB && nextB.addEventListener('click', function(){ goto(+1); });
+  if(prevB) prevB.addEventListener('click', function(){ goto(-1); });
+  if(nextB) nextB.addEventListener('click', function(){ goto(+1); });
 
-  // Ricalcola perPage su resize / orientation
   var mq = window.matchMedia ? window.matchMedia("(max-width:680px)") : null;
   if(mq){
     mq.addEventListener('change', function(){
       var old = state.perPage;
       state.perPage = perPageForViewport();
-      if(state.perPage !== old){
-        state.page = 1;
-        renderPage();
-      }
+      if(state.perPage !== old){ state.page = 1; renderPage(); }
     });
   }
   window.addEventListener('resize', function(){
@@ -887,12 +787,11 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
       try{ fr.contentWindow && fr.contentWindow.postMessage({method:method}, '*'); }catch(e){}
     });
   }
-
   document.addEventListener('visibilitychange', function(){
     postAll(document.hidden ? 'pause' : 'play');
   });
 
-  var io; // IntersectionObserver
+  var io;
   function setupIntersection(){
     if(io) { io.disconnect(); io = null; }
     var frames = Array.prototype.slice.call(document.querySelectorAll('#reel iframe'));
@@ -904,7 +803,7 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
             en.target.contentWindow && en.target.contentWindow.postMessage({method:m}, '*');
           }catch(e){}
         });
-      }, {root:null, rootMargin:'0px', threshold:0.35});
+      }, {root:null, rootMargin:'0px', threshold:0.4});
       frames.forEach(function(fr){ io.observe(fr); });
     }
   }
@@ -925,8 +824,9 @@ PART 2 / 5 — SERVIZI • REEL (refatto, aggiornato)
 </script>
 
 
+
 <!-- ==========================
-PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
+PART 3 / 5 — PACCHETTI • CTA • BIO (FIX)
 (prefill pack → #contatti, WA con pack, prezzi +IVA, 3a foto solo mobile)
 ========================== -->
 
@@ -1146,6 +1046,9 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
 <!-- ====== SCRIPT: Click su card/CTA → #contatti + prefill pack (+ WA) ====== -->
 <script>
 (function(){
+  if (window.__PACKS_BOUND) return; // evita doppi binding se la sezione viene inclusa 2 volte
+  window.__PACKS_BOUND = true;
+
   var lastPack = null;
 
   function smoothToContacts(){
@@ -1165,32 +1068,38 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
         qmsg.value = current ? (current + '\n' + add) : add;
       }
     }
-    // aggiorna WA CTA se presente
+    updateWhatsAppLink();
+  }
+
+  function updateWhatsAppLink(){
     var wa = document.getElementById('ctaWhatsApp');
+    if(!wa) return;
     var cfg = window.__CONFIG || {};
     var waNumber = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
-    if(wa && waNumber){
-      var p = {
-        pack: lastPack || '',
-        name: (document.getElementById('q_name')||{}).value || '',
-        email: (document.getElementById('q_email')||{}).value || '',
-        phone: (document.getElementById('q_phone')||{}).value || '',
-        service: (function(){
-          var el=document.getElementById('q_service');
-          return el && el.value ? el.options[el.selectedIndex].text : '';
-        })(),
-        message: (document.getElementById('q_message')||{}).value || ''
-      };
-      var text = encodeURIComponent((cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌'));
-      wa.href = 'https://wa.me/'+waNumber+'?text='+text;
-    }
+    if(!waNumber) return;
+
+    var p = {
+      pack: window.__LAST_PACK || '',
+      name: (document.getElementById('q_name')||{}).value || '',
+      email: (document.getElementById('q_email')||{}).value || '',
+      phone: (document.getElementById('q_phone')||{}).value || '',
+      service: (function(){
+        var el=document.getElementById('q_service');
+        return el && el.value ? (el.options[el.selectedIndex]?.text || el.value) : '';
+      })(),
+      message: (document.getElementById('q_message')||{}).value || ''
+    };
+
+    var lead = (typeof cfg.leadText === 'function') ? cfg.leadText(p) : ('Ciao Andrea! Ti scrivo dal sito.\n' + (p.pack ? ('Pacchetto: '+p.pack+'\n') : ''));
+    var text = encodeURIComponent(lead);
+    wa.href = 'https://wa.me/'+waNumber+'?text='+text;
   }
 
   // click sui bottoni "Seleziona"
   document.querySelectorAll('#pacchetti-videoprofessionali .pack-card a[href="#contatti"]').forEach(function(a){
     a.addEventListener('click', function(e){
       var card = a.closest('.pack-card'); if(!card) return;
-      var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+      var pack = card.getAttribute('data-pack') || (card.querySelector('.headline.h3') && card.querySelector('.headline.h3').textContent) || '';
       e.preventDefault();
       prefillPack(pack);
       smoothToContacts();
@@ -1200,8 +1109,8 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
   // click sull'intera card
   document.querySelectorAll('#pacchetti-videoprofessionali .pack-card').forEach(function(card){
     card.addEventListener('click', function(e){
-      if(e.target.closest('a')) return; // già gestito
-      var pack = card.getAttribute('data-pack') || card.querySelector('.headline.h3')?.textContent || '';
+      if(e.target.closest && e.target.closest('a')) return; // già gestito
+      var pack = card.getAttribute('data-pack') || (card.querySelector('.headline.h3') && card.querySelector('.headline.h3').textContent) || '';
       e.preventDefault && e.preventDefault();
       prefillPack(pack);
       smoothToContacts();
@@ -1212,9 +1121,21 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
   var waBtn = document.getElementById('ctaWhatsApp');
   if(waBtn){
     waBtn.addEventListener('click', function(){
-      prefillPack(lastPack||'');
-    });
+      updateWhatsAppLink();
+    }, {passive:true});
   }
+
+  // Aggiorna il link WA se l'utente compila i campi (name/email/phone/message/service)
+  ['q_name','q_email','q_phone','q_message','q_service'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var evt = ('oninput' in el) ? 'input' : 'change';
+    el.addEventListener(evt, updateWhatsAppLink, {passive:true});
+    el.addEventListener('change', updateWhatsAppLink, {passive:true});
+  });
+
+  // Prima inizializzazione del link WA
+  updateWhatsAppLink();
 })();
 </script>
 
@@ -1354,8 +1275,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (refatto)
 
 
 <!-- ==========================
-<!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
+PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
 (Backend→CSV→GVIZ/REVIEWS_SRC→Store→Cache; carosello 6 desktop / 3 mobile; autohide topbar; salvataggio Apps Script)
 ========================== -->
 
@@ -1366,7 +1286,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     <span class="soft" id="avgRatingText" style="white-space:nowrap" data-i18n="reviews.subtitle">Valutazione media 4.9/5</span>
   </header>
 
-  <!-- VIEWPORT + CONTROLS -->
   <div class="reviews-wrap" style="position:relative">
     <button class="nav prev" id="reviewsPrev" aria-label="Precedenti" title="Precedenti">◀</button>
     <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px">
@@ -1460,7 +1379,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     }
     .field .control:focus{box-shadow:0 0 0 2px rgba(117,227,116,.18)}
 
-    /* Carosello */
     .reviews-wrap .nav{
       position:absolute;top:50%;transform:translateY(-50%);
       width:36px;height:36px;border-radius:999px;border:1px solid var(--stroke);
@@ -1470,7 +1388,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     #reviewsPrev{left:-8px}
     #reviewsNext{right:-8px}
 
-    /* Griglia: desktop 3×2, mobile 1×3 — SOLO #reviewsGrid */
     #reviewsGrid{min-height:280px}
     @media (max-width:980px){
       #reviewsGrid{grid-template-columns:1fr !important}
@@ -1479,7 +1396,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
       #reviewsNext{right:6px}
     }
 
-    /* Anti-zoom iOS SOLO per modale recensioni */
+    /* Anti-zoom iOS per modale */
     #reviewModal .control{
       font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
       -webkit-text-size-adjust:100% !important;
@@ -1552,13 +1469,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
 <!-- ===== SCRIPT: Reviews loader + Carosello + Contatti + Salvataggio ===== -->
 <script>
 (function(){
-  /* ======= CONFIG ======= */
+  /* ======= CONFIG (arrivano dalla PART 1) ======= */
   var CFG = window.__CONFIG || {};
   var AC_BACKEND_READ = CFG.REVIEWS_READ || '';        // Apps Script READ (JSON)
   var BACKEND_URL     = CFG.REVIEWS_WRITE || '';       // Apps Script WRITE
   var BACKEND_KEY     = CFG.REVIEWS_KEY  || '';        // Secret per WRITE
-  var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]);        // opzionale: CSV
-  // GVIZ fallback: usa REVIEWS_GVIZ, altrimenti REVIEWS_SRC (presente nel tuo <head>)
+  var SHEET_URLS      = (CFG.REVIEWS_CSVS||[]);        // opzionale: CSV pubblici
   var SHEET_GVIZ      = CFG.REVIEWS_GVIZ || CFG.REVIEWS_SRC || '';
 
   /* ======= Utils ======= */
@@ -1723,27 +1639,22 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
   async function loadReviews(){
     var loaded=[], used='';
 
-    // 0) Store già pronto
     if(!loaded.length){
       var st = loadFromStore();
       if(st.length){ loaded=st; used='store'; }
     }
-    // 1) Backend JSON
     if(!loaded.length){
       var bk = await loadFromBackend();
       if(bk.length){ loaded=bk; used='backend'; }
     }
-    // 2) CSV
     if(!loaded.length){
       var cs = await loadFromCSVs();
       if(cs.length){ loaded=cs; used='csv'; }
     }
-    // 3) GVIZ / REVIEWS_SRC
     if(!loaded.length){
       var gv = await loadFromGVIZ();
       if(gv.length){ loaded=gv; used='gviz'; }
     }
-    // 4) Cache
     if(!loaded.length){
       var cc = loadFromCache();
       if(cc.length){ loaded=cc; used='cache'; }
@@ -1751,7 +1662,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
       try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
     }
 
-    // Ordina per più recenti
     loaded.sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
     ALL = loaded.slice();
     try{ console.info('[reviews] source:', used, 'count:', ALL.length); }catch(_){}
@@ -1760,7 +1670,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
   }
 
-  // Se lo store si popola DOPO, aggiorna
   window.addEventListener('ac:reviews-ready', function(){
     if(!ALL.length){ loadReviews(); }
   });
@@ -1791,13 +1700,11 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     grid.style.gridTemplateColumns = (ps===6 ? 'repeat(3,minmax(0,1fr))' : '1fr');
   }
 
-  // Controlli
   var prev = document.getElementById('reviewsPrev');
   var next = document.getElementById('reviewsNext');
   if(prev) prev.addEventListener('click', function(){ renderPage(cur-1); });
   if(next) next.addEventListener('click', function(){ renderPage(cur+1); });
 
-  // Recompute su resize (debounce)
   var rzTO=null, lastPS=pageSize();
   window.addEventListener('resize', function(){
     clearTimeout(rzTO);
@@ -1912,7 +1819,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(ALL)); }catch(_){}
   }
   if(form) form.addEventListener('submit', handleSave);
-  if(saveBtn) saveBtn.addEventListener('click', handleSave);
+  if(saveBtn) addEventListener('click', handleSave);
 
   /* ======= Contatti: Email + WhatsApp ======= */
   function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
@@ -1960,7 +1867,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
     });
   }
 
-  /* ======= Header mobile auto-hide (target: #topbar) ======= */
+  /* ======= Header mobile auto-hide (opzionale: #topbar) ======= */
   (function(){
     var topbar = document.getElementById('topbar');
     if(!topbar) return;
@@ -2099,6 +2006,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (fix definitivo 2025-10-21)
 })();
 </script>
 <!-- FINE PARTE 4 / 5 -->
+
 
 
 
