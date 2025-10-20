@@ -1485,31 +1485,81 @@ PART 4 / 5 — RECENSIONI • CONTATTI (refatto)
 
   /* ======= Load reviews: store → GVIZ ======= */
   async function loadReviews(){
-    var grid = document.getElementById('reviewsGrid');
-    var avg  = document.getElementById('avgRatingText');
-    var ld   = document.getElementById('reviewsJsonLd');
-    var loaded = [];
+  var grid = document.getElementById('reviewsGrid');
+  var avgEl= document.getElementById('avgRatingText');
+  var ld   = document.getElementById('reviewsJsonLd');
+  if(!grid) return;
 
-    // 1) se Parte 1 ha già caricato
-    if(window.__reviewsStore && Array.isArray(window.__reviewsStore.data) && window.__reviewsStore.data.length){
-      loaded = window.__reviewsStore.data.slice();
-    }else{
-      // 2) fallback GVIZ
+  let loaded = [];
+  let usedSource = '';
+
+  // 1) PROVA BACKEND JSON (quello che ti ha risposto ok:true)
+  try{
+    const r = await fetch(AC_BACKEND_READ, {cache:'no-store'});
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.ok && Array.isArray(j.items) && j.items.length){
+        loaded = j.items.map(x => ({
+          ts: Number(x.ts)||Date.now(),
+          name: x.name||'',
+          role: x.role||'',
+          stars: Number(x.stars)||5,
+          text: (x.text||'').replace(/^“|”$/g,''),
+          img: x.img||''
+        }));
+        usedSource = 'backend';
+      }
+    }
+  }catch(_){}
+
+  // 2) FALLBACK: CSV (se backend vuoto per qualsiasi motivo)
+  if(!loaded.length){
+    for(const u of SHEET_URLS){
       try{
-        var r = await fetch(SHEET_GVIZ, {cache:'no-store'});
-        if(r.ok){
-          var txt = await r.text();
-          loaded = parseGVIZ(txt);
-        }
+        const csv = await fetchCSV(u);
+        const rows = parseCSV(csv);
+        if(!rows.length) continue;
+
+        const head = rows[0].map(s=>s.trim().toLowerCase());
+        const idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
+                       stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
+        rows.slice(1).forEach(r=>{
+          if(!r || !r.length) return;
+          loaded.push({
+            ts:   idx.ts>=0 ? Number(r[idx.ts]) : Date.now(),
+            name: idx.name>=0 ? r[idx.name] : '',
+            role: idx.role>=0 ? r[idx.role] : '',
+            stars: idx.stars>=0 ? parseInt(r[idx.stars]||'5',10) : 5,
+            text: idx.text>=0 ? r[idx.text] : '',
+            img:  idx.img>=0 ? r[idx.img] : ''
+          });
+        });
+        usedSource = 'csv';
+        break;
       }catch(_){}
     }
-
-    // Appendi
-    loaded.forEach(function(rec){ appendReviewCard(rec, grid); });
-
-    // Aggiorna media (seed: 5,5,4)
-    updateAggregate(avg, ld, [5,5,4], loaded.concat(window.__REVIEWS_NEW||[]));
   }
+
+  // 3) FALLBACK 2: cache locale
+  if(!loaded.length){
+    try{
+      const cache = JSON.parse(localStorage.getItem('__ac_reviews_cache')||'[]');
+      if(Array.isArray(cache) && cache.length) loaded = cache, usedSource = 'cache';
+    }catch(_){}
+  }else{
+    try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
+  }
+
+  // 4) Appendi alla griglia e aggiorna media
+  loaded.sort((a,b)=>b.ts-a.ts); // più recenti sopra
+  loaded.forEach(r => appendReviewCard(r, grid));
+
+  updateAggregate(avgEl, ld, [5,5,4], loaded.concat(window.__REVIEWS_NEW||[]));
+
+  // Debug amichevole in console
+  try{ console.info('[reviews] source:', usedSource, 'count:', loaded.length); }catch(_){}
+}
+
 
   /* ======= Contatti: Email + WhatsApp ======= */
   function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
@@ -2072,5 +2122,3 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (fix)
 </script>
 <!-- FINE PARTE 5 / 5 -->
 
-</script>
-<!-- FINE PARTE 5 / 5 -->
