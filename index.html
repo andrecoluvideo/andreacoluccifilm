@@ -1885,8 +1885,8 @@ Contatti: layout più arioso; “Selezione” a destra su desktop; anti-zoom iOS
 <!-- FINE PARTE 4 / 5 -->
 
 <!-- ==========================
-PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
-(look identico; nessun meta viewport duplicato; WA dinamico da __CONFIG; i18n esteso)
+PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (REFATTO)
+(look identico; nessun meta viewport duplicato; WA dinamico da __CONFIG; i18n esteso; no overflow mobile)
 ========================== -->
 
 <!-- ====== FOOTER (neo–dark compatto) ====== -->
@@ -1909,7 +1909,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 
     <!-- contenuto -->
     <div style="position:relative;z-index:2;padding:18px 14px">
-      <div class="grid" id="footerGrid" style="gap:14px;grid-template-columns:2fr 1fr 1fr">
+      <div class="grid" style="gap:14px;grid-template-columns:2fr 1fr 1fr">
         <!-- blocco 1 -->
         <div>
           <h3 class="headline h3" style="margin:0 0 6px">Andrea Colucci</h3>
@@ -1962,7 +1962,7 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 
 <!-- ====== POLICY (accordion compatto) ====== -->
 <section id="policy" class="container" style="padding:10px 0 24px">
-  <div class="grid" id="policyGrid" style="gap:10px;grid-template-columns:1fr 1fr 1fr">
+  <div class="grid" style="gap:10px;grid-template-columns:1fr 1fr 1fr">
     <!-- Privacy -->
     <details id="privacy" class="glass" style="border-radius:14px;padding:12px">
       <summary class="headline h5" style="cursor:pointer" data-i18n="policy.privacy.t">Privacy Policy</summary>
@@ -1991,15 +1991,13 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
     </details>
   </div>
 
-  <!-- Responsive minimale per grid footer/policy -->
   <style>
-    @media (max-width:980px){
-      #footer #footerGrid{grid-template-columns:1fr 1fr !important}
-      #policy #policyGrid{grid-template-columns:1fr 1fr !important}
-    }
-    @media (max-width:680px){
-      #footer #footerGrid{grid-template-columns:1fr !important}
-      #policy #policyGrid{grid-template-columns:1fr !important}
+    /* Mobile: 1 colonna + padding ridotto, no overflow orizzontale */
+    @media (max-width:900px){
+      #policy .grid{ grid-template-columns:1fr !important }
+      #footer .grid{ grid-template-columns:1fr !important }
+      #footer .glass{ border-radius:16px }
+      html, body{ overflow-x:hidden }
     }
   </style>
 </section>
@@ -2017,35 +2015,22 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
     }, {passive:false});
   }
 
-  // WhatsApp nel footer (riusa __CONFIG.WA_NUMBER + leadText se disponibili)
-  (function initFooterWA(){
-    var wa = document.getElementById('footerWA'); if(!wa) return;
-    var cfg = window.__CONFIG || {};
-    function payload(){
-      return {
-        pack: (window.__LAST_PACK || ''),
-        name: (document.getElementById('q_name')||{}).value || '',
-        email:(document.getElementById('q_email')||{}).value || '',
-        phone:(document.getElementById('q_phone')||{}).value || '',
-        service:(function(){ var el=document.getElementById('q_service'); return el && el.value ? el.options[el.selectedIndex].text : ''; })(),
-        message:(document.getElementById('q_message')||{}).value || ''
-      };
-    }
-    function refresh(){
-      var number = (cfg.WA_NUMBER || '').replace(/[^\d]/g,'') || '393910911719';
-      var text = encodeURIComponent(cfg.leadText ? cfg.leadText(payload()) : 'Ciao Andrea! Ti scrivo dal sito 🙌');
-      wa.href = 'https://wa.me/' + number + '?text=' + text;
-    }
-    // prima init
-    refresh();
-    // aggiorna se l’utente compila/edita i campi del form contatti
-    ['q_name','q_email','q_phone','q_service','q_message'].forEach(function(id){
-      var el = document.getElementById(id); if(!el) return;
-      el.addEventListener('input', refresh, {passive:true});
-      el.addEventListener('change', refresh, {passive:true});
-    });
-    // esponi per eventuale update da altre parti (es. selezione pack)
-    window.__refreshFooterWA = refresh;
+  // WhatsApp nel footer (riusa __CONFIG.WA_NUMBER + leadText)
+  (function(){
+    var wa = document.getElementById('footerWA');
+    if(!wa) return;
+    var cfg    = window.__CONFIG || {};
+    var number = (cfg.WA_NUMBER || '393910911719').replace(/[^\d]/g,'');
+    var p = {
+      pack: (window.__LAST_PACK || ''),
+      name: (document.getElementById('q_name')||{}).value || '',
+      email:(document.getElementById('q_email')||{}).value || '',
+      phone:(document.getElementById('q_phone')||{}).value || '',
+      service:(function(){ var el=document.getElementById('q_service'); return el && el.value ? el.options[el.selectedIndex].text : ''; })(),
+      message:(document.getElementById('q_message')||{}).value || ''
+    };
+    var text = encodeURIComponent(cfg.leadText ? cfg.leadText(p) : 'Ciao Andrea! Ti scrivo dal sito 🙌');
+    wa.href = 'https://wa.me/' + number + '?text=' + text;
   })();
 
   // Apri details corretti se atterro da link del footer (Privacy/Cookie/Termini)
@@ -2156,4 +2141,3 @@ PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI
 })();
 </script>
 <!-- FINE PARTE 5 / 5 -->
-
