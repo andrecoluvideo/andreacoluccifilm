@@ -1274,8 +1274,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (FIX)
 
 
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
-(Backend→CSV→GVIZ/REVIEWS_SRC→Store→Cache; carosello 6 desktop / 3 mobile; autohide topbar; salvataggio Apps Script)
+PART 4 / 5 — RECENSIONI • CONTATTI (FIX • foto a sinistra)
 ========================== -->
 
 <!-- ====== RECENSIONI ====== -->
@@ -1287,7 +1286,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
 
   <div class="reviews-wrap" style="position:relative">
     <button class="nav prev" id="reviewsPrev" aria-label="Precedenti" title="Precedenti">◀</button>
-    <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px">
+    <div id="reviewsViewport" class="glass" style="border-radius:16px;padding:12px;overflow:hidden">
       <div id="reviewsGrid" class="grid" style="display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))"></div>
     </div>
     <button class="nav next" id="reviewsNext" aria-label="Successivi" title="Successivi">▶</button>
@@ -1313,7 +1312,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
 
         <div class="field">
           <label class="label" for="r_role" data-i18n="reviews.role">Ruolo</label>
-          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi..." required>
+          <input id="r_role" class="control" type="text" placeholder="Es. Marketing, Sposi...">
         </div>
 
         <div class="field">
@@ -1329,9 +1328,8 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
 
         <div class="field">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
-          <!-- FIX: accetta anche HEIC/HEIF -->
-          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png,.heic,.heif">
-          <small class="soft" data-i18n="reviews.photoHint">PNG/JPG/HEIC, verrà adattata in miniatura</small>
+          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
+          <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px">
@@ -1387,8 +1385,28 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
     .reviews-wrap .nav:hover{background:rgba(255,255,255,.1)}
     #reviewsPrev{left:-8px}
     #reviewsNext{right:-8px}
-
     #reviewsGrid{min-height:280px}
+
+    /* === CARD: immagine a sinistra, nome+ruolo in alto, stelle sotto, testo sotto === */
+    .review{
+      border:1px solid var(--stroke);background:var(--glass);border-radius:14px;padding:12px;
+      display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;min-height:140px;overflow:hidden
+    }
+    .review .media{
+      width:54px;height:54px;border-radius:999px;overflow:hidden;border:1px solid var(--stroke);
+      grid-column:1; grid-row:1 / span 2;
+    }
+    .review .media img{width:100%;height:100%;object-fit:cover;display:block}
+    .review .body{min-width:0}
+    .review .head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+    .review .name{font-weight:800}
+    .review .role{color:var(--muted)}
+    .review .stars{margin-top:2px;display:block}
+    .review p{
+      margin:6px 0 0;color:var(--muted);
+      overflow-wrap:anywhere;word-break:break-word;hyphens:auto;white-space:normal
+    }
+
     @media (max-width:980px){
       #reviewsGrid{grid-template-columns:1fr !important}
       .reviews-wrap .nav{top:auto;bottom:-16px;transform:none}
@@ -1455,7 +1473,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
     </form>
   </div>
 
-  <!-- Anti-zoom iOS SOLO per #contatti -->
   <style>
     #contatti .control{
       font-size:17px !important; line-height:1.35 !important; min-height:44px !important;
@@ -1479,44 +1496,98 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
 
   /* ======= Utils ======= */
   function starString(n){ n=Math.max(1,Math.min(5,Number(n)||5)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+  function cleanText(t){ return (t||'').toString().replace(/^“|”$/g,'').trim(); }
   function normalize(rec){
     var o = {
       ts:    (rec.ts!=null ? rec.ts : Date.now()),
-      name:  rec.name||'',
-      role:  rec.role||'',
+      name:  (rec.name||'').trim(),
+      role:  (rec.role||'').trim(),
       stars: Number(rec.stars)||5,
-      text:  (rec.text||'').toString().replace(/^“|”$/g,''),
+      text:  cleanText(rec.text),
       img:   rec.img||''
     };
     if(typeof o.ts === 'string'){ var d=new Date(o.ts); if(!isNaN(d)) o.ts = d.getTime(); }
     return o;
   }
+  function sigKey(r){
+    var d = new Date(Number(r.ts)||Date.now());
+    var day = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    var snippet = cleanText(r.text).slice(0,24).toLowerCase();
+    return [ (r.name||'').toLowerCase(), (r.stars||5), snippet, day ].join('|');
+  }
+  function dedupeMerge(arrays){
+    var map = new Map();
+    arrays.forEach(function(arr){
+      (arr||[]).forEach(function(x){
+        var r = normalize(x), k = sigKey(r);
+        if(!map.has(k)) map.set(k, r);
+      });
+    });
+    return Array.from(map.values());
+  }
+
+  /* ======= Rendering card: IMG a sinistra ======= */
   function appendCardTo(el, rec){
     var r = normalize(rec);
-    var fig=document.createElement('figure');
-    fig.className='glass review';
-    fig.style.cssText='padding:14px;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center';
-    var img=document.createElement('img');
-    img.loading='lazy'; img.alt='Cliente';
-    img.style.cssText='width:46px;height:46px;border-radius:999px;object-fit:cover';
-    img.src = r.img && /^data:image\//.test(r.img) ? r.img :
-              (r.img && (''+r.img).trim() ? (''+r.img).trim() :
-              ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)]);
-    var cap=document.createElement('figcaption');
-    var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-    var strong=document.createElement('strong'); strong.textContent=(r.name||'Cliente')+(r.role?' — '+r.role:'');
-    var stars=document.createElement('span'); stars.className='stars'; stars.setAttribute('aria-label',(r.stars||5)+' su 5'); stars.textContent=starString(r.stars);
-    var p=document.createElement('p'); p.className='soft'; p.style.margin='6px 0 0'; p.textContent='“'+(r.text||'')+'”';
-    top.appendChild(strong); top.appendChild(stars); cap.appendChild(top); cap.appendChild(p);
-    fig.appendChild(img); fig.appendChild(cap);
+    var fig = document.createElement('figure');
+    fig.className = 'review';
+
+    // immagine sinistra
+    var media = document.createElement('div');
+    media.className = 'media';
+    var img = document.createElement('img');
+    var fallback = ['/media/client-1.jpg','/media/client-2.jpg','/media/client-3.jpg'][Math.floor(Math.random()*3)];
+    img.src = (r.img && (''+r.img).trim()) ? (''+r.img).trim() : fallback;
+    img.alt = 'Cliente';
+    media.appendChild(img);
+
+    // corpo destro
+    var body = document.createElement('div');
+    body.className = 'body';
+    var head = document.createElement('div');
+    head.className = 'head';
+
+    var name = document.createElement('strong');
+    name.className = 'name';
+    name.textContent = r.name || 'Cliente';
+
+    var sep = document.createElement('span');
+    sep.textContent = '·';
+    sep.setAttribute('aria-hidden','true');
+    sep.style.opacity = '.6';
+
+    var role = document.createElement('span');
+    role.className = 'role';
+    role.textContent = r.role || (document.documentElement.lang==='en'?'Client':'Cliente');
+
+    var stars = document.createElement('span');
+    stars.className = 'stars';
+    stars.setAttribute('aria-label',(r.stars||5)+' su 5');
+    stars.textContent = starString(r.stars);
+
+    var p = document.createElement('p');
+    p.className = 'soft';
+    p.textContent = '“'+(r.text||'')+'”';
+
+    head.appendChild(name);
+    head.appendChild(sep);
+    head.appendChild(role);
+    body.appendChild(head);
+    body.appendChild(stars);
+    body.appendChild(p);
+
+    fig.appendChild(media);
+    fig.appendChild(body);
     el.appendChild(fig);
   }
+
   function updateAggregate(avgEl, jsonLdEl, arr){
     if(!arr || !arr.length) return;
     var avg = Math.round((arr.reduce(function(a,b){return a+(Number(b.stars)||0);},0)/arr.length)*10)/10;
-    if(avgEl) avgEl.textContent = (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
-                                   document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
-                                   'Valutazione media '+avg+'/5');
+    if(avgEl) avgEl.textContent =
+      (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
+       document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
+       'Valutazione media '+avg+'/5');
     if(jsonLdEl){
       try{
         var obj = JSON.parse(jsonLdEl.textContent);
@@ -1526,28 +1597,40 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
       }catch(_){}
     }
   }
+
+  /* ======= Letture sorgenti ======= */
   function fetchCSV(url){
     return fetch(url, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); });
   }
   function parseCSV(csv){
-    var lines = csv.split(/\r?\n/).filter(function(x){return x.length;});
-    return lines.map(function(row){
-      var out=[], cur='', inq=false;
-      for(var i=0;i<row.length;i++){
-        var ch=row[i];
-        if(ch=='"'){ if(inq && row[i+1]=='"'){cur+='"'; i++;} else inq=!inq; }
-        else if(ch==',' && !inq){ out.push(cur); cur=''; }
+    var lines = csv.split(/\r?\n/).filter(Boolean);
+    if(!lines.length) return [];
+    var head = lines[0].split(',').map(function(s){return s.trim().toLowerCase();});
+    var idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
+                 stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
+    var out=[];
+    for(var i=1;i<lines.length;i++){
+      var parts=[], cur='', inq=false, row=lines[i];
+      for(var k=0;k<row.length;k++){
+        var ch=row[k];
+        if(ch=='"'){ if(inq && row[k+1]=='"'){cur+='"'; k++;} else inq=!inq; }
+        else if(ch==',' && !inq){ parts.push(cur); cur=''; }
         else cur+=ch;
       }
-      out.push(cur);
-      return out;
-    });
+      parts.push(cur);
+      out.push(normalize({
+        ts:   idx.ts>=0 ? Number(parts[idx.ts]) : Date.now(),
+        name: idx.name>=0 ? parts[idx.name] : '',
+        role: idx.role>=0 ? parts[idx.role] : '',
+        stars: idx.stars>=0 ? parseInt(parts[idx.stars]||'5',10) : 5,
+        text: idx.text>=0 ? parts[idx.text] : '',
+        img:  idx.img>=0 ? parts[idx.img] : ''
+      }));
+    }
+    return out;
   }
   function fetchGVIZ(url){
-    return fetch(url, {cache:'no-store'}).then(function(r){
-      if(!r.ok) throw new Error(r.status);
-      return r.text();
-    });
+    return fetch(url, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); });
   }
   function parseGVIZ(text){
     var s = text.indexOf('('), e = text.lastIndexOf(')');
@@ -1566,13 +1649,12 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
       };
       if(o.stars!=null) o.stars = Number(String(o.stars).replace(',','.')) || 5;
       if(o.ts){ var d=new Date(o.ts); if(!isNaN(d)) o.ts = d.getTime(); }
-      if(typeof o.text === 'string') o.text = o.text.replace(/^“|”$/g,'');
-      out.push(o);
+      o.text = cleanText(o.text);
+      out.push(normalize(o));
     }
     return out;
   }
 
-  /* ======= Caricamento recensioni (Backend → CSV → GVIZ/REVIEWS_SRC → Store → Cache) ======= */
   var ALL = [];
 
   async function loadFromBackend(){
@@ -1590,36 +1672,18 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
     for(var i=0;i<SHEET_URLS.length;i++){
       try{
         var csv = await fetchCSV(SHEET_URLS[i]);
-        var rows = parseCSV(csv); if(!rows.length) continue;
-        var head = rows[0].map(function(s){return s.trim().toLowerCase();});
-        var idx  = { ts: head.indexOf('ts'), name: head.indexOf('name'), role: head.indexOf('role'),
-                     stars: head.indexOf('stars'), text: head.indexOf('text'), img: head.indexOf('img') };
-        var out=[];
-        for(var j=1;j<rows.length;j++){
-          var r2 = rows[j]; if(!r2 || !r2.length) continue;
-          out.push(normalize({
-            ts:   idx.ts>=0 ? Number(r2[idx.ts]) : Date.now(),
-            name: idx.name>=0 ? r2[idx.name] : '',
-            role: idx.role>=0 ? r2[idx.role] : '',
-            stars: idx.stars>=0 ? parseInt(r2[idx.stars]||'5',10) : 5,
-            text: idx.text>=0 ? r2[idx.text] : '',
-            img:  idx.img>=0 ? r2[idx.img] : ''
-          }));
-        }
-        if(out.length) return out;
+        var arr = parseCSV(csv);
+        if(arr.length) return arr;
       }catch(_){}
     }
     return [];
   }
   async function loadFromGVIZ(){
-    var url = SHEET_GVIZ;
-    if(!url) return [];
+    if(!SHEET_GVIZ) return [];
     try{
-      var txt = await fetchGVIZ(url);
-      var arr = parseGVIZ(txt);
-      return arr.map(normalize);
-    }catch(_){}
-    return [];
+      var txt = await fetchGVIZ(SHEET_GVIZ);
+      return parseGVIZ(txt);
+    }catch(_){ return []; }
   }
   function loadFromStore(){
     try{
@@ -1637,42 +1701,23 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   }
 
   async function loadReviews(){
-    var loaded=[], used='';
+    var sourceStore   = loadFromStore();
+    var sourceBackend = await loadFromBackend();
+    var sourceCSV     = await loadFromCSVs();
+    var sourceGVIZ    = await loadFromGVIZ();
+    var sourceCache   = loadFromCache();
 
-    if(!loaded.length){
-      var st = loadFromStore();
-      if(st.length){ loaded=st; used='store'; }
-    }
-    if(!loaded.length){
-      var bk = await loadFromBackend();
-      if(bk.length){ loaded=bk; used='backend'; }
-    }
-    if(!loaded.length){
-      var cs = await loadFromCSVs();
-      if(cs.length){ loaded=cs; used='csv'; }
-    }
-    if(!loaded.length){
-      var gv = await loadFromGVIZ();
-      if(gv.length){ loaded=gv; used='gviz'; }
-    }
-    if(!loaded.length){
-      var cc = loadFromCache();
-      if(cc.length){ loaded=cc; used='cache'; }
-    } else {
-      try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(loaded)); }catch(_){}
-    }
+    var merged = dedupeMerge([sourceStore, sourceBackend, sourceCSV, sourceGVIZ, sourceCache]);
+    merged.sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
 
-    loaded.sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
-    ALL = loaded.slice();
-    try{ console.info('[reviews] source:', used, 'count:', ALL.length); }catch(_){}
+    ALL = merged;
+    try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(ALL)); }catch(_){}
 
     renderPage(0, true);
     updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
   }
 
-  window.addEventListener('ac:reviews-ready', function(){
-    if(!ALL.length){ loadReviews(); }
-  });
+  window.addEventListener('ac:reviews-ready', function(){ loadReviews(); });
 
   /* ======= Carosello paginato ======= */
   var cur = 0;
@@ -1680,20 +1725,22 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   function totalPages(){ var p = pageSize(); return Math.max(1, Math.ceil(ALL.length / p)); }
   function renderPage(index, force){
     var max = totalPages();
-    if(max>0){ if(!force) index = (index+max)%max; }
-    else { index = 0; }
+    if(max>0){ if(!force) index = (index+max)%max; } else { index = 0; }
     cur = index;
+
     var grid = document.getElementById('reviewsGrid');
     if(!grid) return;
     grid.innerHTML='';
+
     var ps = pageSize();
     var start = cur*ps, end = Math.min(start+ps, ALL.length);
     var slice = ALL.slice(start, end);
+
     if(!slice.length && !ALL.length){
       slice = [
-        {name:'Giulia R.', role:'Hotel Manager', stars:5, text:'Video emozionale perfetto per la homepage.', img:'/media/client-1.jpg'},
-        {name:'Marco D.', role:'Boat Charter',  stars:5, text:'Riprese drone incredibili, zero stress sul set.', img:'/media/client-2.jpg'},
-        {name:'Sara & Luca', role:'Wedding',    stars:4, text:'Trailer per Instagram che ha fatto il botto.', img:'/media/client-3.jpg'}
+        {name:'Giulia R.', role:'Hotel Manager', stars:5, text:'Video emozionale perfetto per la homepage.'},
+        {name:'Marco D.', role:'Boat Charter',  stars:5, text:'Riprese drone incredibili, zero stress sul set.'},
+        {name:'Sara & Luca', role:'Wedding',    stars:4, text:'Trailer per Instagram che ha fatto il botto.'}
       ];
     }
     for(var i=0;i<slice.length;i++) appendCardTo(grid, slice[i]);
@@ -1715,8 +1762,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   }, {passive:true});
 
   /* ======= Modale Recensioni (preview + save) ======= */
-  var avgText  = document.getElementById('avgRatingText');
-  var LD       = document.getElementById('reviewsJsonLd');
   var form     = document.getElementById('reviewForm');
   var dialog   = document.getElementById('reviewModal');
   var openBtn  = document.getElementById('openReview');
@@ -1727,68 +1772,35 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   var preview  = document.getElementById('r_preview');
   var previewPh= document.getElementById('r_preview_ph');
 
-  // === FIX: generazione miniatura robusta (HEIC compreso quando supportato) ===
-  async function makeThumbFromFile(file){
-    return new Promise(async (resolve, reject)=>{
-      try{
-        const size = 120;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = size; canvas.height = size;
-
-        // 1) Prova createImageBitmap (più tollerante ai formati, incl. HEIC su alcuni browser)
-        if (window.createImageBitmap) {
-          try{
-            const bmp = await createImageBitmap(file);
-            const s = Math.min(bmp.width, bmp.height);
-            const sx = (bmp.width - s) / 2, sy = (bmp.height - s) / 2;
-            ctx.drawImage(bmp, sx, sy, s, s, 0, 0, size, size);
-            return resolve(canvas.toDataURL('image/jpeg', 0.85));
-          }catch(_){}
-        }
-
-        // 2) Fallback con FileReader + Image
-        const fr = new FileReader();
-        fr.onload = function(){
-          const img = new Image();
-          img.onload = function(){
-            const s = Math.min(img.width, img.height);
-            const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
-            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-          };
-          img.onerror = function(){ reject(new Error('decode-failed')); };
-          img.src = fr.result;
-        };
-        fr.onerror = function(){ reject(new Error('read-failed')); };
-        fr.readAsDataURL(file);
-      }catch(e){ reject(e); }
-    });
-  }
-
-  if(fileIn) fileIn.addEventListener('change', async function(){
-    const f = this.files && this.files[0];
-    if(!f){
-      if(preview) preview.style.display='none';
-      if(previewPh) previewPh.style.display='block';
-      return;
-    }
-    // Se il browser non fornisce type per HEIC, proviamo lo stesso
-    if(f.type && !f.type.startsWith('image/')){
-      if(preview) preview.style.display='none';
-      if(previewPh) previewPh.style.display='block';
-      alert('Formato non supportato dal browser. Prova PNG/JPG.');
-      return;
-    }
+  function toDataUrlThumb(file, cb){
     try{
-      const data = await makeThumbFromFile(f);
+      var fr=new FileReader();
+      fr.onload=function(){
+        var img=new Image();
+        img.onload=function(){
+          var size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
+          c.width=size; c.height=size;
+          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          cb(null, c.toDataURL('image/jpeg', .85));
+        };
+        img.src=fr.result;
+      };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(e); }
+  }
+  if(fileIn) fileIn.addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    if(!f || !f.type || f.type.indexOf('image/')!==0){
+      if(preview) preview.style.display='none';
+      if(previewPh) previewPh.style.display='block';
+      return;
+    }
+    toDataUrlThumb(f, function(err, data){
+      if(err){ if(preview) preview.style.display='none'; if(previewPh) previewPh.style.display='block'; return; }
       if(preview){ preview.src = data; preview.style.display='block'; }
       if(previewPh) previewPh.style.display='none';
-    }catch(_){
-      if(preview) preview.style.display='none';
-      if(previewPh) previewPh.style.display='block';
-      alert('Impossibile leggere la foto. Prova a selezionare PNG/JPG.');
-    }
+    });
   });
 
   function buildRecord(){
@@ -1802,7 +1814,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
     var text = textEl ? (textEl.value||'') : '';
     var img64= (preview && preview.src && preview.style.display!=='none') ? preview.src : '';
     if(!name || !text) return null;
-    return { name:name, role:role, stars:Math.max(1,Math.min(5,stars||5)), text:text, img:img64, ts: Date.now() };
+    return { name:name.trim(), role:role.trim(), stars:Math.max(1,Math.min(5,stars||5)), text:text.trim(), img:img64, ts: Date.now() };
   }
   function resetModal(){
     try{ if(form) form.reset(); }catch(_){}
@@ -1829,34 +1841,33 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   async function saveToBackend(rec){
     if(!BACKEND_URL || !BACKEND_KEY) return;
     try{
-      var resp = await fetch(BACKEND_URL, {
+      await fetch(BACKEND_URL, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ key: BACKEND_KEY, name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img })
       });
-      if(!resp.ok){
-        try{ console.warn('[reviews] backend HTTP', resp.status); }catch(_){}
-      }else{
-        var j = await resp.json().catch(function(){return {};});
-        if(!j || j.ok !== true) try{ console.warn('[reviews] backend reply', j); }catch(_){}
-      }
-    }catch(err){ try{ console.warn('[reviews] backend error', err); }catch(_){} }
+      // ricarico per sincronizzare con lo Sheet quando il backend ha scritto
+      setTimeout(loadReviews, 800);
+    }catch(_){}
   }
 
   function handleSave(e){
     if(e && e.preventDefault) e.preventDefault();
     var rec = buildRecord(); if(!rec) return;
-    ALL.unshift(rec);
-    updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
-    renderPage(0, true);
-    closeModal();
-    saveToBackend(rec);
+    // UI + cache immediata
+    var merged = dedupeMerge([ALL, [rec]]);
+    merged.sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
+    ALL = merged;
     try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(ALL)); }catch(_){}
+    renderPage(0, true);
+    updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
+    closeModal();
+    // Salva su Apps Script (-> Google Sheet)
+    saveToBackend(rec);
   }
 
-  if(form) form.addEventListener('submit', handleSave);
-  // FIX: era "addEventListener" senza il target → ora corretto
-  if(saveBtn) saveBtn.addEventListener('click', handleSave);
+  if(form)   form.addEventListener('submit', handleSave);
+  if(saveBtn) saveBtn.addEventListener('click', handleSave); /* FIX: listener corretto */
 
   /* ======= Contatti: Email + WhatsApp ======= */
   function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
@@ -1904,28 +1915,6 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
     });
   }
 
-  /* ======= Header mobile auto-hide (opzionale: #topbar) ======= */
-  (function(){
-    var topbar = document.getElementById('topbar');
-    if(!topbar) return;
-    var lastY=window.scrollY, ticking=false;
-    function onScroll(){
-      if(!(window.matchMedia && window.matchMedia('(max-width:980px)').matches)){
-        topbar.classList.remove('hide'); return;
-      }
-      var y=window.scrollY;
-      if(Math.abs(y-lastY) < 8) return;
-      if(y>lastY && y>60){ topbar.classList.add('hide'); } else { topbar.classList.remove('hide'); }
-      lastY=y; ticking=false;
-    }
-    window.addEventListener('scroll', function(){
-      if(!ticking){ window.requestAnimationFrame(onScroll); ticking=true; }
-    }, {passive:true});
-    var style=document.createElement('style');
-    style.textContent='#topbar.hide{transform:translateY(-100%);transition:transform .24s ease}#topbar{transition:transform .24s ease}';
-    document.head.appendChild(style);
-  })();
-
   // Avvio
   loadReviews();
 })();
@@ -1952,7 +1941,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
       "reviews.role":"Ruolo",
       "reviews.rating":"Valutazione",
       "reviews.photo":"Foto (opzionale)",
-      "reviews.photoHint":"PNG/JPG/HEIC, verrà adattata in miniatura",
+      "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
       "reviews.photoPreview":"Anteprima miniatura",
       "reviews.text":"Recensione",
       "reviews.save":"Pubblica",
@@ -1984,7 +1973,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
       "reviews.role":"Role",
       "reviews.rating":"Rating",
       "reviews.photo":"Photo (optional)",
-      "reviews.photoHint":"PNG/JPG/HEIC, will be cropped as a thumbnail",
+      "reviews.photoHint":"PNG/JPG, will be cropped as a thumbnail",
       "reviews.photoPreview":"Thumbnail preview",
       "reviews.text":"Review",
       "reviews.save":"Publish",
@@ -2016,7 +2005,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
       "reviews.role":"Cargo",
       "reviews.rating":"Valoración",
       "reviews.photo":"Foto (opcional)",
-      "reviews.photoHint":"PNG/JPG/HEIC, se adaptará a miniatura",
+      "reviews.photoHint":"PNG/JPG, se adaptará a miniatura",
       "reviews.photoPreview":"Vista previa miniatura",
       "reviews.text":"Reseña",
       "reviews.save":"Publicar",
@@ -2042,11 +2031,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
   });
 })();
 </script>
-<!-- FINE PARTE 4 / 5 (FIX IMG + SAVE) -->
-
-
-
-
+<!-- FINE PARTE 4 / 5 -->
 
 <!-- ==========================
 PART 5 / 5 — FOOTER • POLICY • UTILITY FINALI (fix)
