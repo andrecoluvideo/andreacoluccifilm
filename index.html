@@ -1422,6 +1422,25 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX • foto a sinistra)
     }
     #reviewModal select, #reviewModal option{ font-size:17px !important; }
     #reviewModal ::placeholder{ font-size:17px !important; opacity:.85; }
+
+    /* Fix mobile: mantieni il titolo "Cosa dicono di me" su una sola riga */
+@media (max-width: 980px){
+  #recensioni header h2{
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+  /* Se lo spazio è troppo stretto, la valutazione scende sotto */
+  #recensioni header{
+    flex-wrap: wrap;
+  }
+  #recensioni #avgRatingText{
+    flex-basis:100%;
+    margin-top:4px;
+  }
+}
+
+    
   </style>
 </section>
 
