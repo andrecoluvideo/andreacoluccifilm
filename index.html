@@ -11,6 +11,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
   <title data-i18n="meta.title">Andrea Colucci — Filmmaker | Chiavari & Riviera</title>
   <meta name="description" data-i18n="meta.description" content="Filmmaker per brand, wedding e travel. Video dal look cinematografico e performance social. Chiavari & Riviera di Levante.">
   <link rel="icon" href="/media/logo-mark.svg">
+  <link rel="preload" href="/media/hero.webp.jpg" as="image" imagesrcset="/media/hero.webp.jpg 1x" fetchpriority="high">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -51,7 +52,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
     .brand b{font-weight:800;font-size:15px}
     .brand .soft{font-size:13px;white-space:nowrap;opacity:.9}
 
-    /* rail: scorre in orizzontale su mobile */
     .nav-rail{min-width:0}
     .nav-scroller{
       display:flex;align-items:center;gap:14px;overflow-x:auto;white-space:nowrap;
@@ -66,7 +66,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
     .lang a{padding:5px 8px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);color:#cfe6ff;font-size:12px}
     .lang a.active{background:linear-gradient(135deg,var(--neon1),var(--neon2));color:#061016;border-color:transparent}
 
-    /* CTA: inline su desktop; su mobile va sotto la rail, senza coprire il brand */
     .nav-cta{justify-self:end}
     .nav-cta .btn{font-size:14px;padding:8px 12px}
 
@@ -104,7 +103,6 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
     @media (max-width:920px){ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))} }
     @media (max-width:520px){ .metrics{grid-template-columns:1fr} }
 
-    /* Utility */
     .nowrap{white-space:nowrap}
   </style>
 
@@ -130,15 +128,14 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
       /* =====================
          REVIEWS CONFIG
          ===================== */
-      // Backend Apps Script (READ/WRITE). Chiave in GET/POST deve combaciare con lo Script Property REVIEWS_API_KEY
       REVIEWS_READ:  'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec?action=read&key=acfilms_2025_secretKey_93Jv7',
       REVIEWS_WRITE: 'https://script.google.com/macros/s/AKfycbxYJogW29raztDwMAQ4wj5Zai9H-J2MhTXA35Gr0b9qaCSFWNAjw9GTTzBoO1PzBGO9UA/exec',
       REVIEWS_KEY:   'acfilms_2025_secretKey_93Jv7',
 
-      // 🔧 GVIZ FALLBACK (ora per NOME TAB: AC_Reviews – niente gid)
+      // 🔧 GVIZ FALLBACK (per NOME TAB: AC_Reviews)
       REVIEWS_GVIZ:  (function(){
         var id  = '1ix5xllV_Ll1_luifDYmND4DlW0TW1sGhT4Q2Gzbct4g';
-        var sheetName = 'AC_Reviews'; // <— il nome del tab in basso
+        var sheetName = 'AC_Reviews';
         return 'https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&tqx=out:json';
       })(),
 
@@ -347,7 +344,9 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
         document.title = dict['meta.title'] || document.title;
         document.documentElement.lang = lang;
         document.querySelectorAll('.lang [data-lang]').forEach(a=>{
-          a.classList.toggle('active', a.getAttribute('data-lang')===lang);
+          const active = (a.getAttribute('data-lang')===lang);
+          a.classList.toggle('active', active);
+          a.setAttribute('aria-current', active ? 'true' : 'false');
         });
       };
 
@@ -393,16 +392,15 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
           <a class="nav-link" href="#pacchetti-videoprofessionali" data-i18n="nav.packs">Pacchetti</a>
           <a class="nav-link" href="#recensioni" data-i18n="nav.reviews">Recensioni</a>
           <a class="nav-link" href="#reel" data-i18n="nav.reel">Reel</a>
-          <!-- Lingue dentro lo scroller, sempre visibili e leggibili -->
+          <!-- Lingue dentro lo scroller -->
           <span class="lang" aria-label="Lingua">
-            <a href="?lang=it" data-lang="it" class="active">IT</a>
-            <a href="?lang=en" data-lang="en">EN</a>
-            <a href="?lang=es" data-lang="es">ES</a>
+            <a href="?lang=it" data-lang="it" class="active" aria-current="true">IT</a>
+            <a href="?lang=en" data-lang="en" aria-current="false">EN</a>
+            <a href="?lang=es" data-lang="es" aria-current="false">ES</a>
           </span>
         </div>
       </div>
 
-      <!-- CTA: su desktop resta qui; su mobile va sotto lo scroller (riga 3) -->
       <div class="nav-cta">
         <a href="#contatti" class="btn" data-i18n="nav.quote">Richiedi preventivo</a>
       </div>
@@ -429,7 +427,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
 
         <aside class="hero-bio glass">
           <div class="row">
-            <img src="/media/about-2.jpg" alt="Andrea Colucci e team" />
+            <img src="/media/about-2.jpg" alt="Andrea Colucci e team" loading="lazy" decoding="async"/>
             <div>
               <div class="headline h3" data-i18n="bio.previewTitle">Andrea Colucci</div>
               <small class="soft" data-i18n="bio.previewSub">Filmmaker · Storyteller visivo</small>
@@ -506,7 +504,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
           var goingDown = (y > lastY + 6);
           var goingUp   = (y < lastY - 6);
           if(goingDown && y > 60){ nav.classList.add('nav--hidden'); }
-          else if(goingUp){ nav.classList.remove('nav--hidden'); }
+          else if(goingUp || y < 10){ nav.classList.remove('nav--hidden'); }
           lastY = y; ticking=false;
         });
       }
@@ -518,6 +516,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
 </body>
 </html>
 <!-- FINE PARTE 1 / 5 (FIX) -->
+
 
 <!-- ==========================
 PART 2 / 5 — SERVIZI • REEL (FIX)
@@ -1275,7 +1274,7 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (FIX)
 
 
 <!-- ==========================
-PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
+PART 4 / 5 — RECENSIONI • CONTATTI (definitivo, FIX IMG + SAVE)
 (Backend→CSV→GVIZ/REVIEWS_SRC→Store→Cache; carosello 6 desktop / 3 mobile; autohide topbar; salvataggio Apps Script)
 ========================== -->
 
@@ -1330,8 +1329,9 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
 
         <div class="field">
           <label class="label" for="r_img" data-i18n="reviews.photo">Foto (opzionale)</label>
-          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png">
-          <small class="soft" data-i18n="reviews.photoHint">PNG/JPG, verrà adattata in miniatura</small>
+          <!-- FIX: accetta anche HEIC/HEIF -->
+          <input id="r_img" class="control" type="file" accept="image/*,.jpg,.jpeg,.png,.heic,.heif">
+          <small class="soft" data-i18n="reviews.photoHint">PNG/JPG/HEIC, verrà adattata in miniatura</small>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px">
@@ -1727,35 +1727,68 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
   var preview  = document.getElementById('r_preview');
   var previewPh= document.getElementById('r_preview_ph');
 
-  function toDataUrlThumb(file, cb){
-    try{
-      var fr=new FileReader();
-      fr.onload=function(){
-        var img=new Image();
-        img.onload=function(){
-          var size=120, c=document.createElement('canvas'), ctx=c.getContext('2d');
-          c.width=size; c.height=size;
-          var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
-          ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-          cb(null, c.toDataURL('image/jpeg', .85));
+  // === FIX: generazione miniatura robusta (HEIC compreso quando supportato) ===
+  async function makeThumbFromFile(file){
+    return new Promise(async (resolve, reject)=>{
+      try{
+        const size = 120;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = size; canvas.height = size;
+
+        // 1) Prova createImageBitmap (più tollerante ai formati, incl. HEIC su alcuni browser)
+        if (window.createImageBitmap) {
+          try{
+            const bmp = await createImageBitmap(file);
+            const s = Math.min(bmp.width, bmp.height);
+            const sx = (bmp.width - s) / 2, sy = (bmp.height - s) / 2;
+            ctx.drawImage(bmp, sx, sy, s, s, 0, 0, size, size);
+            return resolve(canvas.toDataURL('image/jpeg', 0.85));
+          }catch(_){}
+        }
+
+        // 2) Fallback con FileReader + Image
+        const fr = new FileReader();
+        fr.onload = function(){
+          const img = new Image();
+          img.onload = function(){
+            const s = Math.min(img.width, img.height);
+            const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = function(){ reject(new Error('decode-failed')); };
+          img.src = fr.result;
         };
-        img.src=fr.result;
-      };
-      fr.readAsDataURL(file);
-    }catch(e){ cb(e); }
+        fr.onerror = function(){ reject(new Error('read-failed')); };
+        fr.readAsDataURL(file);
+      }catch(e){ reject(e); }
+    });
   }
-  if(fileIn) fileIn.addEventListener('change', function(){
-    var f = this.files && this.files[0];
-    if(!f || !f.type || f.type.indexOf('image/')!==0){
+
+  if(fileIn) fileIn.addEventListener('change', async function(){
+    const f = this.files && this.files[0];
+    if(!f){
       if(preview) preview.style.display='none';
       if(previewPh) previewPh.style.display='block';
       return;
     }
-    toDataUrlThumb(f, function(err, data){
-      if(err){ if(preview) preview.style.display='none'; if(previewPh) previewPh.style.display='block'; return; }
+    // Se il browser non fornisce type per HEIC, proviamo lo stesso
+    if(f.type && !f.type.startsWith('image/')){
+      if(preview) preview.style.display='none';
+      if(previewPh) previewPh.style.display='block';
+      alert('Formato non supportato dal browser. Prova PNG/JPG.');
+      return;
+    }
+    try{
+      const data = await makeThumbFromFile(f);
       if(preview){ preview.src = data; preview.style.display='block'; }
       if(previewPh) previewPh.style.display='none';
-    });
+    }catch(_){
+      if(preview) preview.style.display='none';
+      if(previewPh) previewPh.style.display='block';
+      alert('Impossibile leggere la foto. Prova a selezionare PNG/JPG.');
+    }
   });
 
   function buildRecord(){
@@ -1792,6 +1825,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
       if(!inside) closeModal();
     });
   }
+
   async function saveToBackend(rec){
     if(!BACKEND_URL || !BACKEND_KEY) return;
     try{
@@ -1808,18 +1842,21 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
       }
     }catch(err){ try{ console.warn('[reviews] backend error', err); }catch(_){} }
   }
+
   function handleSave(e){
     if(e && e.preventDefault) e.preventDefault();
     var rec = buildRecord(); if(!rec) return;
     ALL.unshift(rec);
-    updateAggregate(avgText, LD, ALL);
+    updateAggregate(document.getElementById('avgRatingText'), document.getElementById('reviewsJsonLd'), ALL);
     renderPage(0, true);
     closeModal();
     saveToBackend(rec);
     try{ localStorage.setItem('__ac_reviews_cache', JSON.stringify(ALL)); }catch(_){}
   }
+
   if(form) form.addEventListener('submit', handleSave);
-  if(saveBtn) addEventListener('click', handleSave);
+  // FIX: era "addEventListener" senza il target → ora corretto
+  if(saveBtn) saveBtn.addEventListener('click', handleSave);
 
   /* ======= Contatti: Email + WhatsApp ======= */
   function val(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
@@ -1915,7 +1952,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
       "reviews.role":"Ruolo",
       "reviews.rating":"Valutazione",
       "reviews.photo":"Foto (opzionale)",
-      "reviews.photoHint":"PNG/JPG, verrà adattata in miniatura",
+      "reviews.photoHint":"PNG/JPG/HEIC, verrà adattata in miniatura",
       "reviews.photoPreview":"Anteprima miniatura",
       "reviews.text":"Recensione",
       "reviews.save":"Pubblica",
@@ -1947,7 +1984,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
       "reviews.role":"Role",
       "reviews.rating":"Rating",
       "reviews.photo":"Photo (optional)",
-      "reviews.photoHint":"PNG/JPG, will be cropped as a thumbnail",
+      "reviews.photoHint":"PNG/JPG/HEIC, will be cropped as a thumbnail",
       "reviews.photoPreview":"Thumbnail preview",
       "reviews.text":"Review",
       "reviews.save":"Publish",
@@ -1979,7 +2016,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
       "reviews.role":"Cargo",
       "reviews.rating":"Valoración",
       "reviews.photo":"Foto (opcional)",
-      "reviews.photoHint":"PNG/JPG, se adaptará a miniatura",
+      "reviews.photoHint":"PNG/JPG/HEIC, se adaptará a miniatura",
       "reviews.photoPreview":"Vista previa miniatura",
       "reviews.text":"Reseña",
       "reviews.save":"Publicar",
@@ -2005,7 +2042,7 @@ PART 4 / 5 — RECENSIONI • CONTATTI (definitivo)
   });
 })();
 </script>
-<!-- FINE PARTE 4 / 5 -->
+<!-- FINE PARTE 4 / 5 (FIX IMG + SAVE) -->
 
 
 
