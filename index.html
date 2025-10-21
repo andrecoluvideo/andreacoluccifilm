@@ -1840,17 +1840,29 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX • foto a sinistra)
   }
 
   async function saveToBackend(rec){
-    if(!BACKEND_URL || !BACKEND_KEY) return;
-    try{
-      await fetch(BACKEND_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ key: BACKEND_KEY, name: rec.name, role: rec.role, stars: rec.stars, text: rec.text, img: rec.img })
-      });
-      // ricarico per sincronizzare con lo Sheet quando il backend ha scritto
-      setTimeout(loadReviews, 800);
-    }catch(_){}
+  if(!BACKEND_URL || !BACKEND_KEY) return;
+  try{
+    const res = await fetch(BACKEND_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // <— cambiato da application/json
+      body: JSON.stringify({
+        key:   BACKEND_KEY,
+        name:  rec.name,
+        role:  rec.role,
+        stars: rec.stars,
+        text:  rec.text,
+        img:   rec.img
+      })
+    });
+    const j = await res.json().catch(()=>({}));
+    console.log('[reviews] write result:', j);
+    // rilettura dopo append su Sheet
+    setTimeout(loadReviews, 800);
+  }catch(err){
+    console.error('[reviews] write error:', err);
   }
+}
+
 
   function handleSave(e){
     if(e && e.preventDefault) e.preventDefault();
