@@ -1583,21 +1583,29 @@ PART 4 / 5 — RECENSIONI • CONTATTI (FIX • foto a sinistra)
   }
 
   function updateAggregate(avgEl, jsonLdEl, arr){
-    if(!arr || !arr.length) return;
-    var avg = Math.round((arr.reduce(function(a,b){return a+(Number(b.stars)||0);},0)/arr.length)*10)/10;
-    if(avgEl) avgEl.textContent =
-      (document.documentElement.lang==='en' ? ('Average rating '+avg+'/5') :
-       document.documentElement.lang==='es' ? ('Valoración media '+avg+'/5') :
-       'Valutazione media '+avg+'/5');
-    if(jsonLdEl){
-      try{
-        var obj = JSON.parse(jsonLdEl.textContent);
-        obj.aggregateRating.ratingValue = String(avg);
-        obj.aggregateRating.reviewCount = String(arr.length);
-        jsonLdEl.textContent = JSON.stringify(obj);
-      }catch(_){}
-    }
+  if(!arr || !arr.length) return;
+  var count = arr.length;
+  var avg = Math.round((arr.reduce(function(a,b){return a+(Number(b.stars)||0);},0)/count)*10)/10;
+
+  if(avgEl){
+    var lang = document.documentElement.lang || 'it';
+    var label =
+      lang==='en' ? ('Average rating '+avg+'/5 • Reviews: '+count) :
+      lang==='es' ? ('Valoración media '+avg+'/5 • Reseñas: '+count) :
+                    ('Valutazione media '+avg+'/5 • Recensioni: '+count);
+    avgEl.textContent = label;
   }
+
+  if(jsonLdEl){
+    try{
+      var obj = JSON.parse(jsonLdEl.textContent);
+      obj.aggregateRating.ratingValue = String(avg);
+      obj.aggregateRating.reviewCount = String(count);
+      jsonLdEl.textContent = JSON.stringify(obj);
+    }catch(_){}
+  }
+}
+
 
   /* ======= Letture sorgenti ======= */
   function fetchCSV(url){
