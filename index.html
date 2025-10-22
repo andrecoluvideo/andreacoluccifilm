@@ -17,6 +17,7 @@ PART 1 / 5 — NAV • HERO • METRICHE • i18n base (FIX)
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Poppins:wght@700&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Kanit:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -1285,6 +1286,54 @@ PART 3 / 5 — PACCHETTI • CTA • BIO (FIX)
     });
   })();
 </script>
+<script>
+(function(){
+  // Palette colori (puoi cambiare/aggiungere)
+  var colors = [
+    "#2ee7ff", "#ff3f9c", "#ffd166", "#06d6a0", "#8e9cff",
+    "#ff6b6b", "#1e90ff", "#ffa500", "#00c2a8", "#d6336c"
+  ];
+
+  // Famiglie font (userà quelle disponibili; se non caricate, fallback a system)
+  var fonts = [
+    "'Space Grotesk', system-ui, sans-serif",
+    "'Manrope', system-ui, sans-serif",
+    "'Inter', system-ui, sans-serif",
+    "'Poppins', system-ui, sans-serif",
+    "'Montserrat', system-ui, sans-serif",
+    "'Playfair Display', serif",
+    "'Kanit', system-ui, sans-serif",
+    "'Bebas Neue', system-ui, sans-serif"
+  ];
+
+  function restyleTitles(){
+    var nodes = document.querySelectorAll('#reel .vid-title');
+    nodes.forEach(function(el, i){
+      el.style.color = colors[i % colors.length];
+      el.style.fontFamily = fonts[i % fonts.length];
+      el.style.letterSpacing = ".2px";
+    });
+  }
+
+  // 1) Primo pass (dopo il render iniziale)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restyleTitles);
+  } else {
+    restyleTitles();
+  }
+
+  // 2) Osserva il grid: quando cambi pagina del reel, le card vengono ricreate
+  var grid = document.getElementById('reelGrid');
+  if (grid && 'MutationObserver' in window) {
+    var mo = new MutationObserver(function(){ restyleTitles(); });
+    mo.observe(grid, { childList: true, subtree: true });
+  }
+
+  // 3) Se cambi lingua (facoltativo), ristila i titoli
+  window.addEventListener('popstate', restyleTitles);
+})();
+</script>
+
 <!-- FINE PARTE 3 / 5 -->
 
 
