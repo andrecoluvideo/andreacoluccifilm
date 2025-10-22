@@ -765,14 +765,19 @@ PART 2 / 5 — SERVIZI • REEL (FIX)
     postAll(document.hidden ? 'pause' : 'play');
     updatePager();
     // mantieni la testata del reel a vista quando cambi pagina
-    try{ document.getElementById('reel').querySelector('h2').scrollIntoView({block:'nearest'}); }catch(_){}
   }
 
   function goto(delta){
-    var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
-    state.page = Math.min(max, Math.max(1, state.page + delta));
-    renderPage();
-  }
+  var max = Math.max(1, Math.ceil(VIDEOS.length / state.perPage));
+  state.page = Math.min(max, Math.max(1, state.page + delta));
+  renderPage();
+
+  // Scroll SOLO quando sfogli le pagine del Reel
+  try{
+    document.getElementById('reel').querySelector('h2').scrollIntoView({block:'nearest'});
+  }catch(_){}
+}
+
 
   if(prevB) prevB.addEventListener('click', function(){ goto(-1); });
   if(nextB) nextB.addEventListener('click', function(){ goto(+1); });
